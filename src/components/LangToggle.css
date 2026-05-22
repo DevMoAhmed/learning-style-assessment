@@ -1,0 +1,25 @@
+.lang-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1rem;
+  border: 2px solid var(--clr-primary);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--clr-primary);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.lang-toggle:hover {
+  background: var(--clr-primary);
+  color: #fff;
+}
+
+.lang-toggle__icon {
+  font-size: 1.1rem;
+  line-height: 1;
+}

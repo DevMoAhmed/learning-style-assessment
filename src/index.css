@@ -1,0 +1,127 @@
+/* ═══════════════════════════════════════════════════════════════
+   GLOBAL DESIGN SYSTEM — Learning Style Assessment App
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ─── Google Fonts ───────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Noto+Sans+Arabic:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap');
+
+/* ─── Design Tokens ──────────────────────────────────────────── */
+:root {
+  /* Palette — warm & friendly */
+  --clr-bg:           #FFF8F2;
+  --clr-surface:      #FFFFFF;
+  --clr-border:       #EDE0D6;
+  --clr-text:         #2D1F14;
+  --clr-muted:        #7A6558;
+
+  --clr-primary:      #E8743B;           /* warm orange */
+  --clr-primary-dark: #B8541F;
+  --clr-primary-light:#FFF0E8;
+  --clr-accent:       #F5B942;           /* golden yellow */
+  --clr-danger:       #D93D3D;
+
+  /* Typography */
+  --font-display: 'Outfit', 'Noto Sans Arabic', sans-serif;
+  --font-body:    'Inter', 'Noto Sans Arabic', sans-serif;
+
+  /* Spacing */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+
+  /* Shadows */
+  --shadow-card: 0 4px 24px rgba(45, 31, 20, 0.09), 0 1px 4px rgba(45, 31, 20, 0.06);
+}
+
+/* ─── Reset ──────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--clr-bg);
+  color: var(--clr-text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* RTL override for Arabic font weight */
+:lang(ar), [dir='rtl'] {
+  font-family: 'Noto Sans Arabic', sans-serif;
+  line-height: 1.7;
+}
+
+/* ─── Shared Buttons ──────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.7rem 1.4rem;
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn:active { transform: scale(0.97); }
+
+.btn--primary {
+  background: var(--clr-primary);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(232, 116, 59, 0.35);
+}
+
+.btn--primary:hover {
+  background: var(--clr-primary-dark);
+  box-shadow: 0 6px 18px rgba(232, 116, 59, 0.45);
+  transform: translateY(-1px);
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--clr-muted);
+  border: 2px solid var(--clr-border);
+}
+
+.btn--ghost:hover {
+  border-color: var(--clr-primary);
+  color: var(--clr-primary);
+}
+
+.btn--lg {
+  padding: 0.9rem 1.8rem;
+  font-size: 1.05rem;
+}
+
+/* ─── Shared Animations ─────────────────────────────────────── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Scrollbar ─────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--clr-bg); }
+::-webkit-scrollbar-thumb { background: var(--clr-border); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--clr-primary); }
+
+/* ─── Focus Visible ─────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--clr-primary);
+  outline-offset: 3px;
+}

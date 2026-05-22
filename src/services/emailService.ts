@@ -87,6 +87,12 @@ export async function sendResults(learner: LearnerInfo, answers: AnswersMap): Pr
   await emailjs.send(SERVICE_ID, TEMPLATE_ID, {
     learner_name: learner.name,
     results: report,
+    message: report,
+    content: report,
+    report: report,
     to_email: 'mohamedelhawary8@gmail.com',
+    email: 'mohamedelhawary8@gmail.com',
+    to: 'mohamedelhawary8@gmail.com',
+    email_to: 'mohamedelhawary8@gmail.com',
   });
 }

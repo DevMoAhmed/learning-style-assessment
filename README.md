@@ -1,5 +1,20 @@
 # React + TypeScript + Vite
 
+## Teaching plan (Mohammed · A2 → B1)
+
+A bilingual **English / العربية** 6-month teaching plan built from the learner's
+learning-style assessment results lives at [`public/teaching-plan.html`](public/teaching-plan.html).
+It is a standalone page (no build step) with a language toggle and full RTL support.
+
+- Open locally: `public/teaching-plan.html` in any browser.
+- Once deployed to GitHub Pages: `https://devmoahmed.github.io/learning-style-assessment/teaching-plan.html`
+
+It covers the 6-month timeline, the weekly A–B–C session templates, the daily
+homework menu, an Arabic-speaker error checklist, a speaking-anxiety toolkit,
+progress checkpoints, and a directory of free resources.
+
+---
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:

@@ -62,6 +62,14 @@ const WelcomeScreen: React.FC<Props> = ({ lang, onStart }) => {
         <button id="start-btn" type="submit" className="btn btn--primary btn--lg welcome__start-btn">
           {text.startBtn} →
         </button>
+        <a
+          className="btn btn--ghost welcome__plan-btn"
+          href={`${import.meta.env.BASE_URL}teaching-plan.html`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          📘 {text.viewPlan}
+        </a>
       </form>
     </div>
   );

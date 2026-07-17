@@ -10,6 +10,7 @@ export const ui = (lang: Lang) => ({
     'ساعد معلمك على فهم الطريقة الأفضل لتعلمك'
   ),
   startBtn: t(lang, 'Start Assessment', 'ابدأ التقييم'),
+  viewPlan: t(lang, 'View Teaching Plan', 'عرض خطة التدريس'),
   nameLabel: t(lang, 'Your name', 'اسمك'),
   namePlaceholder: t(lang, 'Enter your full name', 'أدخل اسمك الكامل'),
   nameRequired: t(lang, 'Please enter your name before starting.', 'يرجى إدخال اسمك قبل البدء.'),

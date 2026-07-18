@@ -7,7 +7,13 @@ learning-style assessment results lives at [`public/teaching-plan.html`](public/
 It is a standalone page (no build step) with a language toggle and full RTL support.
 
 - Open locally: `public/teaching-plan.html` in any browser.
-- Once deployed to GitHub Pages: `https://devmoahmed.github.io/learning-style-assessment/teaching-plan.html`
+- Live on GitHub Pages: `https://devmoahmed.github.io/learning-style-assessment/teaching-plan.html`
+
+### Deployment
+
+The site auto-deploys from `main` via GitHub Actions (`.github/workflows/deploy.yml`)
+on every push. No `gh-pages` branch and no manual deploy step. Set **Settings → Pages
+→ Source** to **GitHub Actions** once.
 
 It covers the 6-month timeline, the weekly A–B–C session templates, the daily
 homework menu, an Arabic-speaker error checklist, a speaking-anxiety toolkit,

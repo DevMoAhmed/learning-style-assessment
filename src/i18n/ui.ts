@@ -11,6 +11,30 @@ export const ui = (lang: Lang) => ({
   ),
   startBtn: t(lang, 'Start Assessment', 'ابدأ التقييم'),
   viewPlan: t(lang, 'View Teaching Plan', 'عرض خطة التدريس'),
+  hubTagline: t(
+    lang,
+    'Everything for the English learning journey, in one place.',
+    'كل ما تحتاجه في رحلة تعلّم الإنجليزية، في مكان واحد.'
+  ),
+  navAssessment: t(lang, 'Learning Style Assessment', 'تقييم أسلوب التعلّم'),
+  navAssessmentDesc: t(
+    lang,
+    'Answer a few questions so lessons match how you learn best.',
+    'أجب عن بعض الأسئلة لتُصمَّم الدروس وفق طريقتك المثلى في التعلّم.'
+  ),
+  navPlan: t(lang, 'Teaching Plan', 'خطة التدريس'),
+  navPlanDesc: t(
+    lang,
+    'The full 6-month A2 → B1 plan: timeline, sessions, and resources.',
+    'خطة الأشهر الستة كاملة من A2 إلى B1: الجدول والحصص والمصادر.'
+  ),
+  navSoon: t(lang, 'More tools', 'أدوات أخرى'),
+  navSoonDesc: t(
+    lang,
+    'Practice activities and progress tracking are on the way.',
+    'أنشطة تدريب وتتبُّع للتقدّم في الطريق.'
+  ),
+  soonTag: t(lang, 'Soon', 'قريبًا'),
   nameLabel: t(lang, 'Your name', 'اسمك'),
   namePlaceholder: t(lang, 'Enter your full name', 'أدخل اسمك الكامل'),
   nameRequired: t(lang, 'Please enter your name before starting.', 'يرجى إدخال اسمك قبل البدء.'),

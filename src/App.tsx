@@ -4,18 +4,19 @@ import { questions } from './data/questions';
 import { sendResults } from './services/emailService';
 import { ui } from './i18n/ui';
 import LangToggle from './components/LangToggle';
+import HomeScreen from './components/HomeScreen';
 import WelcomeScreen from './components/WelcomeScreen';
 import QuizScreen from './components/QuizScreen';
 import ResultScreen from './components/ResultScreen';
 import TestPanel from './components/TestPanel';
 import './App.css';
 
-type AppStage = 'welcome' | 'quiz' | 'result' | 'test-panel';
+type AppStage = 'home' | 'welcome' | 'quiz' | 'result' | 'test-panel';
 type SendStatus = 'sending' | 'success' | 'error';
 
 function App() {
   const [lang, setLang] = React.useState<Lang>('en');
-  const [stage, setStage] = React.useState<AppStage>('welcome');
+  const [stage, setStage] = React.useState<AppStage>('home');
   const [learner, setLearner] = React.useState<LearnerInfo | null>(null);
   const [sendStatus, setSendStatus] = React.useState<SendStatus>('sending');
   const [pendingAnswers, setPendingAnswers] = React.useState<AnswersMap | null>(null);
@@ -84,6 +85,9 @@ function App() {
 
       {/* Main content */}
       <main className="app__main">
+        {stage === 'home' && (
+          <HomeScreen lang={lang} onStartAssessment={() => { setStage('welcome'); window.scrollTo({ top: 0 }); }} />
+        )}
         {stage === 'welcome' && (
           <WelcomeScreen lang={lang} onStart={handleStart} />
         )}

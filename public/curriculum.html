@@ -148,6 +148,62 @@
   .ib-btns{display:flex;gap:8px;}
   .toast{position:fixed;bottom:74px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 18px;border-radius:99px;font-size:.85rem;z-index:30;opacity:0;transition:opacity .2s;pointer-events:none;}
   .toast.show{opacity:1;}
+
+  /* grammar groups + details */
+  .g-group{margin-top:22px;}
+  .g-group>.g-title{display:flex;align-items:center;gap:8px;font-family:var(--serif);font-size:1.15rem;color:var(--ink);margin:0 0 8px;}
+  .g-title .g-ic{width:30px;height:30px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:1rem;background:var(--teal-soft);}
+  .g-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+  .btn-learn{border:1px solid var(--line);background:var(--surface);color:var(--soft);border-radius:99px;padding:6px 13px;cursor:pointer;font-weight:600;font-size:.78rem;font-family:var(--sans);}
+  .btn-learn:hover{border-color:var(--teal);color:var(--teal);}
+  .btn-game{border:none;background:var(--plum);color:#fff;border-radius:99px;padding:6px 14px;cursor:pointer;font-weight:700;font-size:.78rem;font-family:var(--sans);}
+  .btn-game:hover{filter:brightness(1.08);}
+  .btn-game[disabled]{background:var(--surface-2);color:var(--faint);cursor:default;}
+  .detail{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line);display:none;}
+  .detail.open{display:block;animation:fade .2s ease;}
+  .detail p{margin:0 0 10px;font-size:.94rem;}
+  .detail .arp{font-family:var(--ar);direction:rtl;text-align:right;color:var(--soft);}
+  .detail h5{font-family:var(--serif);margin:16px 0 6px;font-size:1rem;}
+  /* article colored cards */
+  .acard{border-radius:12px;padding:12px 14px;margin:10px 0;border:1px solid;}
+  .acard .ah{font-weight:800;font-size:1.05rem;display:flex;align-items:center;gap:8px;}
+  .acard.a-an{background:color-mix(in srgb,var(--teal) 9%,transparent);border-color:color-mix(in srgb,var(--teal) 40%,transparent);}
+  .acard.a-an .ah{color:var(--teal);}
+  .acard.a-the{background:color-mix(in srgb,var(--amber) 11%,transparent);border-color:color-mix(in srgb,var(--amber) 45%,transparent);}
+  .acard.a-the .ah{color:var(--amber);}
+  .acard.a-no{background:color-mix(in srgb,var(--plum) 10%,transparent);border-color:color-mix(in srgb,var(--plum) 42%,transparent);}
+  .acard.a-no .ah{color:var(--plum);}
+  .emojis{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0;}
+  .emoji-item{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:5px 12px;font-size:.9rem;}
+  .emoji-item .e{font-size:1.3rem;}
+  .cmp{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0;}
+  .cmp .cbox{flex:1;min-width:130px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface);}
+  .cmp .bad{border-color:#c4553f66;} .cmp .good{border-color:var(--green);}
+  .cmp .lbl{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;}
+  .cmp .bad .lbl{color:#c4553f;} .cmp .good .lbl{color:var(--green);}
+  table.artbl{width:100%;border-collapse:collapse;margin:10px 0;font-size:.9rem;}
+  table.artbl td,table.artbl th{border:1px solid var(--line);padding:8px 10px;text-align:start;}
+  table.artbl th{background:var(--surface-2);font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;color:var(--faint);}
+  /* game */
+  .game{border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:18px;box-shadow:var(--shadow);margin-bottom:16px;scroll-margin-top:80px;}
+  .game h3{margin:0 0 4px;font-family:var(--serif);font-size:1.2rem;}
+  .g-progress{font-size:.8rem;color:var(--faint);margin-bottom:10px;font-variant-numeric:tabular-nums;}
+  .g-sentence{font-size:1.35rem;font-family:var(--serif);margin:14px 0;line-height:1.6;}
+  .g-blank{color:var(--teal);border-bottom:2px dashed var(--teal);padding:0 22px;}
+  .g-opts{display:flex;gap:10px;flex-wrap:wrap;}
+  .g-opt{border:2px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:12px 22px;font-size:1.1rem;font-weight:700;cursor:pointer;font-family:var(--serif);min-width:64px;}
+  .g-opt:hover{border-color:var(--teal);}
+  .g-opt.correct{background:color-mix(in srgb,var(--green) 18%,transparent);border-color:var(--green);color:var(--green);}
+  .g-opt.wrong{background:color-mix(in srgb,#c4553f 16%,transparent);border-color:#c4553f;color:#c4553f;}
+  .g-fb{margin-top:12px;padding:10px 14px;border-radius:10px;font-size:.92rem;display:none;}
+  .g-fb.show{display:block;}
+  .g-fb.ok{background:color-mix(in srgb,var(--green) 12%,transparent);}
+  .g-fb.no{background:color-mix(in srgb,#c4553f 12%,transparent);}
+  .g-fb .arp{font-family:var(--ar);direction:rtl;text-align:right;display:block;margin-top:4px;color:var(--soft);}
+  .g-next{margin-top:12px;}
+  .g-result{text-align:center;padding:16px;}
+  .g-result .score{font-family:var(--serif);font-size:2.4rem;font-weight:800;color:var(--teal);}
+  .soon-game{border:1px dashed var(--line);border-radius:12px;padding:18px;text-align:center;color:var(--faint);margin-bottom:12px;}
 </style>
 </head>
 <body>
@@ -163,6 +219,7 @@
     <button class="tab" role="tab" aria-selected="false" data-panel="p-grammar">📐 Grammar</button>
     <button class="tab" role="tab" aria-selected="false" data-panel="p-speaking">💬 Speaking</button>
     <button class="tab" role="tab" aria-selected="false" data-panel="p-vocab">📚 Vocabulary</button>
+    <button class="tab" role="tab" aria-selected="false" data-panel="p-games">🎮 Games</button>
     <button class="tab" role="tab" aria-selected="false" data-panel="p-listening">🎧 Listening</button>
     <button class="tab" role="tab" aria-selected="false" data-panel="p-tasks">✅ Tasks</button>
     <button class="tab" role="tab" aria-selected="false" data-panel="p-log">⏱️ Log</button>
@@ -210,6 +267,12 @@
   <section id="p-vocab" class="panel" role="tabpanel">
     <div class="note ar" dir="rtl">كلمات مجمّعة بالموضوع — أسهل في التذكر. دوس ▶ تسمع الكلمة. هنضيف مواضيع أكتر مع الوقت.</div>
     <div id="vocab"></div>
+  </section>
+
+  <!-- GAMES -->
+  <section id="p-games" class="panel" role="tabpanel">
+    <div class="note ar" dir="rtl">تمارين تفاعلية على القواعد. كل لعبة بتديك درجة وتقولك ليه الإجابة صح.</div>
+    <div id="gamesArea"></div>
   </section>
 
   <!-- LISTENING -->
@@ -359,15 +422,83 @@
     ["p","pen",1],["r","red"],["s","sun"],["t","tea"],["v","van",1],["w","we"],
     ["j","yes"],["z","zoo"],["ʃ","she",1],["ʒ","vision",1],["θ","think",1],["ð","this",1]
   ];
-  const GRAMMAR = [
-    ["Verb “to be” (present)","am / is / are","I am a student.","done"],
-    ["Present continuous","am/is/are + verb-ing","I am drinking now.","next"],
-    ["Articles","a / an","a coffee, an hour","next"],
-    ["Present simple","he/she adds -s","I work every day.","later"],
-    ["Past simple","-ed / irregular","I worked yesterday.","later"],
-    ["Questions","Are you…? / Do you…?","Are you a student?","later"],
-    ["Comparatives","-er / more","English is easier now.","later"],
-    ["Present perfect","have/has + past participle","I have learned a lot.","later"]
+  const ARTICLES_DETAIL = `
+    <p class="arp">في العربي عندنا <b>«الـ»</b> للتعريف بس، ومفيش أداة للتنكير — بنقول «كتاب» على طول. في الإنجليزي عندك <b>٣ اختيارات</b>: <b>a</b> / <b>an</b> / <b>the</b> — وأحيانًا <b>ولا حاجة</b>. عشان كده بتتلخبط. خلّينا نفكّها.</p>
+
+    <div class="acard a-an">
+      <div class="ah">🔹 a / an <span style="font-weight:400;font-size:.85rem" class="arp">— نكرة (واحد، مش محدّد، أول مرة نذكره)</span></div>
+      <p class="arp">استخدمها مع اسم <b>مفرد معدود</b> لما تتكلم عن حاجة <b>عامة أو لأول مرة</b>. الفرق بين a و an <b>بالصوت مش بالحرف</b>:</p>
+      <p><b>a</b> قبل صوت ساكن &nbsp;·&nbsp; <b>an</b> قبل صوت متحرك (a·e·i·o·u sound)</p>
+      <div class="emojis">
+        <span class="emoji-item"><span class="e">☕</span> a cup</span>
+        <span class="emoji-item"><span class="e">🚗</span> a car</span>
+        <span class="emoji-item"><span class="e">🍎</span> an apple</span>
+        <span class="emoji-item"><span class="e">⏰</span> an hour</span>
+        <span class="emoji-item"><span class="e">🎓</span> a university</span>
+      </div>
+      <p class="arp">⚠️ بالصوت: <b>an hour</b> (الـ h ساكتة، بيبدأ بصوت متحرك) لكن <b>a university</b> (بتبدأ بصوت «يو» ساكن). اسمعها، متبصّش للحرف بس.</p>
+    </div>
+
+    <div class="acard a-the">
+      <div class="ah">🔸 the <span style="font-weight:400;font-size:.85rem" class="arp">— معرفة (محدّد، الاتنين عارفينه)</span></div>
+      <p class="arp"><b>the ≈ «الـ» في العربي</b> — ده أسهل جزء ليك. استخدمها لما الحاجة <b>محددة ومعروفة</b>:</p>
+      <p class="arp">• حاجة <b>واحدة في الدنيا</b>: <span dir="ltr">the sun ☀️, the moon 🌙</span><br>
+        • حاجة <b>اتذكرت قبل كده</b>: <span dir="ltr">I bought <b>a</b> car. <b>The</b> car is red.</span> (أول مرة a، وبعد ما بقت معروفة → the)<br>
+        • حاجة <b>الاتنين عارفينها</b>: <span dir="ltr">Close the door.</span> (الباب اللي قدامنا)</p>
+    </div>
+
+    <div class="acard a-no">
+      <div class="ah">⚪ بدون أداة <span style="font-weight:400;font-size:.85rem" class="arp">— كلام عام</span></div>
+      <p class="arp">دي اللي بتغلط فيها كتير وبتحط the بالغلط. <b>الكلام العام</b> (الجمع أو غير المعدود) <b>مياخدش أداة</b>:</p>
+      <div class="emojis">
+        <span class="emoji-item"><span class="e">☕</span> I like coffee</span>
+        <span class="emoji-item"><span class="e">🐈</span> Cats are cute</span>
+        <span class="emoji-item"><span class="e">⚽</span> I play football</span>
+      </div>
+      <p class="arp">مش «I like <s>the</s> coffee» لو قصدك القهوة عمومًا.</p>
+    </div>
+
+    <h5>اربطها بالعربي 🇪🇬</h5>
+    <div class="cmp">
+      <div class="cbox bad"><span class="lbl">غلط ❌</span><div dir="ltr">He is teacher.</div></div>
+      <div class="cbox good"><span class="lbl">صح ✅</span><div dir="ltr">He is <b>a</b> teacher.</div></div>
+    </div>
+    <p class="arp">في العربي «هو مدرّس» مفيهاش أداة، فدماغك بيسيبها. القاعدة: أي <b>وظيفة أو اسم مفرد أول مرة</b> → لازم <b>a/an</b> قدامها.</p>
+
+    <h5>الخلاصة في جدول</h5>
+    <table class="artbl">
+      <tr><th>الحالة</th><th>الأداة</th><th>مثال</th></tr>
+      <tr><td>مفرد، أول مرة، بصوت ساكن</td><td><b>a</b></td><td dir="ltr">a book</td></tr>
+      <tr><td>مفرد، أول مرة، بصوت متحرك</td><td><b>an</b></td><td dir="ltr">an egg</td></tr>
+      <tr><td>محدّد / معروف / اتذكر قبل كده</td><td><b>the</b></td><td dir="ltr">the book</td></tr>
+      <tr><td>جمع عام / غير معدود عام</td><td><b>—</b></td><td dir="ltr">books, water</td></tr>
+    </table>`;
+
+  const PC_DETAIL = `
+    <p class="arp">المضارع المستمر = حاجة <b>بتحصل دلوقتي</b>. تكوينه: <b>am / is / are + الفعل + ing</b>.</p>
+    <div class="cmp">
+      <div class="cbox bad"><span class="lbl">غلط ❌</span><div dir="ltr">I drinking now.</div></div>
+      <div class="cbox good"><span class="lbl">صح ✅</span><div dir="ltr">I <b>am</b> drinking now.</div></div>
+    </div>
+    <p class="arp">دي غلطتك المتكررة — بتنسى <b>am/is/are</b>. الـ ing لوحده مايكفيش، لازم فعل «to be» قبله. زي ما اتعلمنا في درس to be.</p>`;
+
+  const GROUPS = [
+    ["Basics","🧱",[
+      {t:"Verb “to be” (present)",form:"am / is / are",ex:"I am a student.",st:"done"}
+    ]],
+    ["Articles — a / an / the","🔤",[
+      {t:"Articles (indefinite & definite)",form:"a / an / the / —",ex:"I have an apple. The apple is red.",st:"next",detail:ARTICLES_DETAIL,game:"articles"}
+    ]],
+    ["Tenses","⏳",[
+      {t:"Present continuous",form:"am/is/are + verb-ing",ex:"I am drinking now.",st:"next",detail:PC_DETAIL},
+      {t:"Present simple",form:"he/she adds -s",ex:"I work every day.",st:"later"},
+      {t:"Past simple",form:"-ed / irregular",ex:"I worked yesterday.",st:"later"},
+      {t:"Present perfect",form:"have/has + past participle",ex:"I have learned a lot.",st:"later"}
+    ]],
+    ["Questions & more","❓",[
+      {t:"Questions",form:"Are you…? / Do you…?",ex:"Are you a student?",st:"later"},
+      {t:"Comparatives",form:"-er / more",ex:"English is easier now.",st:"later"}
+    ]]
   ];
   const SPEAKQ = ["What is your name?","How old are you?","Where are you from?","Are you a student?",
     "What is your father's job?","Who is your best friend?","What is he like?","Are your friends nice?"];
@@ -407,15 +538,100 @@
   // ---- grammar ----
   const stMap={done:['Learned ✓','st-done'],next:['Next','st-next'],later:['Later','st-later']};
   const gc=document.getElementById('grammar');
-  GRAMMAR.forEach(([title,form,ex,st])=>{
-    const r=document.createElement('div'); r.className='row';
-    const s=stMap[st];
-    r.innerHTML='<div class="rowtop"><h3>'+title+'</h3><span class="status '+s[1]+'">'+s[0]+'</span></div>'+
-      '<p class="ex">Form: <strong>'+form+'</strong></p>'+
-      '<p class="ex en">'+ex+'</p><button class="miniplay">▶ Play example</button>';
-    r.querySelector('.miniplay').addEventListener('click',()=>say(ex,0.85));
-    gc.appendChild(r);
+  GROUPS.forEach(([gname,gic,items])=>{
+    const grp=document.createElement('div'); grp.className='g-group';
+    grp.innerHTML='<div class="g-title"><span class="g-ic">'+gic+'</span>'+gname+'</div>';
+    items.forEach(it=>{
+      const r=document.createElement('div'); r.className='row'; const s=stMap[it.st];
+      r.innerHTML='<div class="rowtop"><h3>'+it.t+'</h3><span class="status '+s[1]+'">'+s[0]+'</span></div>'+
+        '<p class="ex">Form: <strong>'+it.form+'</strong></p>'+
+        '<p class="ex en">'+it.ex+'</p>';
+      const acts=document.createElement('div'); acts.className='g-actions';
+      const pb=document.createElement('button'); pb.className='btn-learn'; pb.textContent='▶ Example';
+      pb.addEventListener('click',()=>say(it.ex,0.85)); acts.appendChild(pb);
+      if(it.detail){
+        const lb=document.createElement('button'); lb.className='btn-learn'; lb.textContent='📖 اشرح أكتر';
+        const d=document.createElement('div'); d.className='detail'; d.innerHTML=it.detail;
+        lb.addEventListener('click',()=>{ const o=d.classList.toggle('open'); lb.textContent=o?'📖 إخفاء الشرح':'📖 اشرح أكتر'; });
+        acts.appendChild(lb); r.appendChild(acts); r.appendChild(d);
+      } else { r.appendChild(acts); }
+      if(it.game){
+        const gb=document.createElement('button'); gb.className='btn-game'; gb.textContent='🎮 العب على القاعدة دي';
+        gb.addEventListener('click',()=>goToGame(it.game)); acts.appendChild(gb);
+      }
+      grp.appendChild(r);
+    });
+    gc.appendChild(grp);
   });
+
+  // ================= GAMES =================
+  const GAMES={
+    articles:{
+      title:"Articles game — a / an / the / —",
+      intro:"املا الفراغ بالأداة الصح. — يعني بدون أداة.",
+      items:[
+        {s:"I have ___ apple.",a:"an",why:"مفرد أول مرة + بصوت متحرك (a·e·i·o·u) → an."},
+        {s:"She is ___ teacher.",a:"a",why:"وظيفة، مفرد، أول مرة، بصوت ساكن → a."},
+        {s:"___ sun is very hot.",a:"the",why:"حاجة واحدة في الدنيا → the."},
+        {s:"I like ___ music.",a:"—",why:"كلام عام (غير معدود) → بدون أداة."},
+        {s:"He bought ___ car yesterday.",a:"a",why:"مفرد أول مرة بصوت ساكن → a."},
+        {s:"I need ___ hour to finish.",a:"an",why:"الـ h ساكتة، بيبدأ بصوت متحرك → an."},
+        {s:"Please close ___ door.",a:"the",why:"باب محدّد الاتنين عارفينه → the."},
+        {s:"___ cats are cute animals.",a:"—",why:"جمع عام → بدون أداة."},
+        {s:"We watched ___ interesting film.",a:"an",why:"بصوت متحرك (i) → an."},
+        {s:"This is ___ university.",a:"a",why:"بتبدأ بصوت «يو» ساكن → a (مش an)."}
+      ]
+    }
+  };
+  const OPTS=["a","an","the","—"];
+  const gamesArea=document.getElementById('gamesArea');
+  function renderGames(){
+    gamesArea.innerHTML='';
+    Object.keys(GAMES).forEach(id=>buildGame(id));
+    const soon=document.createElement('div'); soon.className='soon-game';
+    soon.innerHTML='<div style="font-size:1.4rem">🎮</div><p class="ar" dir="rtl">ألعاب تانية (المضارع المستمر، الأزمنة) في الطريق.</p>';
+    gamesArea.appendChild(soon);
+  }
+  function buildGame(id){
+    const g=GAMES[id]; const box=document.createElement('div'); box.className='game'; box.id='game-'+id;
+    const state={i:0,score:0};
+    function draw(){
+      if(state.i>=g.items.length){
+        box.innerHTML='<div class="g-result"><div class="score">'+state.score+'/'+g.items.length+'</div>'+
+          '<p class="ar" dir="rtl">'+(state.score===g.items.length?'ممتاز! 🎉':(state.score>=g.items.length*0.6?'كويس جدًا 👍':'كمّل تمرين 💪'))+'</p>'+
+          '<button class="btn-solid" id="rg-'+id+'">العب تاني</button></div>';
+        box.querySelector('#rg-'+id).addEventListener('click',()=>{state.i=0;state.score=0;draw();});
+        return;
+      }
+      const q=g.items[state.i];
+      box.innerHTML='<h3>'+g.title+'</h3><div class="g-progress">سؤال '+(state.i+1)+' / '+g.items.length+' · نقاط: '+state.score+'</div>'+
+        '<div class="g-sentence">'+q.s.replace('___','<span class="g-blank">?</span>')+'</div>'+
+        '<div class="g-opts"></div><div class="g-fb"></div>';
+      const opts=box.querySelector('.g-opts'); const fb=box.querySelector('.g-fb');
+      OPTS.forEach(o=>{
+        const b=document.createElement('button'); b.className='g-opt'; b.textContent=o;
+        b.addEventListener('click',()=>{
+          if(fb.classList.contains('show'))return;
+          const ok=(o===q.a);
+          b.classList.add(ok?'correct':'wrong');
+          if(ok){ state.score++; } else { [...opts.children].forEach(c=>{if(c.textContent===q.a)c.classList.add('correct');}); }
+          if(o!=="—") say(q.s.replace('___',q.a),0.85);
+          fb.className='g-fb show '+(ok?'ok':'no');
+          fb.innerHTML=(ok?'✅ صح! ':'❌ الإجابة: <b>'+q.a+'</b> ')+'<span class="arp">'+q.why+'</span>';
+          const nx=document.createElement('button'); nx.className='btn-solid g-next'; nx.textContent='التالي ←';
+          nx.addEventListener('click',()=>{state.i++;draw();}); fb.appendChild(nx);
+        });
+        opts.appendChild(b);
+      });
+    }
+    draw(); gamesArea.appendChild(box);
+  }
+  function goToGame(id){
+    document.querySelector('.tab[data-panel="p-games"]').click();
+    const el=document.getElementById('game-'+id);
+    if(el) setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'start'}),80);
+  }
+  renderGames();
 
   // ---- speaking questions ----
   const sq=document.getElementById('speak-q');

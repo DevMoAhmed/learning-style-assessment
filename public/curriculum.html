@@ -132,8 +132,13 @@
   .cd-grammar{background:var(--blue);} .cd-speaking{background:var(--teal);}
   .cd-listening{background:var(--amber);} .cd-vocab{background:var(--plum);}
   .cd-pronunciation{background:var(--green);} .cd-other{background:var(--faint);}
-  .titem .del{border:none;background:none;color:var(--faint);cursor:pointer;font-size:1rem;flex:0 0 auto;}
-  .titem .del:hover{color:#c4553f;}
+  .titem .del{border:1px solid var(--line);background:var(--surface);color:var(--faint);cursor:pointer;font-size:.95rem;flex:0 0 auto;border-radius:8px;width:32px;height:32px;line-height:1;}
+  .titem .del:hover{color:#fff;background:#c4553f;border-color:#c4553f;}
+  .day-nav{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+  .daynav-btn{border:1px solid var(--line);background:var(--surface);color:var(--teal);border-radius:9px;width:38px;height:38px;cursor:pointer;font-size:.95rem;font-weight:700;}
+  .daynav-btn:hover{background:var(--teal);color:#fff;}
+  .day-lbl{font-family:var(--serif);font-weight:700;font-size:1rem;min-width:170px;text-align:center;}
+  .day-lbl .today-tag{color:var(--teal);font-size:.68rem;font-family:var(--sans);font-weight:700;margin-inline-start:6px;}
   .titem .due{font-size:.72rem;color:var(--faint);flex:0 0 auto;}
   /* week chart */
   .week-chart{display:flex;align-items:flex-end;gap:8px;height:120px;margin-top:8px;}
@@ -320,9 +325,17 @@
     </div>
 
     <div class="row">
+      <div class="day-nav">
+        <button class="daynav-btn" id="dPrev" aria-label="اليوم السابق">◀</button>
+        <div class="day-lbl" id="dLabel"></div>
+        <button class="daynav-btn" id="dNext" aria-label="اليوم التالي">▶</button>
+        <button class="btn-ghost" id="dToday">النهاردة</button>
+      </div>
       <h3 class="ar" dir="rtl">العادات اليومية <span class="chip">كل يوم</span></h3>
-      <p class="ex ar" dir="rtl">اللي بيتعمل كل يوم — دوس عليها لما تخلّصها النهاردة. دي اللي بتبني الاستمرارية.</p>
+      <p class="ex ar" dir="rtl">دوس على اللي خلّصته في اليوم ده. تقدر ترجع لأيام قبلها بالأسهم وتكمّلها.</p>
       <ul class="clean" id="habitList"></ul>
+      <h4 class="ar" dir="rtl" style="margin:16px 0 2px;color:var(--faint);font-size:.82rem;text-transform:uppercase;letter-spacing:.05em">مهام مجدولة لليوم ده</h4>
+      <ul class="clean" id="dayTasks"></ul>
     </div>
 
     <div class="row">
@@ -700,47 +713,71 @@
     return s;
   }
 
-  // ---------- HABITS ----------
+  // ---------- DAY NAVIGATION ----------
+  let viewDate=todayKey();
+  function shiftDate(key,delta){ const [y,m,d]=key.split('-').map(Number); const dt=new Date(y,m-1,d); dt.setDate(dt.getDate()+delta); return dayKey(dt); }
+  const DAYNAMES=['الأحد','الاتنين','التلات','الأربع','الخميس','الجمعة','السبت'];
+  function dayLabel(key){ const [y,m,d]=key.split('-').map(Number); const dt=new Date(y,m-1,d); return DAYNAMES[dt.getDay()]+' · '+key; }
+
+  // ---------- HABITS (per viewDate) ----------
   function renderHabits(){
-    const tk=todayKey(); const done=habitsDone[tk]||[];
+    const done=habitsDone[viewDate]||[];
     const ul=document.getElementById('habitList'); ul.innerHTML='';
     HABITS.forEach(([id,label])=>{
       const li=document.createElement('li'); li.className='titem'+(done.includes(id)?' done':'');
       const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=done.includes(id);
       cb.addEventListener('change',()=>{
-        let arr=habitsDone[tk]||[];
+        let arr=habitsDone[viewDate]||[];
         if(cb.checked){ if(!arr.includes(id))arr.push(id); } else { arr=arr.filter(x=>x!==id); }
-        habitsDone[tk]=arr; save(LS.habitsDone,habitsDone); renderHabits(); renderTaskStats();
+        habitsDone[viewDate]=arr; save(LS.habitsDone,habitsDone); renderHabits(); renderTaskStats(); renderLogStats();
       });
       const sp=document.createElement('span'); sp.className='txt ar'; sp.dir='rtl'; sp.textContent=label;
       li.appendChild(cb); li.appendChild(sp); ul.appendChild(li);
     });
   }
+  // tasks scheduled for viewDate
+  function renderDayTasks(){
+    const ul=document.getElementById('dayTasks'); ul.innerHTML='';
+    const items=tasks.filter(t=>t.due===viewDate);
+    if(!items.length){ ul.innerHTML='<li class="ar" dir="rtl" style="color:var(--faint);border:none">مفيش مهام لليوم ده.</li>'; return; }
+    items.forEach(t=>ul.appendChild(taskItem(t,true)));
+  }
+  function renderDay(){
+    const isToday=(viewDate===todayKey());
+    document.getElementById('dLabel').innerHTML=dayLabel(viewDate)+(isToday?'<span class="today-tag">النهاردة</span>':'');
+    document.getElementById('dNext').disabled=isToday;
+    renderHabits(); renderDayTasks();
+  }
+  document.getElementById('dPrev').addEventListener('click',()=>{ viewDate=shiftDate(viewDate,-1); renderDay(); });
+  document.getElementById('dNext').addEventListener('click',()=>{ if(viewDate<todayKey()){ viewDate=shiftDate(viewDate,1); renderDay(); } });
+  document.getElementById('dToday').addEventListener('click',()=>{ viewDate=todayKey(); renderDay(); });
 
   // ---------- TASKS ----------
   function catLabel(c){return {grammar:'Grammar',speaking:'Speaking',listening:'Listening',vocab:'Vocabulary',pronunciation:'Pronunciation',other:'Other'}[c]||c;}
+  function refreshTasks(){ renderTasks(); renderDayTasks(); renderTaskStats(); }
+  function taskItem(t,hideDue){
+    const li=document.createElement('div'); li.className='titem'+(t.done?' done':'');
+    const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=t.done;
+    cb.addEventListener('change',()=>{ t.done=cb.checked; save(LS.tasks,tasks); refreshTasks(); });
+    const dot=document.createElement('span'); dot.className='cat-dot cd-'+t.cat;
+    const sp=document.createElement('span'); sp.className='txt'; sp.textContent=t.text;
+    li.appendChild(cb); li.appendChild(dot); li.appendChild(sp);
+    if(t.due && !hideDue){ const d=document.createElement('span'); d.className='due'; d.textContent=t.due; li.appendChild(d); }
+    const del=document.createElement('button'); del.className='del'; del.textContent='🗑'; del.title='حذف المهمة';
+    del.addEventListener('click',()=>{ if(confirm('حذف المهمة دي؟')){ tasks=tasks.filter(x=>x.id!==t.id); save(LS.tasks,tasks); refreshTasks(); } });
+    li.appendChild(del); return li;
+  }
   function renderTasks(){
     const box=document.getElementById('taskGroups'); box.innerHTML='';
     const tk=todayKey();
     const groups=[['اليوم / متأخرة', t=>t.due && t.due<=tk],['قادمة', t=>t.due && t.due>tk],['بدون تاريخ', t=>!t.due]];
-    if(!tasks.length){ box.innerHTML='<p class="ex ar" dir="rtl" style="margin-top:10px">مفيش مهام لسه. أضف واحدة فوق.</p>'; }
+    if(!tasks.length){ box.innerHTML='<p class="ex ar" dir="rtl" style="margin-top:10px">مفيش مهام لسه. أضف واحدة فوق.</p>'; return; }
     groups.forEach(([title,filt])=>{
       const items=tasks.filter(filt);
       if(!items.length) return;
       const g=document.createElement('div'); g.className='task-group';
       const h=document.createElement('h4'); h.className='ar'; h.dir='rtl'; h.textContent=title+' ('+items.length+')'; g.appendChild(h);
-      items.forEach(t=>{
-        const li=document.createElement('div'); li.className='titem'+(t.done?' done':'');
-        const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=t.done;
-        cb.addEventListener('change',()=>{ t.done=cb.checked; save(LS.tasks,tasks); renderTasks(); renderTaskStats(); });
-        const dot=document.createElement('span'); dot.className='cat-dot cd-'+t.cat;
-        const sp=document.createElement('span'); sp.className='txt'; sp.textContent=t.text;
-        li.appendChild(cb); li.appendChild(dot); li.appendChild(sp);
-        if(t.due){ const d=document.createElement('span'); d.className='due'; d.textContent=t.due; li.appendChild(d); }
-        const del=document.createElement('button'); del.className='del'; del.textContent='✕';
-        del.addEventListener('click',()=>{ tasks=tasks.filter(x=>x.id!==t.id); save(LS.tasks,tasks); renderTasks(); renderTaskStats(); });
-        li.appendChild(del); g.appendChild(li);
-      });
+      items.forEach(t=>g.appendChild(taskItem(t)));
       box.appendChild(g);
     });
   }
@@ -760,10 +797,10 @@
     const txt=document.getElementById('tkText').value.trim(); if(!txt) return;
     tasks.push({id:newId(),text:txt,cat:document.getElementById('tkCat').value,due:document.getElementById('tkDue').value||null,done:false});
     save(LS.tasks,tasks); document.getElementById('tkText').value=''; document.getElementById('tkDue').value='';
-    renderTasks(); renderTaskStats(); toast('اتضافت المهمة');
+    refreshTasks(); toast('اتضافت المهمة');
   });
   document.getElementById('tkText').addEventListener('keydown',e=>{ if(e.key==='Enter')document.getElementById('tkAdd').click(); });
-  document.getElementById('clrTasks').addEventListener('click',()=>{ if(confirm('مسح كل المهام؟')){ tasks=[]; save(LS.tasks,tasks); renderTasks(); renderTaskStats(); } });
+  document.getElementById('clrTasks').addEventListener('click',()=>{ if(confirm('مسح كل المهام؟')){ tasks=[]; save(LS.tasks,tasks); refreshTasks(); } });
 
   // ---------- SHARE (encode tasks to link) ----------
   function b64enc(str){ return btoa(String.fromCharCode.apply(null,new TextEncoder().encode(str))).replace(/\+/g,'-').replace(/\//g,'_'); }
@@ -786,7 +823,7 @@
       document.getElementById('importYes').onclick=()=>{
         incoming.forEach(t=>tasks.push({id:newId(),text:t.text,cat:t.cat||'other',due:t.due||null,done:false}));
         save(LS.tasks,tasks); banner.hidden=true; history.replaceState(null,'',location.pathname);
-        renderTasks(); renderTaskStats(); toast('اتضافت المهام ✓');
+        refreshTasks(); toast('اتضافت المهام ✓');
       };
       document.getElementById('importNo').onclick=()=>{ banner.hidden=true; history.replaceState(null,'',location.pathname); };
       // jump to tasks tab
@@ -865,7 +902,7 @@
   gi.addEventListener('change',()=>{ goal=Math.max(1,parseInt(gi.value)||7); save(LS.goal,goal); renderLogStats(); });
 
   // init
-  renderHabits(); renderTasks(); renderTaskStats(); renderLog(); checkImport();
+  renderDay(); renderTasks(); renderTaskStats(); renderLog(); checkImport();
 
   // ---- theme ----
   const tb=document.getElementById('themeBtn');

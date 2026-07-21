@@ -98,6 +98,56 @@
   .wtag{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:5px 6px 5px 12px;font-size:.9rem;}
   .wtag button{border:none;background:var(--teal-soft);color:var(--teal);border-radius:99px;width:26px;height:26px;cursor:pointer;font-size:.7rem;}
   .wtag button:hover{background:var(--teal);color:#fff;}
+
+  /* stats */
+  .stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:6px 0 4px;}
+  .stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 8px;text-align:center;box-shadow:var(--shadow);}
+  .stat-num{font-family:var(--serif);font-size:1.7rem;font-weight:700;color:var(--teal);line-height:1;}
+  .stat-lbl{font-size:.74rem;color:var(--faint);margin-top:5px;}
+  /* forms */
+  .fld{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:9px;padding:9px 12px;font-family:var(--sans);font-size:.9rem;}
+  .fld:focus-visible{outline:2px solid var(--teal);outline-offset:1px;}
+  .fld-sm{max-width:130px;} .fld-xs{max-width:90px;}
+  .task-add,.log-add{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+  .task-add #tkText{flex:1;min-width:160px;}
+  .log-add #lgNote{flex:1;min-width:140px;}
+  .btn-solid{border:none;cursor:pointer;background:var(--teal);color:#fff;border-radius:9px;padding:9px 16px;font-weight:700;font-family:var(--sans);font-size:.85rem;}
+  .btn-solid:hover{filter:brightness(1.08);}
+  .btn-ghost{border:1px solid var(--line);cursor:pointer;background:var(--surface);color:var(--soft);border-radius:99px;padding:7px 13px;font-weight:600;font-family:var(--sans);font-size:.8rem;}
+  .btn-ghost:hover{border-color:var(--teal);color:var(--teal);}
+  .btn-ghost.danger:hover{border-color:#c4553f;color:#c4553f;}
+  .qbtn{border:1px solid var(--line);background:var(--surface);color:var(--teal);border-radius:9px;padding:9px 12px;cursor:pointer;font-weight:700;font-family:var(--sans);font-size:.82rem;}
+  .qbtn:hover{background:var(--teal);color:#fff;}
+  .tool-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
+  .mini-lbl{display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--soft);margin-top:10px;}
+  /* task items */
+  .task-group{margin-top:12px;}
+  .task-group h4{margin:0 0 6px;font-size:.82rem;color:var(--faint);font-weight:700;text-transform:uppercase;letter-spacing:.05em;}
+  .titem{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line);}
+  .titem:first-child{border-top:none;}
+  .titem input[type=checkbox]{width:20px;height:20px;accent-color:var(--teal);cursor:pointer;flex:0 0 auto;}
+  .titem .txt{flex:1;font-size:.94rem;}
+  .titem.done .txt{text-decoration:line-through;color:var(--faint);}
+  .cat-dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;}
+  .cd-grammar{background:var(--blue);} .cd-speaking{background:var(--teal);}
+  .cd-listening{background:var(--amber);} .cd-vocab{background:var(--plum);}
+  .cd-pronunciation{background:var(--green);} .cd-other{background:var(--faint);}
+  .titem .del{border:none;background:none;color:var(--faint);cursor:pointer;font-size:1rem;flex:0 0 auto;}
+  .titem .del:hover{color:#c4553f;}
+  .titem .due{font-size:.72rem;color:var(--faint);flex:0 0 auto;}
+  /* week chart */
+  .week-chart{display:flex;align-items:flex-end;gap:8px;height:120px;margin-top:8px;}
+  .wc-day{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;height:100%;justify-content:flex-end;}
+  .wc-bar{width:100%;max-width:34px;background:var(--teal-soft);border-radius:6px 6px 0 0;min-height:3px;display:flex;align-items:flex-start;justify-content:center;position:relative;}
+  .wc-bar>i{background:var(--teal);width:100%;border-radius:6px 6px 0 0;position:absolute;bottom:0;left:0;}
+  .wc-h{font-size:.66rem;color:var(--soft);font-variant-numeric:tabular-nums;position:relative;z-index:1;}
+  .wc-lbl{font-size:.66rem;color:var(--faint);}
+  /* import banner */
+  .import-banner{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--teal-soft);border:1px solid var(--teal);border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:.9rem;}
+  .import-banner[hidden]{display:none;}
+  .ib-btns{display:flex;gap:8px;}
+  .toast{position:fixed;bottom:74px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 18px;border-radius:99px;font-size:.85rem;z-index:30;opacity:0;transition:opacity .2s;pointer-events:none;}
+  .toast.show{opacity:1;}
 </style>
 </head>
 <body>
@@ -114,6 +164,8 @@
     <button class="tab" role="tab" aria-selected="false" data-panel="p-speaking">💬 Speaking</button>
     <button class="tab" role="tab" aria-selected="false" data-panel="p-vocab">📚 Vocabulary</button>
     <button class="tab" role="tab" aria-selected="false" data-panel="p-listening">🎧 Listening</button>
+    <button class="tab" role="tab" aria-selected="false" data-panel="p-tasks">✅ Tasks</button>
+    <button class="tab" role="tab" aria-selected="false" data-panel="p-log">⏱️ Log</button>
     <button class="tab" role="tab" aria-selected="false" data-panel="p-progress">📈 Progress</button>
   </div>
 
@@ -185,6 +237,96 @@
         <li><a href="https://www.easyenglish.video/" target="_blank" rel="noopener">Easy English</a> — real street interviews, dual subtitles</li>
         <li><a href="https://www.languagereactor.com/" target="_blank" rel="noopener">Language Reactor</a> — dual subtitles on YouTube</li>
       </ul>
+    </div>
+  </section>
+
+  <!-- TASKS -->
+  <section id="p-tasks" class="panel" role="tabpanel">
+    <div id="importBanner" class="import-banner" hidden>
+      <span></span>
+      <div class="ib-btns">
+        <button class="btn-solid" id="importYes">استيراد</button>
+        <button class="btn-ghost" id="importNo">تجاهل</button>
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat"><div class="stat-num" id="tkTodayDone">0/0</div><div class="stat-lbl ar">مهام النهاردة</div></div>
+      <div class="stat"><div class="stat-num" id="tkStreak">0</div><div class="stat-lbl ar">🔥 يوم متتالي</div></div>
+      <div class="stat"><div class="stat-num" id="tkPct">0%</div><div class="stat-lbl ar">إجمالي منجز</div></div>
+    </div>
+
+    <div class="row">
+      <h3 class="ar" dir="rtl">العادات اليومية <span class="chip">كل يوم</span></h3>
+      <p class="ex ar" dir="rtl">اللي بيتعمل كل يوم — دوس عليها لما تخلّصها النهاردة. دي اللي بتبني الاستمرارية.</p>
+      <ul class="clean" id="habitList"></ul>
+    </div>
+
+    <div class="row">
+      <div class="rowtop"><h3 class="ar" dir="rtl">مهام مجدولة</h3>
+        <button class="btn-ghost" id="shareBtn">🔗 نسخ رابط المشاركة</button></div>
+      <p class="ex ar" dir="rtl">المعلّم يضيف مهام هنا، وممكن يحدّد يوم لكل مهمة. محمد يدوس ✓ لما يخلّص.</p>
+      <div class="task-add">
+        <input id="tkText" class="fld" placeholder="اكتب مهمة… / write a task">
+        <select id="tkCat" class="fld fld-sm">
+          <option value="grammar">Grammar</option>
+          <option value="speaking">Speaking</option>
+          <option value="listening">Listening</option>
+          <option value="vocab">Vocabulary</option>
+          <option value="pronunciation">Pronunciation</option>
+          <option value="other">Other</option>
+        </select>
+        <input id="tkDue" class="fld fld-sm" type="date">
+        <button class="btn-solid" id="tkAdd">إضافة</button>
+      </div>
+      <div id="taskGroups"></div>
+    </div>
+
+    <div class="tool-row">
+      <button class="btn-ghost" id="expBtn">⬇️ نسخة احتياطية (JSON)</button>
+      <button class="btn-ghost danger" id="clrTasks">🗑️ مسح المهام</button>
+    </div>
+  </section>
+
+  <!-- LOG -->
+  <section id="p-log" class="panel" role="tabpanel">
+    <div class="stat-row">
+      <div class="stat"><div class="stat-num" id="lgTotal">0</div><div class="stat-lbl ar">إجمالي الساعات</div></div>
+      <div class="stat"><div class="stat-num" id="lgWeek">0</div><div class="stat-lbl ar">ساعات الأسبوع</div></div>
+      <div class="stat"><div class="stat-num" id="lgStreak">0</div><div class="stat-lbl ar">🔥 يوم متتالي</div></div>
+    </div>
+
+    <div class="row">
+      <div class="rowtop"><h3 class="ar" dir="rtl">هدف الأسبوع</h3><span class="ex" id="goalTxt"></span></div>
+      <div class="bar"><span id="goalBar"></span></div>
+      <label class="mini-lbl ar" dir="rtl">الهدف (ساعات/أسبوع):
+        <input id="goalInput" class="fld fld-xs" type="number" min="1" max="40" step="1"></label>
+    </div>
+
+    <div class="row">
+      <h3 class="ar" dir="rtl">سجّل ساعات النهاردة</h3>
+      <p class="ex ar" dir="rtl">كام ساعة (تقريبًا) ذاكرت إنجليزي النهاردة؟</p>
+      <div class="log-add">
+        <button class="qbtn" data-add="0.25">+15د</button>
+        <button class="qbtn" data-add="0.5">+30د</button>
+        <button class="qbtn" data-add="1">+1س</button>
+        <input id="lgHours" class="fld fld-xs" type="number" min="0" max="24" step="0.25" placeholder="0.0">
+        <input id="lgNote" class="fld" placeholder="عملت إيه؟ (اختياري)">
+        <button class="btn-solid" id="lgSave">حفظ اليوم</button>
+      </div>
+    </div>
+
+    <div class="row">
+      <h3 class="ar" dir="rtl">آخر ٧ أيام</h3>
+      <div class="week-chart" id="weekChart"></div>
+    </div>
+
+    <div class="row">
+      <h3 class="ar" dir="rtl">السجل</h3>
+      <ul class="clean" id="logList"></ul>
+    </div>
+    <div class="tool-row">
+      <button class="btn-ghost danger" id="clrLog">🗑️ مسح السجل</button>
     </div>
   </section>
 
@@ -309,6 +451,205 @@
     if('speechSynthesis' in window) speechSynthesis.cancel();
     window.scrollTo({top:0,behavior:'smooth'});
   }));
+
+  // ================= TASKS + LOG SYSTEM =================
+  const LS={ tasks:'m_tasks', log:'m_log', habitsDone:'m_habits_done', goal:'m_goal' };
+  const HABITS=[
+    ['h1','🎧 اسمع بودكاست + shadowing (٢٠ د)'],
+    ['h2','🃏 مراجعة كلمات Anki (١٥ د)'],
+    ['h3','💬 كلام مع Gemini بالصوت (٥–١٠ د)'],
+    ['h4','🎙️ رسالة صوتية للمعلّم (دقيقة)']
+  ];
+  const load=(k,f)=>{ try{ return JSON.parse(localStorage.getItem(k)) ?? f; }catch(e){ return f; } };
+  const save=(k,v)=>{ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} };
+  const todayKey=()=>{ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
+  const dayKey=(d)=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  function toast(msg){ let t=document.querySelector('.toast'); if(!t){t=document.createElement('div');t.className='toast';document.body.appendChild(t);} t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1600); }
+
+  let tasks=load(LS.tasks,[]);
+  let logData=load(LS.log,{});
+  let habitsDone=load(LS.habitsDone,{});
+  let goal=load(LS.goal,7);
+
+  // streak: consecutive days (ending today or yesterday) with activity
+  function activeOn(key){
+    const h=(logData[key]&&logData[key].h>0);
+    const hb=(habitsDone[key]&&habitsDone[key].length>0);
+    return h||hb;
+  }
+  function streak(){
+    let s=0; const d=new Date();
+    if(!activeOn(dayKey(d))) d.setDate(d.getDate()-1); // allow "today not done yet"
+    while(activeOn(dayKey(d))){ s++; d.setDate(d.getDate()-1); }
+    return s;
+  }
+
+  // ---------- HABITS ----------
+  function renderHabits(){
+    const tk=todayKey(); const done=habitsDone[tk]||[];
+    const ul=document.getElementById('habitList'); ul.innerHTML='';
+    HABITS.forEach(([id,label])=>{
+      const li=document.createElement('li'); li.className='titem'+(done.includes(id)?' done':'');
+      const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=done.includes(id);
+      cb.addEventListener('change',()=>{
+        let arr=habitsDone[tk]||[];
+        if(cb.checked){ if(!arr.includes(id))arr.push(id); } else { arr=arr.filter(x=>x!==id); }
+        habitsDone[tk]=arr; save(LS.habitsDone,habitsDone); renderHabits(); renderTaskStats();
+      });
+      const sp=document.createElement('span'); sp.className='txt ar'; sp.dir='rtl'; sp.textContent=label;
+      li.appendChild(cb); li.appendChild(sp); ul.appendChild(li);
+    });
+  }
+
+  // ---------- TASKS ----------
+  function catLabel(c){return {grammar:'Grammar',speaking:'Speaking',listening:'Listening',vocab:'Vocabulary',pronunciation:'Pronunciation',other:'Other'}[c]||c;}
+  function renderTasks(){
+    const box=document.getElementById('taskGroups'); box.innerHTML='';
+    const tk=todayKey();
+    const groups=[['اليوم / متأخرة', t=>t.due && t.due<=tk],['قادمة', t=>t.due && t.due>tk],['بدون تاريخ', t=>!t.due]];
+    if(!tasks.length){ box.innerHTML='<p class="ex ar" dir="rtl" style="margin-top:10px">مفيش مهام لسه. أضف واحدة فوق.</p>'; }
+    groups.forEach(([title,filt])=>{
+      const items=tasks.filter(filt);
+      if(!items.length) return;
+      const g=document.createElement('div'); g.className='task-group';
+      const h=document.createElement('h4'); h.className='ar'; h.dir='rtl'; h.textContent=title+' ('+items.length+')'; g.appendChild(h);
+      items.forEach(t=>{
+        const li=document.createElement('div'); li.className='titem'+(t.done?' done':'');
+        const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=t.done;
+        cb.addEventListener('change',()=>{ t.done=cb.checked; save(LS.tasks,tasks); renderTasks(); renderTaskStats(); });
+        const dot=document.createElement('span'); dot.className='cat-dot cd-'+t.cat;
+        const sp=document.createElement('span'); sp.className='txt'; sp.textContent=t.text;
+        li.appendChild(cb); li.appendChild(dot); li.appendChild(sp);
+        if(t.due){ const d=document.createElement('span'); d.className='due'; d.textContent=t.due; li.appendChild(d); }
+        const del=document.createElement('button'); del.className='del'; del.textContent='✕';
+        del.addEventListener('click',()=>{ tasks=tasks.filter(x=>x.id!==t.id); save(LS.tasks,tasks); renderTasks(); renderTaskStats(); });
+        li.appendChild(del); g.appendChild(li);
+      });
+      box.appendChild(g);
+    });
+  }
+  function renderTaskStats(){
+    const tk=todayKey();
+    const dueToday=tasks.filter(t=>t.due && t.due<=tk);
+    const habitTotal=HABITS.length, habitDone=(habitsDone[tk]||[]).length;
+    const doneToday=dueToday.filter(t=>t.done).length + habitDone;
+    const totalToday=dueToday.length + habitTotal;
+    document.getElementById('tkTodayDone').textContent=doneToday+'/'+totalToday;
+    document.getElementById('tkStreak').textContent=streak();
+    const pct = tasks.length ? Math.round(tasks.filter(t=>t.done).length/tasks.length*100) : 0;
+    document.getElementById('tkPct').textContent=pct+'%';
+  }
+  function newId(){ return 't'+Date.now().toString(36)+Math.floor(performance.now()).toString(36); }
+  document.getElementById('tkAdd').addEventListener('click',()=>{
+    const txt=document.getElementById('tkText').value.trim(); if(!txt) return;
+    tasks.push({id:newId(),text:txt,cat:document.getElementById('tkCat').value,due:document.getElementById('tkDue').value||null,done:false});
+    save(LS.tasks,tasks); document.getElementById('tkText').value=''; document.getElementById('tkDue').value='';
+    renderTasks(); renderTaskStats(); toast('اتضافت المهمة');
+  });
+  document.getElementById('tkText').addEventListener('keydown',e=>{ if(e.key==='Enter')document.getElementById('tkAdd').click(); });
+  document.getElementById('clrTasks').addEventListener('click',()=>{ if(confirm('مسح كل المهام؟')){ tasks=[]; save(LS.tasks,tasks); renderTasks(); renderTaskStats(); } });
+
+  // ---------- SHARE (encode tasks to link) ----------
+  function b64enc(str){ return btoa(String.fromCharCode.apply(null,new TextEncoder().encode(str))).replace(/\+/g,'-').replace(/\//g,'_'); }
+  function b64dec(b){ b=b.replace(/-/g,'+').replace(/_/g,'/'); return new TextDecoder().decode(Uint8Array.from(atob(b),c=>c.charCodeAt(0))); }
+  document.getElementById('shareBtn').addEventListener('click',()=>{
+    if(!tasks.length){ toast('مفيش مهام تشاركها'); return; }
+    const payload=tasks.map(t=>({text:t.text,cat:t.cat,due:t.due}));
+    const link=location.origin+location.pathname+'#import='+b64enc(JSON.stringify(payload));
+    (navigator.clipboard?navigator.clipboard.writeText(link):Promise.reject())
+      .then(()=>toast('اتنسخ الرابط ✓'))
+      .catch(()=>{ prompt('انسخ الرابط:',link); });
+  });
+  function checkImport(){
+    const m=location.hash.match(/import=([^&]+)/); if(!m) return;
+    try{
+      const incoming=JSON.parse(b64dec(m[1]));
+      const banner=document.getElementById('importBanner');
+      banner.querySelector('span').textContent='في '+incoming.length+' مهمة في الرابط. تحب تضيفها؟';
+      banner.hidden=false;
+      document.getElementById('importYes').onclick=()=>{
+        incoming.forEach(t=>tasks.push({id:newId(),text:t.text,cat:t.cat||'other',due:t.due||null,done:false}));
+        save(LS.tasks,tasks); banner.hidden=true; history.replaceState(null,'',location.pathname);
+        renderTasks(); renderTaskStats(); toast('اتضافت المهام ✓');
+      };
+      document.getElementById('importNo').onclick=()=>{ banner.hidden=true; history.replaceState(null,'',location.pathname); };
+      // jump to tasks tab
+      document.querySelector('.tab[data-panel="p-tasks"]').click();
+    }catch(e){}
+  }
+
+  // ---------- EXPORT ----------
+  document.getElementById('expBtn').addEventListener('click',()=>{
+    const data={tasks,log:logData,habitsDone,goal,exported:todayKey()};
+    const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='mohammed-english-backup.json'; a.click();
+    URL.revokeObjectURL(a.href);
+  });
+
+  // ---------- LOG ----------
+  function totalHours(){ return Object.values(logData).reduce((s,v)=>s+(v.h||0),0); }
+  function weekHours(){
+    let s=0; const d=new Date();
+    for(let i=0;i<7;i++){ const k=dayKey(d); if(logData[k])s+=logData[k].h||0; d.setDate(d.getDate()-1); }
+    return s;
+  }
+  function fmt(n){ return (Math.round(n*100)/100).toString(); }
+  function renderLogStats(){
+    document.getElementById('lgTotal').textContent=fmt(totalHours());
+    document.getElementById('lgWeek').textContent=fmt(weekHours());
+    document.getElementById('lgStreak').textContent=streak();
+    const wk=weekHours(); const pct=Math.min(100,Math.round(wk/goal*100));
+    document.getElementById('goalBar').style.width=pct+'%';
+    document.getElementById('goalTxt').textContent=fmt(wk)+' / '+goal+' س ('+pct+'%)';
+  }
+  function renderWeekChart(){
+    const wrap=document.getElementById('weekChart'); wrap.innerHTML='';
+    const days=[]; const d=new Date();
+    for(let i=6;i>=0;i--){ const dt=new Date(); dt.setDate(d.getDate()-i); days.push(dt); }
+    const names=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const max=Math.max(1,...days.map(dt=>(logData[dayKey(dt)]?.h)||0));
+    days.forEach(dt=>{
+      const k=dayKey(dt); const h=(logData[k]?.h)||0;
+      const col=document.createElement('div'); col.className='wc-day';
+      const bar=document.createElement('div'); bar.className='wc-bar';
+      const fill=document.createElement('i'); fill.style.height=Math.round(h/max*100)+'%'; bar.appendChild(fill);
+      const hl=document.createElement('span'); hl.className='wc-h'; hl.textContent=h?fmt(h):''; bar.appendChild(hl);
+      const lbl=document.createElement('div'); lbl.className='wc-lbl'; lbl.textContent=names[dt.getDay()];
+      col.appendChild(bar); col.appendChild(lbl); wrap.appendChild(col);
+    });
+  }
+  function renderLogList(){
+    const ul=document.getElementById('logList'); ul.innerHTML='';
+    const keys=Object.keys(logData).sort().reverse().slice(0,30);
+    if(!keys.length){ ul.innerHTML='<li class="ar" dir="rtl" style="color:var(--faint)">مفيش تسجيل لسه.</li>'; return; }
+    keys.forEach(k=>{
+      const v=logData[k]; const li=document.createElement('li');
+      li.style.display='flex'; li.style.justifyContent='space-between'; li.style.gap='10px';
+      const left=document.createElement('span'); left.innerHTML='<strong>'+k+'</strong> — '+fmt(v.h)+' س'+(v.note?' · <span style="color:var(--soft)">'+v.note.replace(/</g,'&lt;')+'</span>':'');
+      const del=document.createElement('button'); del.className='del'; del.textContent='✕'; del.style.border='none'; del.style.background='none'; del.style.cursor='pointer'; del.style.color='var(--faint)';
+      del.addEventListener('click',()=>{ delete logData[k]; save(LS.log,logData); renderLog(); });
+      li.appendChild(left); li.appendChild(del); ul.appendChild(li);
+    });
+  }
+  function renderLog(){ renderLogStats(); renderWeekChart(); renderLogList(); }
+
+  document.querySelectorAll('.qbtn').forEach(b=>b.addEventListener('click',()=>{
+    const inp=document.getElementById('lgHours'); inp.value=(parseFloat(inp.value||0)+parseFloat(b.dataset.add)).toString();
+  }));
+  document.getElementById('lgSave').addEventListener('click',()=>{
+    const h=parseFloat(document.getElementById('lgHours').value||0); if(!(h>0)){ toast('اكتب عدد الساعات'); return; }
+    const k=todayKey(); const prev=logData[k]?logData[k].h:0;
+    logData[k]={h:prev+h,note:document.getElementById('lgNote').value.trim()||(logData[k]?.note||'')};
+    save(LS.log,logData); document.getElementById('lgHours').value=''; document.getElementById('lgNote').value='';
+    renderLog(); renderTaskStats(); toast('اتحفظ ✓ (+'+fmt(h)+' س)');
+  });
+  document.getElementById('clrLog').addEventListener('click',()=>{ if(confirm('مسح كل السجل؟')){ logData={}; save(LS.log,logData); renderLog(); } });
+
+  const gi=document.getElementById('goalInput'); gi.value=goal;
+  gi.addEventListener('change',()=>{ goal=Math.max(1,parseInt(gi.value)||7); save(LS.goal,goal); renderLogStats(); });
+
+  // init
+  renderHabits(); renderTasks(); renderTaskStats(); renderLog(); checkImport();
 
   // ---- theme ----
   const tb=document.getElementById('themeBtn');

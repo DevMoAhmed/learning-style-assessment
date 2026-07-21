@@ -28,6 +28,12 @@ export const ui = (lang: Lang) => ({
     'The full 6-month A2 → B1 plan: timeline, sessions, and resources.',
     'خطة الأشهر الستة كاملة من A2 إلى B1: الجدول والحصص والمصادر.'
   ),
+  navCurriculum: t(lang, 'Curriculum', 'المنهج'),
+  navCurriculumDesc: t(
+    lang,
+    'Sounds, grammar, speaking and vocabulary — tap to hear every word.',
+    'الأصوات والقواعد والتحدّث والمفردات — دوس تسمع أي كلمة.'
+  ),
   navSoon: t(lang, 'More tools', 'أدوات أخرى'),
   navSoonDesc: t(
     lang,

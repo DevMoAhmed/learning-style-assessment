@@ -50,6 +50,21 @@ const HomeScreen: React.FC<Props> = ({ lang, onStartAssessment }) => {
           <span className="home__card-arrow" aria-hidden="true">↗</span>
         </a>
 
+        <a
+          className="home__card"
+          style={{ '--card-color': '#8A5A83' } as React.CSSProperties}
+          href={`${import.meta.env.BASE_URL}curriculum.html`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <span className="home__card-icon">📚</span>
+          <span className="home__card-body">
+            <span className="home__card-title">{text.navCurriculum}</span>
+            <span className="home__card-desc">{text.navCurriculumDesc}</span>
+          </span>
+          <span className="home__card-arrow" aria-hidden="true">↗</span>
+        </a>
+
         <div
           className="home__card home__card--soon"
           style={{ '--card-color': '#56A884' } as React.CSSProperties}

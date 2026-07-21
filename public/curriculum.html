@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mohammed · English Curriculum</title>
+<style>
+  :root{
+    --bg:#F3F7F6; --surface:#FFFFFF; --surface-2:#E9F1EF; --raise:#FFFFFF;
+    --ink:#17272A; --soft:#47595C; --faint:#6E8083; --line:#D5E0DE;
+    --teal:#0B7A70; --teal-soft:#0B7A7014; --amber:#A86F0E; --amber-soft:#A86F0E16;
+    --blue:#4A6FA5; --plum:#8A5A83; --green:#3F8F5B;
+    --shadow:0 1px 3px rgba(23,39,42,.08);
+    --serif:"Charter","Bitstream Charter","Sitka Text",Cambria,Georgia,serif;
+    --sans:"Segoe UI",system-ui,-apple-system,sans-serif;
+    --ar:"Segoe UI","Tahoma",sans-serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0E1A1B; --surface:#152426; --surface-2:#1B2E30; --raise:#1B2E30;
+      --ink:#DFEAE7; --soft:#9FB4B0; --faint:#7A908C; --line:#27393B;
+      --teal:#46C2B4; --teal-soft:#46C2B41f; --amber:#D9A94A; --amber-soft:#D9A94A1d;
+      --blue:#7FA3D6; --plum:#C48DBC; --green:#5FBE80; --shadow:none;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0E1A1B; --surface:#152426; --surface-2:#1B2E30; --raise:#1B2E30;
+    --ink:#DFEAE7; --soft:#9FB4B0; --faint:#7A908C; --line:#27393B;
+    --teal:#46C2B4; --teal-soft:#46C2B41f; --amber:#D9A94A; --amber-soft:#D9A94A1d;
+    --blue:#7FA3D6; --plum:#C48DBC; --green:#5FBE80; --shadow:none;
+  }
+  :root[data-theme="light"]{
+    --bg:#F3F7F6; --surface:#FFFFFF; --surface-2:#E9F1EF; --raise:#FFFFFF;
+    --ink:#17272A; --soft:#47595C; --faint:#6E8083; --line:#D5E0DE;
+    --teal:#0B7A70; --teal-soft:#0B7A7014; --amber:#A86F0E; --amber-soft:#A86F0E16;
+    --blue:#4A6FA5; --plum:#8A5A83; --green:#3F8F5B; --shadow:0 1px 3px rgba(23,39,42,.08);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.55;}
+  .ar{font-family:var(--ar);direction:rtl;unicode-bidi:isolate;}
+  .wrap{max-width:940px;margin:0 auto;padding:28px 20px 72px;}
+  h1{font-family:var(--serif);font-size:1.9rem;margin:0;}
+  .lede{color:var(--soft);margin:6px 0 0;font-size:.95rem;}
+  h2{font-family:var(--serif);font-size:1.25rem;margin:0 0 4px;}
+  .eyebrow{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);font-weight:700;}
+
+  /* tabs */
+  .tabs{position:sticky;top:0;z-index:10;display:flex;gap:6px;overflow-x:auto;padding:10px 0;margin:18px 0 8px;
+    background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);}
+  .tab{flex:0 0 auto;border:1px solid var(--line);background:var(--surface);color:var(--soft);
+    border-radius:99px;padding:8px 15px;font-family:var(--sans);font-size:.85rem;font-weight:600;cursor:pointer;white-space:nowrap;}
+  .tab[aria-selected="true"]{background:var(--teal);color:#fff;border-color:var(--teal);}
+  .tab:focus-visible{outline:2px solid var(--teal);outline-offset:2px;}
+  .panel{display:none;animation:fade .25s ease;}
+  .panel.active{display:block;}
+  @keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+
+  .sec-head{margin:22px 0 10px;}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+  @media(max-width:640px){.grid{grid-template-columns:repeat(2,1fr);}}
+
+  /* sound card */
+  .snd{position:relative;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:12px 10px 10px;text-align:center;box-shadow:var(--shadow);}
+  .snd .ipa{font-family:var(--serif);font-size:1.4rem;font-weight:700;color:var(--ink);}
+  .snd .word{color:var(--faint);font-size:.9rem;margin-top:1px;}
+  .play{margin-top:9px;display:inline-flex;align-items:center;gap:6px;border:none;cursor:pointer;
+    background:var(--teal-soft);color:var(--teal);font-weight:700;font-size:.8rem;border-radius:99px;padding:6px 14px;font-family:var(--sans);}
+  .play:hover{background:var(--teal);color:#fff;}
+  .play:focus-visible{outline:2px solid var(--teal);outline-offset:2px;}
+  .hard{position:absolute;top:8px;inset-inline-end:8px;font-size:.62rem;font-weight:700;color:var(--amber);background:var(--amber-soft);border-radius:99px;padding:2px 7px;}
+
+  /* generic rows */
+  .row{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:14px 16px;box-shadow:var(--shadow);margin-bottom:10px;}
+  .row h3{margin:0 0 2px;font-family:var(--serif);font-size:1.05rem;}
+  .row .ex{color:var(--soft);font-size:.92rem;}
+  .row .ex .en{font-style:italic;}
+  .rowtop{display:flex;align-items:center;gap:10px;justify-content:space-between;}
+  .status{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;border-radius:99px;padding:3px 9px;white-space:nowrap;}
+  .st-done{color:var(--green);background:color-mix(in srgb,var(--green) 14%,transparent);}
+  .st-next{color:var(--teal);background:var(--teal-soft);}
+  .st-later{color:var(--faint);background:var(--surface-2);}
+  .miniplay{border:none;cursor:pointer;background:var(--teal-soft);color:var(--teal);border-radius:99px;padding:5px 12px;font-weight:700;font-size:.78rem;font-family:var(--sans);margin-top:8px;}
+  .miniplay:hover{background:var(--teal);color:#fff;}
+
+  .note{background:var(--amber-soft);border:1px solid color-mix(in srgb,var(--amber) 35%,transparent);border-radius:10px;padding:10px 14px;font-size:.9rem;color:var(--soft);margin:12px 0;}
+  .soon{border:1px dashed var(--line);border-radius:12px;padding:26px 18px;text-align:center;color:var(--faint);}
+  .soon .big{font-size:1.6rem;}
+  ul.clean{list-style:none;padding:0;margin:8px 0 0;}
+  ul.clean li{padding:7px 0;border-top:1px solid var(--line);font-size:.92rem;}
+  ul.clean li:first-child{border-top:none;}
+  a{color:var(--teal);text-decoration:none;} a:hover{text-decoration:underline;}
+  .chip{display:inline-block;font-size:.72rem;font-weight:700;color:var(--faint);background:var(--surface-2);border-radius:99px;padding:2px 9px;margin-inline-start:6px;}
+  .bar{height:10px;border-radius:99px;background:var(--surface-2);overflow:hidden;margin-top:8px;}
+  .bar>span{display:block;height:100%;background:var(--teal);}
+  .theme-toggle{position:fixed;bottom:16px;inset-inline-end:16px;border:1px solid var(--line);background:var(--surface);color:var(--soft);
+    border-radius:99px;width:44px;height:44px;font-size:1.1rem;cursor:pointer;box-shadow:var(--shadow);z-index:20;}
+  .wordlist{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+  .wtag{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:5px 6px 5px 12px;font-size:.9rem;}
+  .wtag button{border:none;background:var(--teal-soft);color:var(--teal);border-radius:99px;width:26px;height:26px;cursor:pointer;font-size:.7rem;}
+  .wtag button:hover{background:var(--teal);color:#fff;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Personal curriculum · A2 → B1</p>
+    <h1>Mohammed — English Curriculum</h1>
+    <p class="lede">Tap <strong>▶</strong> on any word to hear it. <span class="ar">دوس على ▶ عشان تسمع أي كلمة أو صوت.</span></p>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="Curriculum sections">
+    <button class="tab" role="tab" aria-selected="true" data-panel="p-sounds">🔊 Pronunciation</button>
+    <button class="tab" role="tab" aria-selected="false" data-panel="p-grammar">📐 Grammar</button>
+    <button class="tab" role="tab" aria-selected="false" data-panel="p-speaking">💬 Speaking</button>
+    <button class="tab" role="tab" aria-selected="false" data-panel="p-vocab">📚 Vocabulary</button>
+    <button class="tab" role="tab" aria-selected="false" data-panel="p-listening">🎧 Listening</button>
+    <button class="tab" role="tab" aria-selected="false" data-panel="p-progress">📈 Progress</button>
+  </div>
+
+  <!-- PRONUNCIATION -->
+  <section id="p-sounds" class="panel active" role="tabpanel">
+    <div class="note">Train your ear and learn to pronounce English sounds. <span class="ar">الأصوات المعلَّمة بـ⚠ صعبة على الناطق بالعربي — ركّز عليها.</span></div>
+    <div class="sec-head"><span class="eyebrow">Vowels</span><h2>Vowel sounds</h2></div>
+    <div class="grid" id="vowels"></div>
+    <div class="sec-head" style="margin-top:26px"><span class="eyebrow">Consonants</span><h2>Consonant sounds</h2></div>
+    <div class="grid" id="consonants"></div>
+  </section>
+
+  <!-- GRAMMAR -->
+  <section id="p-grammar" class="panel" role="tabpanel">
+    <div class="note ar" dir="rtl">القواعد بنتعلمها بالاستنباط — نلاحظ الأمثلة ونستنتج القاعدة، مش نحفظها جاهزة.</div>
+    <div id="grammar"></div>
+  </section>
+
+  <!-- SPEAKING -->
+  <section id="p-speaking" class="panel" role="tabpanel">
+    <div class="row">
+      <h3>Introduce yourself</h3>
+      <p class="ex">A model to copy, then change to your own life. <span class="ar">اسمعها، وبعدين غيّرها لحياتك.</span></p>
+      <p class="ex en">“Hi, my name is Mohammed. I am 21 years old. I am from Egypt. I am a student and I have a small job. I love technology. In my free time I play chess.”</p>
+      <button class="miniplay" data-say="Hi, my name is Mohammed. I am 21 years old. I am from Egypt. I am a student and I have a small job. I love technology. In my free time I play chess.">▶ Play</button>
+    </div>
+    <div class="row">
+      <h3>Warm-up questions <span class="chip">use am / is / are</span></h3>
+      <ul class="clean" id="speak-q"></ul>
+    </div>
+    <div class="row">
+      <h3>4 / 3 / 2 fluency drill</h3>
+      <p class="ex">Tell the same story 3 times, shrinking the time: 2 min → 1.5 min → 1 min. <span class="ar">احكِ نفس القصة 3 مرات، ووقت أقل كل مرة. بيبني الطلاقة والثقة.</span></p>
+    </div>
+    <div class="row">
+      <h3>Practice with Gemini (voice)</h3>
+      <p class="ex">Open Gemini, use Live/voice mode, and send your tutor prompt. Chat 5–10 min every day. <span class="ar">افتح Gemini بالصوت وابعت البرومبت، واتكلم ٥–١٠ دقايق كل يوم.</span></p>
+    </div>
+  </section>
+
+  <!-- VOCABULARY -->
+  <section id="p-vocab" class="panel" role="tabpanel">
+    <div class="note ar" dir="rtl">كلمات مجمّعة بالموضوع — أسهل في التذكر. دوس ▶ تسمع الكلمة. هنضيف مواضيع أكتر مع الوقت.</div>
+    <div id="vocab"></div>
+  </section>
+
+  <!-- LISTENING -->
+  <section id="p-listening" class="panel" role="tabpanel">
+    <div class="note ar" dir="rtl">مصادر صوتية مجانية — أنسب حاجة ليك. اسمع كل يوم على الطريق.</div>
+    <div class="row">
+      <h3>Pronunciation (real voices)</h3>
+      <ul class="clean">
+        <li><a href="https://shiporsheep.com/" target="_blank" rel="noopener">Ship or Sheep</a> — minimal pairs, hear the difference</li>
+        <li><a href="https://www.youtube.com/@bbclearningenglish" target="_blank" rel="noopener">BBC — Tim's Pronunciation Workshop</a> — shows the mouth</li>
+        <li><a href="https://forvo.com/" target="_blank" rel="noopener">Forvo</a> — any word by native speakers</li>
+      </ul>
+    </div>
+    <div class="row">
+      <h3>Listening &amp; podcasts</h3>
+      <ul class="clean">
+        <li><a href="https://www.bbc.co.uk/learningenglish/english/features/real-easy-english" target="_blank" rel="noopener">BBC Real Easy English</a> — slow real conversations</li>
+        <li><a href="https://www.bbc.co.uk/learningenglish/english/features/6-minute-english" target="_blank" rel="noopener">BBC 6 Minute English</a> — B1 stretch, with scripts</li>
+        <li><a href="https://learnenglish.britishcouncil.org/general-english/audio-series/podcasts" target="_blank" rel="noopener">British Council Podcasts</a> — with transcripts</li>
+      </ul>
+    </div>
+    <div class="row">
+      <h3>Watch</h3>
+      <ul class="clean">
+        <li><a href="https://www.easyenglish.video/" target="_blank" rel="noopener">Easy English</a> — real street interviews, dual subtitles</li>
+        <li><a href="https://www.languagereactor.com/" target="_blank" rel="noopener">Language Reactor</a> — dual subtitles on YouTube</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- PROGRESS -->
+  <section id="p-progress" class="panel" role="tabpanel">
+    <div class="row">
+      <div class="rowtop"><h3>Level</h3><span class="status st-next">A2 → B1</span></div>
+      <p class="ex">Started at 7/25 (low A2). Goal: B1 in 6 months.</p>
+      <div class="bar"><span style="width:22%"></span></div>
+    </div>
+    <div class="row"><div class="rowtop"><h3>Checkpoint 1 — Week 4</h3><span class="status st-next">Upcoming</span></div><p class="ex">Cambridge “Test your English” — re-take the placement test.</p></div>
+    <div class="row"><div class="rowtop"><h3>Checkpoint 2 — Week 13</h3><span class="status st-later">Later</span></div><p class="ex">EF SET 50-min — target high A2 / borderline B1.</p></div>
+    <div class="row"><div class="rowtop"><h3>Checkpoint 3 — Week 26</h3><span class="status st-later">Later</span></div><p class="ex">EF SET 4-skills + a B1 Preliminary practice paper — target B1.</p></div>
+    <div class="soon" style="margin-top:12px"><div class="big">📈</div><p>Session-by-session tracking coming here.</p></div>
+  </section>
+</div>
+
+<button class="theme-toggle" id="themeBtn" aria-label="Toggle light/dark" title="Light / Dark">◐</button>
+
+<script>
+  // ---- data ----
+  const VOWELS = [
+    ["ɑ","hot"],["æ","cat",1],["ʌ","but"],["ɛ","bed",1],["eɪ","say"],["ɚ","bird"],
+    ["ɪ","ship",1],["i","sheep",1],["ə","about"],["oʊ","boat"],["ʊ","foot"],["u","food"],
+    ["aʊ","cow"],["aɪ","time"],["ɔɪ","boy"]
+  ];
+  const CONS = [
+    ["b","book"],["tʃ","chair",1],["d","day"],["f","fish"],["g","go"],["h","home"],
+    ["dʒ","job"],["k","key"],["l","lion"],["m","man"],["n","no"],["ŋ","sing",1],
+    ["p","pen",1],["r","red"],["s","sun"],["t","tea"],["v","van",1],["w","we"],
+    ["j","yes"],["z","zoo"],["ʃ","she",1],["ʒ","vision",1],["θ","think",1],["ð","this",1]
+  ];
+  const GRAMMAR = [
+    ["Verb “to be” (present)","am / is / are","I am a student.","done"],
+    ["Present continuous","am/is/are + verb-ing","I am drinking now.","next"],
+    ["Articles","a / an","a coffee, an hour","next"],
+    ["Present simple","he/she adds -s","I work every day.","later"],
+    ["Past simple","-ed / irregular","I worked yesterday.","later"],
+    ["Questions","Are you…? / Do you…?","Are you a student?","later"],
+    ["Comparatives","-er / more","English is easier now.","later"],
+    ["Present perfect","have/has + past participle","I have learned a lot.","later"]
+  ];
+  const SPEAKQ = ["What is your name?","How old are you?","Where are you from?","Are you a student?",
+    "What is your father's job?","Who is your best friend?","What is he like?","Are your friends nice?"];
+  const VOCAB = [
+    ["Daily routine",["wake up","work","study","sleep","breakfast","home"]],
+    ["Family",["father","mother","sister","brother","friend","family"]],
+    ["Food & drink",["rice","meat","bread","coffee","water","pizza"]]
+  ];
+
+  // ---- speech ----
+  let voice=null;
+  function pickVoice(){
+    const vs = speechSynthesis.getVoices();
+    voice = vs.find(v=>/en[-_]US/i.test(v.lang)) || vs.find(v=>/^en/i.test(v.lang)) || null;
+  }
+  if('speechSynthesis' in window){ pickVoice(); speechSynthesis.onvoiceschanged=pickVoice; }
+  function say(text,rate){
+    if(!('speechSynthesis' in window)){ alert('Sound not supported on this browser.'); return; }
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang='en-US'; u.rate=rate||0.9; if(voice)u.voice=voice;
+    speechSynthesis.speak(u);
+  }
+
+  // ---- render sounds ----
+  function soundCard([ipa,word,hard]){
+    const d=document.createElement('div'); d.className='snd';
+    d.innerHTML = (hard?'<span class="hard">⚠ صعب</span>':'')+
+      '<div class="ipa">/'+ipa+'/</div><div class="word">'+word+'</div>'+
+      '<button class="play">▶ '+word+'</button>';
+    d.querySelector('.play').addEventListener('click',()=>say(word,0.75));
+    return d;
+  }
+  VOWELS.forEach(s=>document.getElementById('vowels').appendChild(soundCard(s)));
+  CONS.forEach(s=>document.getElementById('consonants').appendChild(soundCard(s)));
+
+  // ---- grammar ----
+  const stMap={done:['Learned ✓','st-done'],next:['Next','st-next'],later:['Later','st-later']};
+  const gc=document.getElementById('grammar');
+  GRAMMAR.forEach(([title,form,ex,st])=>{
+    const r=document.createElement('div'); r.className='row';
+    const s=stMap[st];
+    r.innerHTML='<div class="rowtop"><h3>'+title+'</h3><span class="status '+s[1]+'">'+s[0]+'</span></div>'+
+      '<p class="ex">Form: <strong>'+form+'</strong></p>'+
+      '<p class="ex en">'+ex+'</p><button class="miniplay">▶ Play example</button>';
+    r.querySelector('.miniplay').addEventListener('click',()=>say(ex,0.85));
+    gc.appendChild(r);
+  });
+
+  // ---- speaking questions ----
+  const sq=document.getElementById('speak-q');
+  SPEAKQ.forEach(q=>{
+    const li=document.createElement('li');
+    li.innerHTML='<span class="en">'+q+'</span>';
+    const b=document.createElement('button'); b.className='miniplay'; b.style.marginTop='4px'; b.style.marginInlineStart='8px'; b.textContent='▶';
+    b.addEventListener('click',()=>say(q,0.9)); li.appendChild(b); sq.appendChild(li);
+  });
+
+  // ---- vocab ----
+  const vc=document.getElementById('vocab');
+  VOCAB.forEach(([theme,words])=>{
+    const r=document.createElement('div'); r.className='row';
+    r.innerHTML='<h3>'+theme+'</h3>';
+    const wl=document.createElement('div'); wl.className='wordlist';
+    words.forEach(w=>{
+      const t=document.createElement('span'); t.className='wtag';
+      t.innerHTML='<span>'+w+'</span>';
+      const b=document.createElement('button'); b.textContent='▶'; b.addEventListener('click',()=>say(w,0.8));
+      t.appendChild(b); wl.appendChild(t);
+    });
+    r.appendChild(wl); vc.appendChild(r);
+  });
+
+  // ---- tabs ----
+  const tabs=[...document.querySelectorAll('.tab')];
+  tabs.forEach(t=>t.addEventListener('click',()=>{
+    tabs.forEach(x=>x.setAttribute('aria-selected','false'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    t.setAttribute('aria-selected','true');
+    document.getElementById(t.dataset.panel).classList.add('active');
+    if('speechSynthesis' in window) speechSynthesis.cancel();
+    window.scrollTo({top:0,behavior:'smooth'});
+  }));
+
+  // ---- theme ----
+  const tb=document.getElementById('themeBtn');
+  tb.addEventListener('click',()=>{
+    const cur=document.documentElement.getAttribute('data-theme');
+    const isDark = cur? cur==='dark' : matchMedia('(prefers-color-scheme:dark)').matches;
+    document.documentElement.setAttribute('data-theme', isDark?'light':'dark');
+  });
+</script>
+</body>
+</html>

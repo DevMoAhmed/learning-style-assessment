@@ -209,6 +209,42 @@
   .g-result{text-align:center;padding:16px;}
   .g-result .score{font-family:var(--serif);font-size:2.4rem;font-weight:800;color:var(--teal);}
   .soon-game{border:1px dashed var(--line);border-radius:12px;padding:18px;text-align:center;color:var(--faint);margin-bottom:12px;}
+  /* game picker */
+  .games-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:16px;}
+  .gcard{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:14px;cursor:pointer;box-shadow:var(--shadow);text-align:start;font-family:var(--sans);}
+  .gcard:hover{border-color:var(--plum);transform:translateY(-2px);}
+  .gcard .gt{font-family:var(--serif);font-weight:700;font-size:1rem;margin-bottom:3px;}
+  .gcard .gd{font-size:.8rem;color:var(--faint);}
+  .gcard .gtag{display:inline-block;margin-top:6px;font-size:.68rem;font-weight:700;color:var(--plum);background:color-mix(in srgb,var(--plum) 12%,transparent);border-radius:99px;padding:2px 9px;}
+  /* unscramble */
+  .scramble{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0;min-height:48px;padding:10px;border:1px dashed var(--line);border-radius:10px;}
+  .chip-word{border:1px solid var(--teal);background:var(--teal-soft);color:var(--teal);border-radius:8px;padding:8px 14px;cursor:pointer;font-size:1rem;font-family:var(--serif);font-weight:600;}
+  .chip-word:hover{background:var(--teal);color:#fff;}
+  .scramble-bank{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;}
+  /* vocab notebook */
+  .vitem{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 14px;margin-bottom:8px;}
+  .vitem .vtop{display:flex;align-items:center;gap:10px;}
+  .vitem .vword{font-family:var(--serif);font-weight:700;font-size:1.05rem;flex:1;}
+  .vitem .vmean{color:var(--soft);font-family:var(--ar);direction:rtl;}
+  .vitem .vex{font-size:.85rem;color:var(--faint);font-style:italic;margin-top:4px;}
+  .vitem .vtag{font-size:.66rem;font-weight:700;color:var(--blue);background:var(--blue-soft);border-radius:99px;padding:2px 8px;}
+  .vbox{font-size:.66rem;color:var(--faint);}
+  .review-box{border:2px solid var(--teal);background:var(--teal-soft);border-radius:14px;padding:20px;text-align:center;margin:6px 0 14px;}
+  .review-box .rword{font-family:var(--serif);font-size:2rem;font-weight:800;}
+  .review-box .rback{margin-top:10px;}
+  .review-box .rmean{font-family:var(--ar);direction:rtl;font-size:1.2rem;color:var(--ink);}
+  .review-box .rex{color:var(--soft);font-style:italic;margin-top:6px;}
+  .rev-btns{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap;}
+  .rev-again{background:#c4553f;color:#fff;border:none;border-radius:10px;padding:10px 20px;font-weight:700;cursor:pointer;}
+  .rev-good{background:var(--green);color:#fff;border:none;border-radius:10px;padding:10px 20px;font-weight:700;cursor:pointer;}
+  .due-badge{display:inline-block;background:var(--teal);color:#fff;border-radius:99px;font-size:.66rem;font-weight:700;padding:1px 7px;margin-inline-start:6px;}
+  /* ideas */
+  #ideasList li{display:flex;gap:10px;align-items:flex-start;}
+  #ideasList .in{flex:0 0 auto;font-weight:800;color:var(--teal);font-variant-numeric:tabular-nums;min-width:26px;}
+  #ideasList .ib{flex:1;}
+  #ideasList .ibt{font-weight:700;}
+  #ideasList .iw{font-size:.85rem;color:var(--soft);}
+  #ideasList .ist{flex:0 0 auto;font-size:.9rem;}
 </style>
 </head>
 <body>
@@ -229,6 +265,8 @@
     <button class="tab" role="tab" aria-selected="false" data-panel="p-tasks">✅ Tasks</button>
     <button class="tab" role="tab" aria-selected="false" data-panel="p-log">⏱️ Log</button>
     <button class="tab" role="tab" aria-selected="false" data-panel="p-progress">📈 Progress</button>
+    <button class="tab" role="tab" aria-selected="false" data-panel="p-sync">☁️ Sync</button>
+    <button class="tab" role="tab" aria-selected="false" data-panel="p-ideas">💡 Ideas</button>
   </div>
 
   <!-- PRONUNCIATION -->
@@ -270,14 +308,45 @@
 
   <!-- VOCABULARY -->
   <section id="p-vocab" class="panel" role="tabpanel">
-    <div class="note ar" dir="rtl">كلمات مجمّعة بالموضوع — أسهل في التذكر. دوس ▶ تسمع الكلمة. هنضيف مواضيع أكتر مع الوقت.</div>
-    <div id="vocab"></div>
+    <div class="note ar" dir="rtl">دفتر كلماتك. ضيف أي كلمة جديدة، والدفتر بيراجعها معاك في الوقت الصح (نظام التكرار المتباعد). دوس ▶ تسمعها.</div>
+
+    <div class="stat-row">
+      <div class="stat"><div class="stat-num" id="vcDue">0</div><div class="stat-lbl ar">مستحقة للمراجعة</div></div>
+      <div class="stat"><div class="stat-num" id="vcTotal">0</div><div class="stat-lbl ar">إجمالي الكلمات</div></div>
+      <div class="stat"><div class="stat-num" id="vcKnown">0</div><div class="stat-lbl ar">اتعلمتها ✓</div></div>
+    </div>
+
+    <div id="reviewCard"></div>
+
+    <div class="row">
+      <h3 class="ar" dir="rtl">أضف كلمة جديدة</h3>
+      <div class="task-add">
+        <input id="vwWord" class="fld" placeholder="word (English)">
+        <input id="vwMean" class="fld" placeholder="المعنى بالعربي">
+        <input id="vwEx" class="fld" placeholder="جملة مثال (اختياري)">
+        <input id="vwTag" class="fld fld-sm" placeholder="موضوع (family…)">
+        <button class="btn-solid" id="vwAdd">إضافة</button>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="rowtop"><h3 class="ar" dir="rtl">كل الكلمات</h3>
+        <input id="vwFilter" class="fld fld-sm" placeholder="🔎 فلترة">
+      </div>
+      <div id="vocabList"></div>
+    </div>
   </section>
 
   <!-- GAMES -->
   <section id="p-games" class="panel" role="tabpanel">
-    <div class="note ar" dir="rtl">تمارين تفاعلية على القواعد. كل لعبة بتديك درجة وتقولك ليه الإجابة صح.</div>
+    <div class="note ar" dir="rtl">تمارين تفاعلية على القواعد. كل لعبة بتديك درجة وتقولك ليه الإجابة صح. أي غلطة بتتحفظ في «بنك الأخطاء» تحت عشان تراجعها.</div>
+    <div id="gamePicker" class="games-grid"></div>
     <div id="gamesArea"></div>
+    <div class="row" id="mistakesRow" style="margin-top:18px">
+      <div class="rowtop"><h3 class="ar" dir="rtl">🧠 بنك الأخطاء</h3><button class="btn-ghost danger" id="clrMistakes">مسح</button></div>
+      <p class="ex ar" dir="rtl">الجمل اللي غلطت فيها — راجعها. دوس ▶ تسمعها صح.</p>
+      <ul class="clean" id="mistakesList"></ul>
+    </div>
   </section>
 
   <!-- LISTENING -->
@@ -416,7 +485,60 @@
     <div class="row"><div class="rowtop"><h3>Checkpoint 1 — Week 4</h3><span class="status st-next">Upcoming</span></div><p class="ex">Cambridge “Test your English” — re-take the placement test.</p></div>
     <div class="row"><div class="rowtop"><h3>Checkpoint 2 — Week 13</h3><span class="status st-later">Later</span></div><p class="ex">EF SET 50-min — target high A2 / borderline B1.</p></div>
     <div class="row"><div class="rowtop"><h3>Checkpoint 3 — Week 26</h3><span class="status st-later">Later</span></div><p class="ex">EF SET 4-skills + a B1 Preliminary practice paper — target B1.</p></div>
-    <div class="soon" style="margin-top:12px"><div class="big">📈</div><p>Session-by-session tracking coming here.</p></div>
+    <div class="row">
+      <h3 class="ar" dir="rtl">تقرير الأسبوع</h3>
+      <div class="stat-row" style="margin-top:10px">
+        <div class="stat"><div class="stat-num" id="rpDays">0</div><div class="stat-lbl ar">أيام ذاكرت</div></div>
+        <div class="stat"><div class="stat-num" id="rpHours">0</div><div class="stat-lbl ar">ساعات الأسبوع</div></div>
+        <div class="stat"><div class="stat-num" id="rpWords">0</div><div class="stat-lbl ar">كلمات في الدفتر</div></div>
+      </div>
+      <div class="stat-row" style="margin-top:10px">
+        <div class="stat"><div class="stat-num" id="rpStreak">0</div><div class="stat-lbl ar">🔥 ستريك حالي</div></div>
+        <div class="stat"><div class="stat-num" id="rpBest">0</div><div class="stat-lbl ar">🏆 أطول ستريك</div></div>
+        <div class="stat"><div class="stat-num" id="rpKnown">0</div><div class="stat-lbl ar">كلمات اتعلمها</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SYNC -->
+  <section id="p-sync" class="panel" role="tabpanel">
+    <div class="note ar" dir="rtl">احفظ تقدّمك على GitHub عشان يتزامن بين موبايلك واللاب. بيتخزن في Gist خاص بتوكن انت بتعمله. التوكن بيتخزن في المتصفح ده بس — متستخدموش على كمبيوتر عام.</div>
+    <div class="row">
+      <h3 class="ar" dir="rtl">١) التوكن (مرة واحدة)</h3>
+      <ol class="ar" dir="rtl" style="font-size:.9rem;padding-inline-start:20px;line-height:1.9">
+        <li>افتح <a href="https://github.com/settings/tokens/new?scopes=gist&amp;description=English%20progress" target="_blank" rel="noopener">GitHub → New token (classic)</a></li>
+        <li>اختار صلاحية <b>gist</b> بس، ومدة صلاحية (٩٠ يوم مثلاً).</li>
+        <li>انسخ التوكن والصقه هنا:</li>
+      </ol>
+      <div class="task-add">
+        <input id="ghToken" class="fld" type="password" placeholder="ghp_… التوكن">
+        <button class="btn-solid" id="ghSaveToken">حفظ التوكن</button>
+        <button class="btn-ghost danger" id="ghClearToken">مسح التوكن</button>
+      </div>
+      <p class="ex" id="ghTokenState"></p>
+    </div>
+    <div class="row">
+      <h3 class="ar" dir="rtl">٢) المزامنة</h3>
+      <div class="task-add">
+        <button class="btn-solid" id="ghSave">⬆️ احفظ على GitHub</button>
+        <button class="btn-solid" id="ghLoad">⬇️ حمّل من GitHub</button>
+      </div>
+      <label class="mini-lbl ar" dir="rtl">Gist ID (لو عندك واحد من جهاز تاني):
+        <input id="ghGistId" class="fld fld-sm" placeholder="اختياري"></label>
+      <p class="ex" id="ghSyncState"></p>
+      <p class="ex ar" dir="rtl">على اللاب اعمل «احفظ» أول مرة → هيطلع Gist ID، انسخه وحطه على الموبايل واعمل «حمّل». كده الاتنين متزامنين.</p>
+    </div>
+    <div class="tool-row">
+      <button class="btn-ghost" id="ghExport">⬇️ نسخة JSON</button>
+      <button class="btn-ghost" id="ghImportBtn">⬆️ استيراد JSON</button>
+      <input id="ghImportFile" type="file" accept="application/json" hidden>
+    </div>
+  </section>
+
+  <!-- IDEAS -->
+  <section id="p-ideas" class="panel" role="tabpanel">
+    <div class="note ar" dir="rtl">أفكار تخلي التعلم أحسن. المعلّم بيفعّلها مع الوقت. ✅ = اتعملت في الصفحة، 🔜 = جاية.</div>
+    <ul class="clean" id="ideasList"></ul>
   </section>
 </div>
 
@@ -577,74 +699,7 @@
     gc.appendChild(grp);
   });
 
-  // ================= GAMES =================
-  const GAMES={
-    articles:{
-      title:"Articles game — a / an / the / —",
-      intro:"املا الفراغ بالأداة الصح. — يعني بدون أداة.",
-      items:[
-        {s:"I have ___ apple.",a:"an",why:"مفرد أول مرة + بصوت متحرك (a·e·i·o·u) → an."},
-        {s:"She is ___ teacher.",a:"a",why:"وظيفة، مفرد، أول مرة، بصوت ساكن → a."},
-        {s:"___ sun is very hot.",a:"the",why:"حاجة واحدة في الدنيا → the."},
-        {s:"I like ___ music.",a:"—",why:"كلام عام (غير معدود) → بدون أداة."},
-        {s:"He bought ___ car yesterday.",a:"a",why:"مفرد أول مرة بصوت ساكن → a."},
-        {s:"I need ___ hour to finish.",a:"an",why:"الـ h ساكتة، بيبدأ بصوت متحرك → an."},
-        {s:"Please close ___ door.",a:"the",why:"باب محدّد الاتنين عارفينه → the."},
-        {s:"___ cats are cute animals.",a:"—",why:"جمع عام → بدون أداة."},
-        {s:"We watched ___ interesting film.",a:"an",why:"بصوت متحرك (i) → an."},
-        {s:"This is ___ university.",a:"a",why:"بتبدأ بصوت «يو» ساكن → a (مش an)."}
-      ]
-    }
-  };
-  const OPTS=["a","an","the","—"];
-  const gamesArea=document.getElementById('gamesArea');
-  function renderGames(){
-    gamesArea.innerHTML='';
-    Object.keys(GAMES).forEach(id=>buildGame(id));
-    const soon=document.createElement('div'); soon.className='soon-game';
-    soon.innerHTML='<div style="font-size:1.4rem">🎮</div><p class="ar" dir="rtl">ألعاب تانية (المضارع المستمر، الأزمنة) في الطريق.</p>';
-    gamesArea.appendChild(soon);
-  }
-  function buildGame(id){
-    const g=GAMES[id]; const box=document.createElement('div'); box.className='game'; box.id='game-'+id;
-    const state={i:0,score:0};
-    function draw(){
-      if(state.i>=g.items.length){
-        box.innerHTML='<div class="g-result"><div class="score">'+state.score+'/'+g.items.length+'</div>'+
-          '<p class="ar" dir="rtl">'+(state.score===g.items.length?'ممتاز! 🎉':(state.score>=g.items.length*0.6?'كويس جدًا 👍':'كمّل تمرين 💪'))+'</p>'+
-          '<button class="btn-solid" id="rg-'+id+'">العب تاني</button></div>';
-        box.querySelector('#rg-'+id).addEventListener('click',()=>{state.i=0;state.score=0;draw();});
-        return;
-      }
-      const q=g.items[state.i];
-      box.innerHTML='<h3>'+g.title+'</h3><div class="g-progress">سؤال '+(state.i+1)+' / '+g.items.length+' · نقاط: '+state.score+'</div>'+
-        '<div class="g-sentence">'+q.s.replace('___','<span class="g-blank">?</span>')+'</div>'+
-        '<div class="g-opts"></div><div class="g-fb"></div>';
-      const opts=box.querySelector('.g-opts'); const fb=box.querySelector('.g-fb');
-      OPTS.forEach(o=>{
-        const b=document.createElement('button'); b.className='g-opt'; b.textContent=o;
-        b.addEventListener('click',()=>{
-          if(fb.classList.contains('show'))return;
-          const ok=(o===q.a);
-          b.classList.add(ok?'correct':'wrong');
-          if(ok){ state.score++; } else { [...opts.children].forEach(c=>{if(c.textContent===q.a)c.classList.add('correct');}); }
-          if(o!=="—") say(q.s.replace('___',q.a),0.85);
-          fb.className='g-fb show '+(ok?'ok':'no');
-          fb.innerHTML=(ok?'✅ صح! ':'❌ الإجابة: <b>'+q.a+'</b> ')+'<span class="arp">'+q.why+'</span>';
-          const nx=document.createElement('button'); nx.className='btn-solid g-next'; nx.textContent='التالي ←';
-          nx.addEventListener('click',()=>{state.i++;draw();}); fb.appendChild(nx);
-        });
-        opts.appendChild(b);
-      });
-    }
-    draw(); gamesArea.appendChild(box);
-  }
-  function goToGame(id){
-    document.querySelector('.tab[data-panel="p-games"]').click();
-    const el=document.getElementById('game-'+id);
-    if(el) setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'start'}),80);
-  }
-  renderGames();
+  // (games engine defined later, after the storage layer)
 
   // ---- speaking questions ----
   const sq=document.getElementById('speak-q');
@@ -655,20 +710,7 @@
     b.addEventListener('click',()=>say(q,0.9)); li.appendChild(b); sq.appendChild(li);
   });
 
-  // ---- vocab ----
-  const vc=document.getElementById('vocab');
-  VOCAB.forEach(([theme,words])=>{
-    const r=document.createElement('div'); r.className='row';
-    r.innerHTML='<h3>'+theme+'</h3>';
-    const wl=document.createElement('div'); wl.className='wordlist';
-    words.forEach(w=>{
-      const t=document.createElement('span'); t.className='wtag';
-      t.innerHTML='<span>'+w+'</span>';
-      const b=document.createElement('button'); b.textContent='▶'; b.addEventListener('click',()=>say(w,0.8));
-      t.appendChild(b); wl.appendChild(t);
-    });
-    r.appendChild(wl); vc.appendChild(r);
-  });
+  // (vocab notebook defined later, after the storage layer)
 
   // ---- tabs ----
   const tabs=[...document.querySelectorAll('.tab')];
@@ -901,8 +943,324 @@
   const gi=document.getElementById('goalInput'); gi.value=goal;
   gi.addEventListener('change',()=>{ goal=Math.max(1,parseInt(gi.value)||7); save(LS.goal,goal); renderLogStats(); });
 
+  // ================= MISTAKES BANK =================
+  const MIST='m_mistakes';
+  let mistakes=load(MIST,[]);
+  function addMistake(q,ans,why){ mistakes.unshift({q,ans,why:why||'',ts:todayKey()}); if(mistakes.length>120)mistakes.pop(); save(MIST,mistakes); }
+  function renderMistakes(){
+    const ul=document.getElementById('mistakesList'); ul.innerHTML='';
+    if(!mistakes.length){ ul.innerHTML='<li class="ar" dir="rtl" style="color:var(--faint);border:none">مفيش أخطاء لسه — برافو! 🎉</li>'; return; }
+    mistakes.forEach((m,idx)=>{
+      const li=document.createElement('li'); li.style.display='flex'; li.style.gap='10px'; li.style.alignItems='center';
+      const sp=document.createElement('span'); sp.style.flex='1';
+      sp.innerHTML='<span class="en">'+m.q.replace('___','<b>'+m.ans+'</b>')+'</span>'+(m.why?'<br><span class="arp" style="font-size:.82rem;color:var(--soft)">'+m.why+'</span>':'');
+      const pb=document.createElement('button'); pb.className='miniplay'; pb.textContent='▶'; pb.style.flex='0 0 auto';
+      pb.addEventListener('click',()=>say(m.q.replace('___',m.ans),0.85));
+      const del=document.createElement('button'); del.className='del'; del.textContent='🗑'; del.style.flex='0 0 auto';
+      del.addEventListener('click',()=>{ mistakes.splice(idx,1); save(MIST,mistakes); renderMistakes(); });
+      li.appendChild(sp); li.appendChild(pb); li.appendChild(del); ul.appendChild(li);
+    });
+  }
+  document.getElementById('clrMistakes').addEventListener('click',()=>{ if(confirm('مسح بنك الأخطاء؟')){ mistakes=[]; save(MIST,mistakes); renderMistakes(); } });
+
+  // ================= GAMES =================
+  const OPTS=["a","an","the","—"];
+  const GAMES={
+    articles:{title:"Articles — a / an / the",type:"mcq",opts:OPTS,desc:"a / an / the / بدون أداة",items:[
+      {s:"I have ___ apple.",a:"an",why:"مفرد أول مرة + صوت متحرك → an."},
+      {s:"She is ___ teacher.",a:"a",why:"وظيفة مفرد أول مرة بصوت ساكن → a."},
+      {s:"___ sun is very hot.",a:"the",why:"حاجة واحدة في الدنيا → the."},
+      {s:"I like ___ music.",a:"—",why:"كلام عام غير معدود → بدون أداة."},
+      {s:"He bought ___ car.",a:"a",why:"مفرد أول مرة بصوت ساكن → a."},
+      {s:"I need ___ hour.",a:"an",why:"الـ h ساكتة، بصوت متحرك → an."},
+      {s:"Please close ___ door.",a:"the",why:"محدّد معروف → the."},
+      {s:"___ cats are cute.",a:"—",why:"جمع عام → بدون أداة."},
+      {s:"This is ___ university.",a:"a",why:"صوت «يو» ساكن → a."}
+    ]},
+    tobe:{title:"Verb “to be” — am / is / are",type:"mcq",opts:["am","is","are"],desc:"am / is / are",items:[
+      {s:"I ___ happy.",a:"am",why:"مع I دايمًا am."},
+      {s:"She ___ my sister.",a:"is",why:"مفرد (she) → is."},
+      {s:"They ___ at home.",a:"are",why:"جمع (they) → are."},
+      {s:"He ___ a doctor.",a:"is",why:"مفرد (he) → is."},
+      {s:"You ___ my friend.",a:"are",why:"you دايمًا are."},
+      {s:"We ___ students.",a:"are",why:"جمع (we) → are."},
+      {s:"It ___ cold today.",a:"is",why:"مفرد (it) → is."}
+    ]},
+    presentcont:{title:"Present continuous — الآن",type:"mcq",opts:["am","is","are"],desc:"am/is/are + verb-ing",items:[
+      {s:"I ___ drinking coffee now.",a:"am",why:"I + am + ing. متنساش am!"},
+      {s:"He ___ playing football.",a:"is",why:"he → is + ing."},
+      {s:"They ___ watching TV.",a:"are",why:"they → are + ing."},
+      {s:"She ___ reading a book.",a:"is",why:"she → is + ing."},
+      {s:"We ___ learning English.",a:"are",why:"we → are + ing."},
+      {s:"I ___ working right now.",a:"am",why:"I → am + ing."}
+    ]},
+    pastsimple:{title:"Past simple — الماضي",type:"mcq",desc:"went / worked / …",items:[
+      {s:"Yesterday I ___ to work.",opts:["go","went","goed"],a:"went",why:"go فعل شاذ → went."},
+      {s:"She ___ football last week.",opts:["played","play","plaid"],a:"played",why:"فعل عادي + ed → played."},
+      {s:"They ___ a film last night.",opts:["watch","watched","watchs"],a:"watched",why:"+ ed → watched."},
+      {s:"He ___ his friend yesterday.",opts:["see","saw","seed"],a:"saw",why:"see شاذ → saw."},
+      {s:"I ___ tired last night.",opts:["was","were","am"],a:"was",why:"I في الماضي → was."},
+      {s:"We ___ at home.",opts:["was","were","are"],a:"were",why:"we في الماضي → were."}
+    ]},
+    plurals:{title:"Plurals — الجمع",type:"mcq",desc:"children / boxes / …",items:[
+      {s:"one child, two ___",opts:["childs","children","childes"],a:"children",why:"جمع شاذ → children."},
+      {s:"one box, three ___",opts:["boxs","boxes","box"],a:"boxes",why:"بتنتهي بـ x → نزود es."},
+      {s:"one man, two ___",opts:["mans","men","mens"],a:"men",why:"جمع شاذ → men."},
+      {s:"one city, two ___",opts:["citys","cities","cityes"],a:"cities",why:"y بعد ساكن → ies."},
+      {s:"one book, five ___",opts:["book","books","bookes"],a:"books",why:"عادي + s → books."}
+    ]},
+    preps:{title:"Prepositions of time — in/on/at",type:"mcq",opts:["in","on","at"],desc:"in / on / at",items:[
+      {s:"I wake up ___ 7 o'clock.",a:"at",why:"الساعة → at."},
+      {s:"I work ___ Monday.",a:"on",why:"أيام الأسبوع → on."},
+      {s:"It's cold ___ winter.",a:"in",why:"الفصول/الشهور → in."},
+      {s:"See you ___ the morning.",a:"in",why:"in the morning."},
+      {s:"My birthday is ___ July.",a:"in",why:"الشهور → in."},
+      {s:"The meeting is ___ Friday.",a:"on",why:"أيام → on."}
+    ]},
+    wordorder:{title:"Word order — رتّب الجملة",type:"scramble",desc:"رتّب الكلمات",items:[
+      {s:"I am a student"},{s:"She is my sister"},{s:"They are at home"},
+      {s:"He is a good teacher"},{s:"We are learning English"},{s:"I like coffee very much"}
+    ]}
+  };
+  const gamesArea=document.getElementById('gamesArea');
+  function renderPicker(){
+    const p=document.getElementById('gamePicker'); p.innerHTML='';
+    Object.keys(GAMES).forEach(id=>{
+      const g=GAMES[id]; const c=document.createElement('button'); c.className='gcard';
+      c.innerHTML='<div class="gt">'+g.title+'</div><div class="gd">'+g.desc+'</div><span class="gtag">'+g.items.length+' سؤال</span>';
+      c.addEventListener('click',()=>{ buildGame(id); setTimeout(()=>gamesArea.scrollIntoView({behavior:'smooth',block:'start'}),60); });
+      p.appendChild(c);
+    });
+  }
+  function buildGame(id){
+    const g=GAMES[id]; gamesArea.innerHTML='';
+    const box=document.createElement('div'); box.className='game'; box.id='game-'+id; gamesArea.appendChild(box);
+    if(g.type==='scramble') return scrambleGame(g,box);
+    const state={i:0,score:0};
+    function draw(){
+      if(state.i>=g.items.length){
+        box.innerHTML='<div class="g-result"><div class="score">'+state.score+'/'+g.items.length+'</div>'+
+          '<p class="ar" dir="rtl">'+(state.score===g.items.length?'ممتاز! 🎉':(state.score>=g.items.length*0.6?'كويس جدًا 👍':'كمّل تمرين 💪'))+'</p>'+
+          '<button class="btn-solid" id="rg">العب تاني</button></div>';
+        box.querySelector('#rg').addEventListener('click',()=>{state.i=0;state.score=0;draw();}); return;
+      }
+      const q=g.items[state.i]; const opts=q.opts||g.opts||OPTS;
+      box.innerHTML='<h3>'+g.title+'</h3><div class="g-progress">سؤال '+(state.i+1)+' / '+g.items.length+' · نقاط: '+state.score+'</div>'+
+        '<div class="g-sentence">'+q.s.replace('___','<span class="g-blank">?</span>')+'</div><div class="g-opts"></div><div class="g-fb"></div>';
+      const ob=box.querySelector('.g-opts'), fb=box.querySelector('.g-fb');
+      opts.forEach(o=>{
+        const b=document.createElement('button'); b.className='g-opt'; b.textContent=o;
+        b.addEventListener('click',()=>{
+          if(fb.classList.contains('show'))return;
+          const ok=(o===q.a); b.classList.add(ok?'correct':'wrong');
+          if(ok){state.score++;} else { [...ob.children].forEach(c=>{if(c.textContent===q.a)c.classList.add('correct');}); addMistake(q.s,q.a,q.why); }
+          say(q.s.replace('___',q.a),0.85);
+          fb.className='g-fb show '+(ok?'ok':'no');
+          fb.innerHTML=(ok?'✅ صح! ':'❌ الإجابة: <b>'+q.a+'</b> ')+'<span class="arp">'+(q.why||'')+'</span>';
+          const nx=document.createElement('button'); nx.className='btn-solid g-next'; nx.textContent='التالي ←';
+          nx.addEventListener('click',()=>{state.i++;draw();}); fb.appendChild(nx);
+        });
+        ob.appendChild(b);
+      });
+    }
+    draw();
+  }
+  function scrambleGame(g,box){
+    const state={i:0,score:0};
+    function draw(){
+      if(state.i>=g.items.length){
+        box.innerHTML='<div class="g-result"><div class="score">'+state.score+'/'+g.items.length+'</div><button class="btn-solid" id="rg">العب تاني</button></div>';
+        box.querySelector('#rg').addEventListener('click',()=>{state.i=0;state.score=0;draw();}); return;
+      }
+      const tokens=g.items[state.i].s.split(' ');
+      const bank=tokens.map((w,idx)=>({w,idx})).sort(()=>Math.random()-0.5);
+      const chosen=[];
+      box.innerHTML='<h3>'+g.title+'</h3><div class="g-progress">جملة '+(state.i+1)+' / '+g.items.length+' · نقاط: '+state.score+'</div>'+
+        '<p class="ex ar" dir="rtl">دوس الكلمات بالترتيب الصح.</p><div class="scramble" id="answer"></div><div class="scramble-bank" id="bank"></div><div class="g-fb"></div>';
+      const ans=box.querySelector('#answer'), bk=box.querySelector('#bank'), fb=box.querySelector('.g-fb');
+      function redraw(){
+        ans.innerHTML=''; chosen.forEach((c,ci)=>{ const w=document.createElement('button'); w.className='chip-word'; w.textContent=c.w; w.addEventListener('click',()=>{ chosen.splice(ci,1); bank.push(c); redraw(); }); ans.appendChild(w); });
+        bk.innerHTML=''; bank.forEach((c,bi)=>{ const w=document.createElement('button'); w.className='chip-word'; w.textContent=c.w; w.addEventListener('click',()=>{ chosen.push(c); bank.splice(bi,1); redraw(); check(); }); bk.appendChild(w); });
+      }
+      function check(){
+        if(chosen.length!==tokens.length)return;
+        const built=chosen.map(c=>c.w).join(' '); const ok=(built===g.items[state.i].s);
+        if(ok){state.score++;} else { addMistake(g.items[state.i].s,'(الترتيب الصح)',''); }
+        say(g.items[state.i].s,0.85);
+        fb.className='g-fb show '+(ok?'ok':'no');
+        fb.innerHTML=(ok?'✅ صح! ':'❌ الصح: <b>'+g.items[state.i].s+'</b>');
+        const nx=document.createElement('button'); nx.className='btn-solid g-next'; nx.textContent='التالي ←'; nx.addEventListener('click',()=>{state.i++;draw();}); fb.appendChild(nx);
+      }
+      redraw();
+    }
+    draw();
+  }
+  function goToGame(id){ document.querySelector('.tab[data-panel="p-games"]').click(); buildGame(id); setTimeout(()=>{const el=document.getElementById('game-'+id); if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},80); }
+
+  // ================= VOCAB NOTEBOOK + SRS (Leitner) =================
+  const LSV='m_vocab', BOXD={1:1,2:3,3:7,4:14,5:30};
+  const SEED=[["family","العائلة","I love my family.","family"],["work","شغل / يشتغل","I work every day.","work"],
+    ["water","مياه","I drink water.","food"],["hour","ساعة","I need an hour.","time"],
+    ["happy","سعيد","I am happy today.","feelings"],["buy","يشتري","I want to buy a car.","daily"]];
+  function mkWord(word,mean,ex,tag){ return {id:newId(),word,mean:mean||'',ex:ex||'',tag:tag||'',box:1,due:todayKey(),r:0,w:0}; }
+  let vocab=load(LSV,null);
+  if(vocab===null){ vocab=SEED.map(s=>mkWord(s[0],s[1],s[2],s[3])); save(LSV,vocab); }
+  function saveVocab(){ save(LSV,vocab); }
+  function dueWords(){ const tk=todayKey(); return vocab.filter(w=>w.box<6 && w.due<=tk); }
+  function updateBadge(){
+    const tab=document.querySelector('.tab[data-panel="p-vocab"]'); if(!tab)return;
+    let b=tab.querySelector('.due-badge'); const n=dueWords().length;
+    if(n>0){ if(!b){ b=document.createElement('span'); b.className='due-badge'; tab.appendChild(b); } b.textContent=n; }
+    else if(b){ b.remove(); }
+  }
+  function renderVocab(){
+    document.getElementById('vcDue').textContent=dueWords().length;
+    document.getElementById('vcTotal').textContent=vocab.length;
+    document.getElementById('vcKnown').textContent=vocab.filter(w=>w.box>=6).length;
+    updateBadge();
+    // review starter
+    const rc=document.getElementById('reviewCard'); const due=dueWords();
+    if(!document.querySelector('.review-box')){
+      rc.innerHTML = due.length? '<div class="row" style="text-align:center"><button class="btn-solid" id="startRev">▶ ابدأ المراجعة ('+due.length+' كلمة)</button></div>' : '';
+      const sr=document.getElementById('startRev'); if(sr)sr.addEventListener('click',()=>startReview(due));
+    }
+    // list
+    const list=document.getElementById('vocabList'); const f=(document.getElementById('vwFilter').value||'').toLowerCase();
+    list.innerHTML='';
+    const shown=vocab.filter(w=>!f || w.word.toLowerCase().includes(f) || (w.tag||'').toLowerCase().includes(f) || (w.mean||'').includes(f));
+    if(!shown.length){ list.innerHTML='<p class="ex ar" dir="rtl">مفيش كلمات.</p>'; return; }
+    shown.forEach(w=>{
+      const d=document.createElement('div'); d.className='vitem';
+      const top=document.createElement('div'); top.className='vtop';
+      top.innerHTML='<span class="vword">'+w.word+'</span>'+(w.mean?'<span class="vmean">'+w.mean+'</span>':'')+(w.tag?'<span class="vtag">'+w.tag+'</span>':'')+'<span class="vbox">box '+w.box+'</span>';
+      const pb=document.createElement('button'); pb.className='miniplay'; pb.textContent='▶'; pb.addEventListener('click',()=>say(w.word,0.8));
+      const del=document.createElement('button'); del.className='del'; del.textContent='🗑'; del.style.width='28px'; del.style.height='28px';
+      del.addEventListener('click',()=>{ if(confirm('حذف «'+w.word+'»؟')){ vocab=vocab.filter(x=>x.id!==w.id); saveVocab(); renderVocab(); } });
+      top.appendChild(pb); top.appendChild(del); d.appendChild(top);
+      if(w.ex){ const e=document.createElement('div'); e.className='vex'; e.textContent=w.ex; d.appendChild(e); }
+      list.appendChild(d);
+    });
+  }
+  function startReview(queue){
+    const rc=document.getElementById('reviewCard'); let qi=0;
+    function card(){
+      if(qi>=queue.length){ rc.innerHTML='<div class="review-box"><div class="ar" dir="rtl">خلصت المراجعة 🎉 راجعت '+queue.length+' كلمة.</div></div>'; renderVocab(); updateBadge(); renderProgress(); return; }
+      const w=queue[qi];
+      rc.innerHTML='<div class="review-box"><div class="rword">'+w.word+'</div>'+
+        '<button class="miniplay" id="rvPlay" style="margin-top:8px">▶ اسمع</button>'+
+        '<div class="rback" id="rvBack" hidden><div class="rmean">'+(w.mean||'—')+'</div>'+(w.ex?'<div class="rex">'+w.ex+'</div>':'')+'</div>'+
+        '<div class="rev-btns" id="rvBtns"><button class="btn-solid" id="rvShow">اظهر المعنى</button></div></div>';
+      rc.querySelector('#rvPlay').addEventListener('click',()=>say(w.word,0.8));
+      rc.querySelector('#rvShow').addEventListener('click',()=>{
+        rc.querySelector('#rvBack').hidden=false;
+        rc.querySelector('#rvBtns').innerHTML='<button class="rev-again" id="rvAgain">مش فاكرها</button><button class="rev-good" id="rvGood">فاكرها ✓</button>';
+        rc.querySelector('#rvAgain').addEventListener('click',()=>{ w.box=1; w.due=shiftDate(todayKey(),1); w.w++; saveVocab(); qi++; card(); });
+        rc.querySelector('#rvGood').addEventListener('click',()=>{ w.box=Math.min(6,w.box+1); w.r++; w.due=w.box>=6?'9999-12-31':shiftDate(todayKey(),BOXD[w.box]||30); saveVocab(); qi++; card(); });
+      });
+    }
+    card();
+  }
+  document.getElementById('vwAdd').addEventListener('click',()=>{
+    const word=document.getElementById('vwWord').value.trim(); if(!word)return;
+    vocab.push(mkWord(word,document.getElementById('vwMean').value.trim(),document.getElementById('vwEx').value.trim(),document.getElementById('vwTag').value.trim()));
+    saveVocab(); ['vwWord','vwMean','vwEx','vwTag'].forEach(i=>document.getElementById(i).value='');
+    renderVocab(); toast('اتضافت الكلمة ✓');
+  });
+  document.getElementById('vwWord').addEventListener('keydown',e=>{ if(e.key==='Enter')document.getElementById('vwAdd').click(); });
+  document.getElementById('vwFilter').addEventListener('input',renderVocab);
+
+  // ================= PROGRESS REPORT + best streak =================
+  function renderProgress(){
+    const tk=todayKey(); let days=0; const d=new Date();
+    for(let i=0;i<7;i++){ const k=dayKey(d); if((logData[k]&&logData[k].h>0)||(habitsDone[k]&&habitsDone[k].length))days++; d.setDate(d.getDate()-1); }
+    const cur=streak(); const best=Math.max(load('m_best',0),cur); save('m_best',best);
+    const set=(id,v)=>{ const e=document.getElementById(id); if(e)e.textContent=v; };
+    set('rpDays',days); set('rpHours',fmt(weekHours())); set('rpWords',vocab.length);
+    set('rpStreak',cur); set('rpBest',best); set('rpKnown',vocab.filter(w=>w.box>=6).length);
+  }
+
+  // ================= GITHUB SYNC (Gist) =================
+  const GH='https://api.github.com';
+  function ghHeaders(){ return {'Authorization':'Bearer '+(localStorage.getItem('gh_token')||''),'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2026-03-10','Content-Type':'application/json'}; }
+  function bundleAll(){ return {tasks:load(LS.tasks,[]),log:load(LS.log,{}),habitsDone:load(LS.habitsDone,{}),goal:load(LS.goal,7),vocab:load(LSV,[]),mistakes:load(MIST,[]),best:load('m_best',0),savedAt:todayKey()}; }
+  function applyBundle(b){ if(!b)return; if(b.tasks)save(LS.tasks,b.tasks); if(b.log)save(LS.log,b.log); if(b.habitsDone)save(LS.habitsDone,b.habitsDone); if(b.goal!=null)save(LS.goal,b.goal); if(b.vocab)save(LSV,b.vocab); if(b.mistakes)save(MIST,b.mistakes); if(b.best!=null)save('m_best',b.best); }
+  function ghState(msg){ const e=document.getElementById('ghSyncState'); if(e)e.textContent=msg; }
+  function ghTokenState(){ const has=!!localStorage.getItem('gh_token'); document.getElementById('ghTokenState').textContent=has?'✅ التوكن محفوظ في المتصفح ده.':'مفيش توكن.'; }
+  document.getElementById('ghSaveToken').addEventListener('click',()=>{ const t=document.getElementById('ghToken').value.trim(); if(!t)return; localStorage.setItem('gh_token',t); document.getElementById('ghToken').value=''; ghTokenState(); toast('اتحفظ التوكن'); });
+  document.getElementById('ghClearToken').addEventListener('click',()=>{ localStorage.removeItem('gh_token'); ghTokenState(); toast('اتمسح التوكن'); });
+  const gid=document.getElementById('ghGistId'); gid.value=localStorage.getItem('gh_gist_id')||'';
+  gid.addEventListener('change',()=>{ if(gid.value.trim())localStorage.setItem('gh_gist_id',gid.value.trim()); });
+  document.getElementById('ghSave').addEventListener('click',async()=>{
+    if(!localStorage.getItem('gh_token')){ ghState('❌ احفظ التوكن الأول.'); return; }
+    ghState('… بيحفظ'); const body={files:{'progress.json':{content:JSON.stringify(bundleAll(),null,2)}}};
+    try{
+      let id=localStorage.getItem('gh_gist_id');
+      let res;
+      if(id){ res=await fetch(GH+'/gists/'+id,{method:'PATCH',headers:ghHeaders(),body:JSON.stringify(body)}); }
+      else { res=await fetch(GH+'/gists',{method:'POST',headers:ghHeaders(),body:JSON.stringify({description:'English progress',public:false,files:body.files})}); }
+      if(!res.ok)throw new Error(res.status);
+      const g=await res.json(); if(g.id){ localStorage.setItem('gh_gist_id',g.id); gid.value=g.id; }
+      ghState('✅ اتحفظ. Gist ID: '+localStorage.getItem('gh_gist_id'));
+    }catch(e){ ghState('❌ فشل الحفظ ('+e.message+'). اتأكد من التوكن.'); }
+  });
+  document.getElementById('ghLoad').addEventListener('click',async()=>{
+    const id=(gid.value.trim())||localStorage.getItem('gh_gist_id');
+    if(!localStorage.getItem('gh_token')||!id){ ghState('❌ محتاج توكن + Gist ID.'); return; }
+    ghState('… بيحمّل');
+    try{
+      const res=await fetch(GH+'/gists/'+id,{headers:ghHeaders()}); if(!res.ok)throw new Error(res.status);
+      const g=await res.json(); const c=g.files&&g.files['progress.json']&&g.files['progress.json'].content;
+      if(!c)throw new Error('empty'); applyBundle(JSON.parse(c)); localStorage.setItem('gh_gist_id',id);
+      ghState('✅ اتحمّل. بيعيد التحميل…'); setTimeout(()=>location.reload(),700);
+    }catch(e){ ghState('❌ فشل التحميل ('+e.message+').'); }
+  });
+  document.getElementById('ghExport').addEventListener('click',()=>{ const blob=new Blob([JSON.stringify(bundleAll(),null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='english-progress.json'; a.click(); URL.revokeObjectURL(a.href); });
+  document.getElementById('ghImportBtn').addEventListener('click',()=>document.getElementById('ghImportFile').click());
+  document.getElementById('ghImportFile').addEventListener('change',e=>{ const f=e.target.files[0]; if(!f)return; const rd=new FileReader(); rd.onload=()=>{ try{ applyBundle(JSON.parse(rd.result)); toast('اتحمّل. بيعيد التحميل…'); setTimeout(()=>location.reload(),600);}catch(err){toast('ملف غير صالح');} }; rd.readAsText(f); });
+
+  // ================= IDEAS (20) =================
+  const IDEAS=[
+    ["بنك الأخطاء","كل غلطة بتتحفظ تلقائي عشان تراجعها","✅"],
+    ["عدّاد المراجعة المستحقة","بادج بيقولك كام كلمة لازم تتراجع النهاردة","✅"],
+    ["صوت في كل حاجة","زر ▶ على كل كلمة وجملة","✅"],
+    ["دفتر كلمات بتكرار متباعد","الكلمة بتترجع في الوقت الصح (Leitner)","✅"],
+    ["ألعاب قواعد متنوعة","الأدوات، to be، المضارع المستمر، الماضي، الجمع، حروف الجر، ترتيب الجمل","✅"],
+    ["تقرير أسبوعي","أيام، ساعات، كلمات، ستريك","✅"],
+    ["أطول ستريك","بيحفظ أحسن سلسلة أيام","✅"],
+    ["مزامنة على GitHub","تقدّمك بين الموبايل واللاب","✅"],
+    ["نسخة احتياطية JSON","تصدير/استيراد كل بياناتك","✅"],
+    ["ملاحظة الأداة بالعربي","سبب كل إجابة مكتوب بالعربي","✅"],
+    ["Streak Freeze","يوم واحد مسموح تفوّته من غير ما الستريك يتصفّر","🔜"],
+    ["مسجّل تظليل صوتي","تسجّل صوتك ورا الجملة وتقارن","🔜"],
+    ["مدرّب الأزواج الصوتية","ship/sheep و p/b للناطق بالعربي","🔜"],
+    ["جملة اليوم","جملة مفيدة كل يوم بصوت","🔜"],
+    ["ديكتوجلوس","اسمع نص واكتبه وقارن","🔜"],
+    ["فعل مركّب أسبوعي","get up / look for … مع كويز","🔜"],
+    ["كروت للطباعة","اطبع دفتر الكلمات","🔜"],
+    ["متجر مكافآت","اصرف نقاطك على مكافأة تختارها","🔜"],
+    ["تحدي بالوقت","٦٠ ثانية أسئلة سريعة مع أعلى نتيجة","🔜"],
+    ["يومية تعلّم","سطر كل يوم: اتعلمت/اتلغبطت في إيه","🔜"]
+  ];
+  function renderIdeas(){
+    const ul=document.getElementById('ideasList'); ul.innerHTML='';
+    IDEAS.forEach(([t,w,st],i)=>{
+      const li=document.createElement('li');
+      li.innerHTML='<span class="in">'+(i+1)+'</span><span class="ib"><span class="ibt ar" dir="rtl">'+t+'</span><br><span class="iw ar" dir="rtl">'+w+'</span></span><span class="ist">'+st+'</span>';
+      ul.appendChild(li);
+    });
+  }
+
+  // refresh on tab switch
+  document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
+    const p=t.dataset.panel;
+    if(p==='p-vocab')renderVocab();
+    if(p==='p-games')renderMistakes();
+    if(p==='p-progress')renderProgress();
+  }));
+
   // init
   renderDay(); renderTasks(); renderTaskStats(); renderLog(); checkImport();
+  renderPicker(); renderMistakes(); renderVocab(); renderProgress(); renderIdeas(); ghTokenState(); updateBadge();
 
   // ---- theme ----
   const tb=document.getElementById('themeBtn');

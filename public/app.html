@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>English Board · دخول</title>
+<style>
+  :root{
+    --bg:#F3F7F6; --surface:#FFFFFF; --surface-2:#E9F1EF;
+    --ink:#17272A; --soft:#47595C; --faint:#6E8083; --line:#D5E0DE;
+    --teal:#0B7A70; --teal-soft:#0B7A7014; --amber:#A86F0E;
+    --blue:#4A6FA5; --green:#3F8F5B; --red:#C0483B;
+    --shadow:0 1px 3px rgba(23,39,42,.08);
+    --sans:"Segoe UI",system-ui,-apple-system,sans-serif;
+    --ar:"Segoe UI","Tahoma",sans-serif;
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --bg:#0E1A1B; --surface:#152426; --surface-2:#1B2E30;
+    --ink:#DFEAE7; --soft:#9FB4B0; --faint:#7A908C; --line:#27393B;
+    --teal:#46C2B4; --teal-soft:#46C2B41f; --amber:#D9A94A;
+    --blue:#7FA3D6; --green:#5FBE80; --red:#E0796B; --shadow:none;
+  }}
+  :root[data-theme="dark"]{
+    --bg:#0E1A1B; --surface:#152426; --surface-2:#1B2E30;
+    --ink:#DFEAE7; --soft:#9FB4B0; --faint:#7A908C; --line:#27393B;
+    --teal:#46C2B4; --teal-soft:#46C2B41f; --amber:#D9A94A;
+    --blue:#7FA3D6; --green:#5FBE80; --red:#E0796B; --shadow:none;
+  }
+  :root[data-theme="light"]{
+    --bg:#F3F7F6; --surface:#FFFFFF; --surface-2:#E9F1EF;
+    --ink:#17272A; --soft:#47595C; --faint:#6E8083; --line:#D5E0DE;
+    --teal:#0B7A70; --teal-soft:#0B7A7014; --amber:#A86F0E;
+    --blue:#4A6FA5; --green:#3F8F5B; --red:#C0483B; --shadow:0 1px 3px rgba(23,39,42,.08);
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--ar);line-height:1.55;}
+  button{font-family:inherit;}
+  .btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;
+    padding:9px 14px;font-size:.9rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;}
+  .btn:hover{border-color:var(--teal);}
+  .btn.solid{background:var(--teal);color:#fff;border-color:var(--teal);}
+  .btn.red{color:#fff;background:var(--red);border-color:var(--red);}
+  .btn.ghost{background:transparent;}
+  .btn.sm{padding:6px 10px;font-size:.8rem;}
+  .btn:disabled{opacity:.5;cursor:not-allowed;}
+  .fld{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);
+    color:var(--ink);font-size:.95rem;font-family:var(--sans);}
+  .fld:focus{outline:2px solid var(--teal);outline-offset:1px;}
+  .muted{color:var(--soft);font-size:.9rem;}
+  .err{color:var(--red);font-size:.85rem;min-height:1.1em;}
+
+  /* ---- login ---- */
+  #login{position:fixed;inset:0;display:grid;place-items:center;padding:18px;
+    background:linear-gradient(168deg,var(--bg) 40%,var(--surface-2));}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);
+    padding:28px 24px;width:min(400px,100%);}
+  .logo{width:54px;height:54px;border-radius:15px;background:var(--teal);color:#fff;display:grid;place-items:center;
+    margin:0 auto 12px;font-size:1.6rem;}
+  .card h2{margin:0 0 2px;text-align:center;font-size:1.2rem;}
+  .card .sub{text-align:center;margin:0 0 16px;}
+  .field{margin-top:12px;text-align:start;}
+  .field label{display:block;font-size:.82rem;font-weight:600;margin-bottom:4px;color:var(--soft);}
+  .toggle{margin-top:14px;text-align:center;font-size:.85rem;}
+  .toggle a{color:var(--teal);cursor:pointer;font-weight:600;}
+
+  /* ---- shell ---- */
+  #shell{display:none;min-height:100%;flex-direction:column;}
+  .topbar{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--line);
+    background:var(--surface);position:sticky;top:0;z-index:20;}
+  .topbar .brand{font-weight:800;color:var(--teal);}
+  .topbar .who{margin-inline-start:auto;font-size:.85rem;color:var(--soft);}
+  .topbar .badge{background:var(--teal-soft);color:var(--teal);border-radius:99px;padding:2px 9px;font-size:.72rem;font-weight:700;}
+
+  /* ---- student iframe ---- */
+  #studentView{display:none;flex:1;}
+  #studentView iframe{width:100%;height:calc(100vh - 53px);border:0;display:block;}
+
+  /* ---- admin ---- */
+  #adminView{display:none;max-width:900px;margin:0 auto;padding:22px 18px 60px;width:100%;}
+  .adm-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+  .adm-head h1{font-size:1.4rem;margin:0;}
+  .stat-row{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 2px;}
+  .chip{background:var(--surface-2);border-radius:10px;padding:7px 12px;font-size:.82rem;}
+  .chip b{color:var(--teal);font-size:1.05rem;display:block;}
+  .slist{list-style:none;padding:0;margin:14px 0;display:grid;gap:10px;}
+  .srow{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+  .srow .nm{font-weight:700;}
+  .srow .em{font-size:.8rem;color:var(--faint);direction:ltr;unicode-bidi:isolate;}
+  .srow .acts{margin-inline-start:auto;display:flex;gap:6px;flex-wrap:wrap;}
+  .empty{color:var(--faint);padding:20px;text-align:center;}
+
+  /* ---- modal ---- */
+  #modal{position:fixed;inset:0;z-index:50;background:rgba(10,20,20,.5);display:none;place-items:center;padding:16px;}
+  #modal.open{display:grid;}
+  .mbox{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);
+    width:min(480px,100%);max-height:88vh;overflow:auto;padding:22px;}
+  .mbox h3{margin:0 0 12px;}
+  .mbox .close{float:inline-end;cursor:pointer;color:var(--faint);font-size:1.3rem;line-height:1;}
+  .kv{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px dashed var(--line);font-size:.9rem;}
+  .kv b{direction:ltr;unicode-bidi:isolate;}
+  .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);
+    padding:10px 18px;border-radius:99px;font-size:.85rem;z-index:60;opacity:0;transition:.2s;pointer-events:none;}
+  .toast.show{opacity:1;}
+  .theme-toggle{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:99px;
+    width:34px;height:34px;cursor:pointer;}
+  .divider{height:1px;background:var(--line);margin:16px 0;}
+  .hint{background:var(--teal-soft);border-radius:10px;padding:10px 12px;font-size:.82rem;color:var(--soft);margin-top:10px;}
+</style>
+</head>
+<body>
+
+<!-- ================= LOGIN ================= -->
+<div id="login">
+  <div class="card">
+    <div class="logo">📚</div>
+    <h2>English Board</h2>
+    <p class="sub muted" id="lgSub">سجّل دخولك للمتابعة</p>
+    <div class="field"><label>الإيميل</label><input id="lgEmail" class="fld" type="email" dir="ltr" placeholder="name@example.com" autocomplete="username"></div>
+    <div class="field"><label>كلمة السر</label><input id="lgPass" class="fld" type="password" dir="ltr" placeholder="••••••••" autocomplete="current-password"></div>
+    <p class="err" id="lgErr"></p>
+    <button class="btn solid" id="lgBtn" style="width:100%;justify-content:center">دخول</button>
+    <div class="toggle" id="lgToggle"><a id="lgSignupLink">أول مرة كمالك؟ أنشئ حساب المالك</a></div>
+  </div>
+</div>
+
+<!-- ================= SHELL ================= -->
+<div id="shell">
+  <div class="topbar">
+    <span class="brand">📚 English Board</span>
+    <span class="who"><span id="waWho"></span> <span class="badge" id="waRole"></span></span>
+    <button class="theme-toggle" id="themeBtn" title="Light / Dark">◐</button>
+    <button class="btn ghost sm" id="logoutBtn">خروج ⎋</button>
+  </div>
+
+  <!-- STUDENT -->
+  <div id="studentView"><iframe id="curFrame" title="Curriculum"></iframe></div>
+
+  <!-- ADMIN -->
+  <div id="adminView">
+    <div class="adm-head">
+      <h1>لوحة المعلّم</h1>
+      <button class="btn solid" id="addBtn" style="margin-inline-start:auto">➕ إضافة طالب</button>
+    </div>
+    <p class="muted">الطلبة المسجّلون. افتح أي طالب لمتابعة تقدّمه أو تعديل بياناته.</p>
+    <ul class="slist" id="students"></ul>
+  </div>
+</div>
+
+<div id="modal"><div class="mbox" id="mbox"></div></div>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  import { initializeApp, deleteApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut }
+    from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, onSnapshot }
+    from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+  const ADMIN_EMAIL = "mohamedelhawary8@gmail.com";
+  const firebaseConfig = {
+    apiKey: "AIzaSyBuL9tK-UJ10HvzwPocXNIYjXGjDKtDB3E",
+    authDomain: "englishboard-adc4c.firebaseapp.com",
+    projectId: "englishboard-adc4c",
+    storageBucket: "englishboard-adc4c.firebasestorage.app",
+    messagingSenderId: "552512992591",
+    appId: "1:552512992591:web:993f1a4aa9b9b61600813a"
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+  const lc   = s => (s || "").trim().toLowerCase();
+  const $    = id => document.getElementById(id);
+
+  // ---------- helpers ----------
+  let toastT;
+  function toast(m){ const e=$("toast"); e.textContent=m; e.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(()=>e.classList.remove("show"),2200); }
+  function openModal(html){ $("mbox").innerHTML=html; $("modal").classList.add("open"); }
+  function closeModal(){ $("modal").classList.remove("open"); $("mbox").innerHTML=""; }
+  $("modal").addEventListener("click", e=>{ if(e.target.id==="modal") closeModal(); });
+  const esc = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const authMsg = code => ({
+    "auth/invalid-credential":"الإيميل أو كلمة السر غلط",
+    "auth/invalid-email":"إيميل غير صالح",
+    "auth/user-not-found":"الحساب غير موجود",
+    "auth/wrong-password":"كلمة السر غلط",
+    "auth/too-many-requests":"محاولات كتير — استنى شوية",
+    "auth/weak-password":"كلمة السر قصيرة (٦ أحرف على الأقل)",
+    "auth/email-already-in-use":"الإيميل مستخدم بالفعل"
+  }[code] || code);
+  const dayKey = d => d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+
+  function stats(b){
+    b = b || {}; const log = b.log || {};
+    let totalH=0, days=0;
+    for(const k in log){ const h=(log[k]&&log[k].h)||0; if(h>0){ totalH+=h; days++; } }
+    let st=0, d=new Date();
+    if(!(log[dayKey(d)] && log[dayKey(d)].h>0)) d.setDate(d.getDate()-1);
+    while(log[dayKey(d)] && log[dayKey(d)].h>0){ st++; d.setDate(d.getDate()-1); }
+    const lastDay = Object.keys(log).sort().pop() || "—";
+    return { streak:st, best:b.best||0, totalH:Math.round(totalH*10)/10, days,
+      vocab:(b.vocab||[]).length, mistakes:(b.mistakes||[]).length, tasks:(b.tasks||[]).length, lastDay };
+  }
+
+  // ---------- theme ----------
+  $("themeBtn").addEventListener("click", ()=>{
+    const cur=document.documentElement.getAttribute("data-theme");
+    const dark = cur ? cur==="dark" : matchMedia("(prefers-color-scheme:dark)").matches;
+    document.documentElement.setAttribute("data-theme", dark?"light":"dark");
+    try{ localStorage.setItem("eb_theme", dark?"light":"dark"); }catch(e){}
+  });
+  try{ const th=localStorage.getItem("eb_theme"); if(th) document.documentElement.setAttribute("data-theme",th); }catch(e){}
+
+  // ---------- login ----------
+  let signupMode=false;
+  $("lgSignupLink").addEventListener("click", ()=>{
+    signupMode=!signupMode;
+    $("lgBtn").textContent = signupMode ? "إنشاء حساب المالك" : "دخول";
+    $("lgSub").textContent = signupMode ? "إنشاء حساب المالك لأول مرة فقط" : "سجّل دخولك للمتابعة";
+    $("lgSignupLink").textContent = signupMode ? "← رجوع لتسجيل الدخول" : "أول مرة كمالك؟ أنشئ حساب المالك";
+    $("lgErr").textContent="";
+  });
+  async function doLogin(){
+    const em=lc($("lgEmail").value), pw=$("lgPass").value;
+    $("lgErr").textContent=""; $("lgBtn").disabled=true;
+    try{
+      if(signupMode){
+        if(em!==ADMIN_EMAIL){ throw {code:"حساب المالك مخصّص لإيميل المالك فقط. الطلبة يُنشئهم المعلّم من اللوحة."}; }
+        await createUserWithEmailAndPassword(auth, em, pw);
+      }else{
+        await signInWithEmailAndPassword(auth, em, pw);
+      }
+    }catch(e){ $("lgErr").textContent = authMsg(e.code); }
+    finally{ $("lgBtn").disabled=false; }
+  }
+  $("lgBtn").addEventListener("click", doLogin);
+  $("lgPass").addEventListener("keydown", e=>{ if(e.key==="Enter") doLogin(); });
+  $("logoutBtn").addEventListener("click", ()=>signOut(auth));
+
+  // ---------- routing ----------
+  let usersUnsub=null;
+  function showLogin(){
+    $("login").style.display="grid"; $("shell").style.display="none";
+    $("adminView").style.display="none"; $("studentView").style.display="none";
+    $("curFrame").src="about:blank";
+    if(usersUnsub){ usersUnsub(); usersUnsub=null; }
+    $("lgPass").value="";
+  }
+  function enterShell(email, role){
+    $("login").style.display="none"; $("shell").style.display="flex";
+    $("waWho").textContent=email;
+    $("waRole").textContent = role==="admin" ? "المعلّم" : "طالب";
+  }
+  function enterStudent(email){
+    enterShell(email,"student");
+    $("adminView").style.display="none"; $("studentView").style.display="flex";
+    // same-origin iframe: it reads the persisted auth session and syncs to boards/{email}
+    if($("curFrame").getAttribute("src")!=="curriculum.html") $("curFrame").src="curriculum.html";
+  }
+  function enterAdmin(email){
+    enterShell(email,"admin");
+    $("studentView").style.display="none"; $("adminView").style.display="block";
+    listenStudents();
+  }
+  function showBlocked(email){
+    $("login").style.display="grid"; $("shell").style.display="none";
+    $("lgErr").textContent="الحساب غير مُفعّل. كلّم المعلّم عشان يضيفك.";
+    signOut(auth);
+  }
+
+  onAuthStateChanged(auth, async user=>{
+    if(!user){ showLogin(); return; }
+    const email=lc(user.email);
+    if(email===ADMIN_EMAIL){ enterAdmin(email); return; }
+    try{
+      const snap=await getDoc(doc(db,"users",email));
+      if(!snap.exists()){ showBlocked(email); return; }
+      enterStudent(email);
+    }catch(e){ $("lgErr").textContent="خطأ صلاحيات: "+(e.code||e.message); showLogin(); }
+  });
+
+  // ---------- admin: list students ----------
+  function listenStudents(){
+    if(usersUnsub) usersUnsub();
+    usersUnsub = onSnapshot(collection(db,"users"), snap=>{
+      const list = snap.docs.map(d=>({ email:d.id, ...d.data() }))
+        .filter(u=>u.role!=="admin").sort((a,b)=>(a.name||a.email).localeCompare(b.name||b.email));
+      renderStudents(list);
+    }, err=>toast("خطأ تحميل: "+(err.code||err.message)));
+  }
+  function renderStudents(list){
+    const ul=$("students");
+    if(!list.length){ ul.innerHTML='<li class="empty">مفيش طلبة لسه. اضغط «إضافة طالب».</li>'; return; }
+    ul.innerHTML="";
+    list.forEach(u=>{
+      const li=document.createElement("li"); li.className="srow";
+      li.innerHTML =
+        '<span><span class="nm">'+esc(u.name||"طالب")+'</span><br><span class="em">'+esc(u.email)+'</span></span>'+
+        '<span class="acts">'+
+          '<button class="btn sm" data-a="view">📈 التقدّم</button>'+
+          '<button class="btn sm" data-a="edit">✏️ تعديل</button>'+
+          '<button class="btn sm red" data-a="del">🗑</button>'+
+        '</span>';
+      li.querySelector('[data-a="view"]').addEventListener("click",()=>viewStudent(u));
+      li.querySelector('[data-a="edit"]').addEventListener("click",()=>editStudent(u));
+      li.querySelector('[data-a="del"]').addEventListener("click",()=>delStudent(u));
+      ul.appendChild(li);
+    });
+  }
+
+  // ---------- admin: create student ----------
+  $("addBtn").addEventListener("click", ()=>{
+    openModal(
+      '<span class="close" id="mClose">×</span><h3>➕ إضافة طالب</h3>'+
+      '<div class="field"><label>الاسم</label><input id="nsName" class="fld" placeholder="محمد سعد"></div>'+
+      '<div class="field"><label>الإيميل</label><input id="nsEmail" class="fld" type="email" dir="ltr" placeholder="student@example.com"></div>'+
+      '<div class="field"><label>كلمة السر المؤقتة</label><input id="nsPass" class="fld" dir="ltr" placeholder="٦ أحرف على الأقل"></div>'+
+      '<p class="err" id="nsErr"></p>'+
+      '<button class="btn solid" id="nsSave" style="width:100%;justify-content:center;margin-top:6px">إنشاء الحساب</button>'+
+      '<p class="hint">هيتعمل حساب دخول للطالب. اديله الإيميل وكلمة السر. يقدر يغيّرها بعدين.</p>'
+    );
+    $("mClose").addEventListener("click",closeModal);
+    $("nsSave").addEventListener("click",createStudent);
+  });
+
+  async function createStudent(){
+    const name=$("nsName").value.trim(), email=lc($("nsEmail").value), pw=$("nsPass").value;
+    $("nsErr").textContent="";
+    if(!name||!email||pw.length<6){ $("nsErr").textContent="اكمل البيانات (كلمة السر ٦ أحرف+)"; return; }
+    if(email===ADMIN_EMAIL){ $("nsErr").textContent="ده إيميل المالك"; return; }
+    $("nsSave").disabled=true;
+    // create the auth user in a SECONDARY app so the admin stays signed in
+    const app2=initializeApp(firebaseConfig, "secondary-"+email);
+    try{
+      const a2=getAuth(app2);
+      await createUserWithEmailAndPassword(a2, email, pw);
+      await signOut(a2);
+      await setDoc(doc(db,"users",email), { role:"student", name, createdAt:Date.now(), by:ADMIN_EMAIL });
+      toast("اتعمل حساب "+name+" ✓"); closeModal();
+    }catch(e){ $("nsErr").textContent=authMsg(e.code); }
+    finally{ $("nsSave").disabled=false; try{ await deleteApp(app2); }catch(e){} }
+  }
+
+  // ---------- admin: delete student ----------
+  function delStudent(u){
+    openModal(
+      '<span class="close" id="mClose">×</span><h3>🗑 حذف الطالب</h3>'+
+      '<p>هتشيل صلاحية <b>'+esc(u.name||u.email)+'</b> وكل بياناته المحفوظة. مش هيقدر يدخل تاني.</p>'+
+      '<p class="hint">ملاحظة: حساب الدخول نفسه بيتشال من Firebase Console → Authentication (مش ممكن من هنا). لكن من غير صلاحية مش هيدخل.</p>'+
+      '<div style="display:flex;gap:8px;margin-top:14px"><button class="btn red" id="dYes">أيوه احذف</button><button class="btn" id="dNo">إلغاء</button></div>'
+    );
+    $("mClose").addEventListener("click",closeModal); $("dNo").addEventListener("click",closeModal);
+    $("dYes").addEventListener("click", async ()=>{
+      try{
+        await deleteDoc(doc(db,"users",u.email));
+        await deleteDoc(doc(db,"boards",u.email)).catch(()=>{});
+        toast("اتحذف ✓"); closeModal();
+      }catch(e){ toast("فشل: "+(e.code||e.message)); }
+    });
+  }
+
+  // ---------- admin: view progress ----------
+  async function viewStudent(u){
+    openModal('<span class="close" id="mClose">×</span><h3>📈 '+esc(u.name||u.email)+'</h3><p class="muted">… بيحمّل</p>');
+    $("mClose").addEventListener("click",closeModal);
+    let b={};
+    try{ const s=await getDoc(doc(db,"boards",u.email)); if(s.exists()) b=s.data().bundle||{}; }
+    catch(e){ $("mbox").innerHTML='<span class="close" id="mc2">×</span><p class="err">خطأ: '+esc(e.code||e.message)+'</p>'; $("mc2").addEventListener("click",closeModal); return; }
+    const st=stats(b);
+    openModal(
+      '<span class="close" id="mClose">×</span><h3>📈 '+esc(u.name||u.email)+'</h3>'+
+      '<div class="stat-row">'+
+        '<span class="chip"><b>'+st.streak+'</b>ستريك حالي 🔥</span>'+
+        '<span class="chip"><b>'+st.best+'</b>أطول ستريك 🏆</span>'+
+        '<span class="chip"><b>'+st.totalH+'</b>ساعة إجمالي</span>'+
+        '<span class="chip"><b>'+st.days+'</b>يوم نشِط</span>'+
+      '</div>'+
+      '<div class="stat-row">'+
+        '<span class="chip"><b>'+st.vocab+'</b>كلمة 📘</span>'+
+        '<span class="chip"><b>'+st.mistakes+'</b>خطأ في البنك 🧠</span>'+
+        '<span class="chip"><b>'+st.tasks+'</b>مهمة</span>'+
+      '</div>'+
+      '<div class="kv"><span>آخر نشاط</span><b>'+esc(st.lastDay)+'</b></div>'+
+      '<div class="divider"></div>'+
+      '<h3 style="font-size:.95rem">آخر الأخطاء</h3>'+
+      ((b.mistakes||[]).slice(0,6).map(m=>'<div class="kv"><b>'+esc(m.q||"")+'</b><span>'+esc(m.ans||"")+'</span></div>').join("") || '<p class="muted">مفيش أخطاء متسجّلة.</p>')
+    );
+    $("mClose").addEventListener("click",closeModal);
+  }
+
+  // ---------- admin: edit data ----------
+  async function editStudent(u){
+    let b={};
+    try{ const s=await getDoc(doc(db,"boards",u.email)); if(s.exists()) b=s.data().bundle||{}; }catch(e){}
+    openModal(
+      '<span class="close" id="mClose">×</span><h3>✏️ تعديل بيانات '+esc(u.name||u.email)+'</h3>'+
+      '<div class="field"><label>هدف الأسبوع (ساعات)</label><input id="edGoal" class="fld" type="number" min="1" max="40" value="'+(b.goal||7)+'"></div>'+
+      '<div class="divider"></div>'+
+      '<h3 style="font-size:.92rem">➕ ضيف كلمة للقاموس</h3>'+
+      '<div class="field"><input id="edW" class="fld" dir="ltr" placeholder="word"></div>'+
+      '<div class="field"><input id="edM" class="fld" placeholder="المعنى بالعربي"></div>'+
+      '<div class="field"><input id="edEx" class="fld" dir="ltr" placeholder="example sentence (اختياري)"></div>'+
+      '<div class="divider"></div>'+
+      '<div style="display:flex;flex-wrap:wrap;gap:8px">'+
+        '<button class="btn sm red" data-c="log">صفّر السجل/الستريك</button>'+
+        '<button class="btn sm red" data-c="mist">امسح بنك الأخطاء</button>'+
+        '<button class="btn sm red" data-c="tasks">امسح المهام</button>'+
+      '</div>'+
+      '<p class="err" id="edErr"></p>'+
+      '<button class="btn solid" id="edSave" style="width:100%;justify-content:center;margin-top:12px">💾 احفظ التعديلات</button>'+
+      '<p class="hint">التعديل بيتزامن مع جهاز الطالب فورًا (نفس اللوح).</p>'
+    );
+    $("mClose").addEventListener("click",closeModal);
+    let clearLog=false, clearMist=false, clearTasks=false;
+    $("mbox").querySelectorAll("[data-c]").forEach(btn=>btn.addEventListener("click",()=>{
+      const c=btn.dataset.c;
+      if(c==="log")clearLog=!clearLog; if(c==="mist")clearMist=!clearMist; if(c==="tasks")clearTasks=!clearTasks;
+      btn.style.opacity = btn.style.opacity==="0.45" ? "1" : "0.45";
+      btn.textContent = (btn.style.opacity==="0.45"?"سيُمسح ✓ ":"")+btn.textContent.replace("سيُمسح ✓ ","");
+    }));
+    $("edSave").addEventListener("click", async ()=>{
+      const nb = Object.assign({ tasks:[], log:{}, habitsDone:{}, goal:7, vocab:[], mistakes:[], best:0 }, b);
+      nb.goal = Math.max(1, parseInt($("edGoal").value)||7);
+      if(clearLog){ nb.log={}; nb.best=0; }
+      if(clearMist) nb.mistakes=[];
+      if(clearTasks) nb.tasks=[];
+      const w=$("edW").value.trim();
+      if(w){
+        nb.vocab = nb.vocab||[];
+        nb.vocab.push({ id:"a"+Date.now().toString(36), word:w, mean:$("edM").value.trim(), ex:$("edEx").value.trim(),
+          tag:"", box:1, due:dayKey(new Date()), r:0, w:0 });
+      }
+      try{
+        await setDoc(doc(db,"boards",u.email), { bundle:nb, at:Date.now(), by:ADMIN_EMAIL });
+        toast("اتحفظ ✓"); closeModal();
+      }catch(e){ $("edErr").textContent="فشل: "+(e.code||e.message); }
+    });
+  }
+</script>
+</body>
+</html>

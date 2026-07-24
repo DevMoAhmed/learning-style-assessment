@@ -1258,7 +1258,7 @@ service cloud.firestore {
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
   import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-  import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBuL9tK-UJ10HvzwPocXNIYjXGjDKtDB3E",
@@ -1278,9 +1278,18 @@ service cloud.firestore {
     const app = initializeApp(firebaseConfig);
     db = getFirestore(app);
     const auth = getAuth(app);
-    signInAnonymously(auth)
-      .then(() => { ready = true; status('Firebase جاهز ✓ — اكتب كود اللوح واضغط اتصال'); const saved = localStorage.getItem('eb_board'); if (saved) connect(saved); })
-      .catch(e => status('خطأ دخول Firebase: ' + (e.code || e.message) + ' — فعّل Anonymous في Authentication'));
+    // Identity comes from the login shell (app.html). Auth persists across the same
+    // origin, so this iframe/page sees the signed-in user and syncs to boards/{email}.
+    onAuthStateChanged(auth, user => {
+      if (user && user.email) {
+        ready = true;
+        hideManualSync(user.email);
+        connect(user.email.toLowerCase());
+      } else {
+        ready = false;
+        status('سجّل الدخول من صفحة الدخول (app.html) عشان المزامنة تشتغل');
+      }
+    });
   } catch (e) {
     status('فشل تحميل Firebase: ' + (e.message || e));
   }
@@ -1303,6 +1312,13 @@ service cloud.firestore {
     if (!curRef) { status('اكتب كود اللوح واضغط اتصال الأول'); return; }
     try { await setDoc(curRef, { bundle: EB.bundle(), at: Date.now() }); status('اتحفظ على السحابة ✓'); }
     catch (e) { status('فشل الحفظ: ' + (e.code || e.message)); }
+  }
+
+  function hideManualSync(email){
+    const bi=document.getElementById('ebBoard'), bc=document.getElementById('ebConnect');
+    if(bi) bi.style.display='none';
+    if(bc) bc.style.display='none';
+    status('مسجّل دخول: ' + email + ' — المزامنة تلقائية ✓');
   }
 
   window.__ebConnect = connect;

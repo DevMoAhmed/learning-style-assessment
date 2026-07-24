@@ -1280,11 +1280,14 @@ service cloud.firestore {
     const auth = getAuth(app);
     // Identity comes from the login shell (app.html). Auth persists across the same
     // origin, so this iframe/page sees the signed-in user and syncs to boards/{email}.
+    const boardOverride = (new URLSearchParams(location.search).get('board') || '').trim().toLowerCase();
     onAuthStateChanged(auth, user => {
       if (user && user.email) {
         ready = true;
-        hideManualSync(user.email);
-        connect(user.email.toLowerCase());
+        // Admin can open a student's screen via ?board=student@email (rules allow it).
+        const board = boardOverride || user.email.toLowerCase();
+        hideManualSync(board, board !== user.email.toLowerCase());
+        connect(board);
       } else {
         ready = false;
         status('سجّل الدخول من صفحة الدخول (app.html) عشان المزامنة تشتغل');
@@ -1314,11 +1317,11 @@ service cloud.firestore {
     catch (e) { status('فشل الحفظ: ' + (e.code || e.message)); }
   }
 
-  function hideManualSync(email){
+  function hideManualSync(board, adminView){
     const bi=document.getElementById('ebBoard'), bc=document.getElementById('ebConnect');
     if(bi) bi.style.display='none';
     if(bc) bc.style.display='none';
-    status('مسجّل دخول: ' + email + ' — المزامنة تلقائية ✓');
+    status(adminView ? ('👁 عرض المعلّم لشاشة: ' + board) : ('مسجّل دخول: ' + board + ' — المزامنة تلقائية ✓'));
   }
 
   window.__ebConnect = connect;

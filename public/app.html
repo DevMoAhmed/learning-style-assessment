@@ -80,6 +80,8 @@
   #adminView{display:none;max-width:900px;margin:0 auto;padding:22px 18px 60px;width:100%;}
   .adm-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
   .adm-head h1{font-size:1.4rem;margin:0;}
+  .res-row{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 2px;}
+  .res-row .btn{text-decoration:none;}
   .stat-row{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 2px;}
   .chip{background:var(--surface-2);border-radius:10px;padding:7px 12px;font-size:.82rem;}
   .chip b{color:var(--teal);font-size:1.05rem;display:block;}
@@ -129,6 +131,7 @@
 <div id="shell">
   <div class="topbar">
     <span class="brand">📚 English Board</span>
+    <button class="btn ghost sm" id="backBtn" style="display:none">← اللوحة</button>
     <span class="who"><span id="waWho"></span> <span class="badge" id="waRole"></span></span>
     <button class="theme-toggle" id="themeBtn" title="Light / Dark">◐</button>
     <button class="btn ghost sm" id="logoutBtn">خروج ⎋</button>
@@ -143,7 +146,17 @@
       <h1>لوحة المعلّم</h1>
       <button class="btn solid" id="addBtn" style="margin-inline-start:auto">➕ إضافة طالب</button>
     </div>
-    <p class="muted">الطلبة المسجّلون. افتح أي طالب لمتابعة تقدّمه أو تعديل بياناته.</p>
+
+    <div class="res-row">
+      <button class="btn" id="rPreview">👁 معاينة المنهج كطالب</button>
+      <a class="btn" href="teaching-plan.html" target="_blank" rel="noopener">📘 خطة التدريس</a>
+      <a class="btn" href="index.html" target="_blank" rel="noopener">🧭 تقييم أسلوب التعلّم</a>
+    </div>
+    <p class="muted" style="margin-top:4px">«معاينة المنهج كطالب» بتفتح المنهج بكل حاجاته (الأصوات، القواعد، الألعاب، الكلمات، التقدّم) زي ما الطالب بيشوفه بالظبط.</p>
+
+    <div class="divider"></div>
+    <h2 style="font-size:1.05rem;margin:0 0 4px">الطلبة</h2>
+    <p class="muted">افتح شاشة أي طالب بالداتا بتاعته، تابع تقدّمه، أو عدّل بياناته.</p>
     <ul class="slist" id="students"></ul>
   </div>
 </div>
@@ -245,9 +258,27 @@
   }
   function enterAdmin(email){
     enterShell(email,"admin");
+    $("backBtn").style.display="none";
     $("studentView").style.display="none"; $("adminView").style.display="block";
     listenStudents();
   }
+
+  // admin opens the curriculum exactly as a student sees it (own board, or a student's board via ?board=)
+  function adminOpenCurriculum(board, name){
+    $("adminView").style.display="none";
+    $("studentView").style.display="flex";
+    $("backBtn").style.display="inline-flex";
+    $("curFrame").src = "curriculum.html" + (board ? ("?board=" + encodeURIComponent(board)) : "");
+    if(board) $("waWho").textContent = (name||board) + " (عرض المعلّم)";
+  }
+  $("backBtn").addEventListener("click", ()=>{
+    $("curFrame").src = "about:blank";
+    $("studentView").style.display="none";
+    $("backBtn").style.display="none";
+    $("adminView").style.display="block";
+    $("waWho").textContent = ADMIN_EMAIL;
+  });
+  $("rPreview").addEventListener("click", ()=>adminOpenCurriculum(null, null));
   function showBlocked(email){
     $("login").style.display="grid"; $("shell").style.display="none";
     $("lgErr").textContent="الحساب غير مُفعّل. كلّم المعلّم عشان يضيفك.";
@@ -283,10 +314,12 @@
       li.innerHTML =
         '<span><span class="nm">'+esc(u.name||"طالب")+'</span><br><span class="em">'+esc(u.email)+'</span></span>'+
         '<span class="acts">'+
+          '<button class="btn sm" data-a="open">👁 شاشته</button>'+
           '<button class="btn sm" data-a="view">📈 التقدّم</button>'+
           '<button class="btn sm" data-a="edit">✏️ تعديل</button>'+
           '<button class="btn sm red" data-a="del">🗑</button>'+
         '</span>';
+      li.querySelector('[data-a="open"]').addEventListener("click",()=>adminOpenCurriculum(u.email, u.name));
       li.querySelector('[data-a="view"]').addEventListener("click",()=>viewStudent(u));
       li.querySelector('[data-a="edit"]').addEventListener("click",()=>editStudent(u));
       li.querySelector('[data-a="del"]').addEventListener("click",()=>delStudent(u));

@@ -265,7 +265,6 @@
     <button class="tab" role="tab" aria-selected="false" data-panel="p-tasks">✅ Tasks</button>
     <button class="tab" role="tab" aria-selected="false" data-panel="p-log">⏱️ Log</button>
     <button class="tab" role="tab" aria-selected="false" data-panel="p-progress">📈 Progress</button>
-    <button class="tab" role="tab" aria-selected="false" data-panel="p-sync">☁️ Sync</button>
     <button class="tab" role="tab" aria-selected="false" data-panel="p-ideas">💡 Ideas</button>
   </div>
 
@@ -497,43 +496,6 @@
         <div class="stat"><div class="stat-num" id="rpBest">0</div><div class="stat-lbl ar">🏆 أطول ستريك</div></div>
         <div class="stat"><div class="stat-num" id="rpKnown">0</div><div class="stat-lbl ar">كلمات اتعلمها</div></div>
       </div>
-    </div>
-  </section>
-
-  <!-- SYNC -->
-  <section id="p-sync" class="panel" role="tabpanel">
-    <div class="note ar" dir="rtl">تقدّمك بيتزامن <b>لحظيًا</b> عبر Firebase بين كل أجهزتك. مفيش توكن ولا تسجيل. المعلّم والطالب بيستخدموا نفس «كود اللوح».</div>
-    <div class="row">
-      <h3 class="ar" dir="rtl">كود اللوح</h3>
-      <p class="ex ar" dir="rtl">اكتبوا نفس الكود على الجهازين عشان يتزامنوا (أي كلمة سرية بسيطة).</p>
-      <div class="task-add">
-        <input id="ebBoard" class="fld" placeholder="mohammed">
-        <button class="btn-solid" id="ebConnect">اتصال ومزامنة</button>
-        <button class="btn-solid" id="ebSave">💾 احفظ الآن</button>
-      </div>
-      <p class="ex" id="ebStatus">… بيحمّل Firebase</p>
-      <p class="ex ar" dir="rtl">بعد الاتصال، أي تغيير بيتحفظ ويتزامن تلقائيًا. غيّر حاجة على اللاب → تظهر على الموبايل فورًا.</p>
-    </div>
-    <div class="row">
-      <h3 class="ar" dir="rtl">تفعيل لأول مرة (في Firebase Console)</h3>
-      <ol class="ar" dir="rtl" style="font-size:.88rem;padding-inline-start:20px;line-height:1.9">
-        <li>Build → <b>Firestore Database</b> → Create database.</li>
-        <li>Build → <b>Authentication</b> → Sign-in method → فعّل <b>Anonymous</b>.</li>
-        <li>Firestore → Rules → الصق ده واحفظ:</li>
-      </ol>
-      <pre style="background:var(--surface-2);border-radius:8px;padding:10px;overflow-x:auto;font-size:.78rem;direction:ltr">rules_version = '2';
-service cloud.firestore {
-  match /databases/{db}/documents {
-    match /boards/{board} {
-      allow read, write: if request.auth != null;
-    }
-  }
-}</pre>
-    </div>
-    <div class="tool-row">
-      <button class="btn-ghost" id="ebExport">⬇️ نسخة JSON احتياطية</button>
-      <button class="btn-ghost" id="ebImportBtn">⬆️ استيراد JSON</button>
-      <input id="ebImportFile" type="file" accept="application/json" hidden>
     </div>
   </section>
 
@@ -1193,13 +1155,10 @@ service cloud.firestore {
     window.__applyingRemote=false;
   }
   function ebStatus(m){ const e=document.getElementById('ebStatus'); if(e)e.textContent=m; }
-  window.EB={ bundle:bundleAll, apply:applyAndRender, status:ebStatus, board:()=>localStorage.getItem('eb_board')||'mohammed' };
-  const boardIn=document.getElementById('ebBoard'); if(boardIn)boardIn.value=localStorage.getItem('eb_board')||'mohammed';
-  document.getElementById('ebConnect').addEventListener('click',()=>{ const c=((boardIn.value||'').trim()||'mohammed'); localStorage.setItem('eb_board',c); ebStatus('… بيتصل بـ '+c); if(window.__ebConnect)window.__ebConnect(c); else ebStatus('لسه بيحمّل Firebase…'); });
-  document.getElementById('ebSave').addEventListener('click',()=>{ if(window.__cloudPushNow)window.__cloudPushNow(); else ebStatus('لسه بيحمّل Firebase…'); });
-  document.getElementById('ebExport').addEventListener('click',()=>{ const blob=new Blob([JSON.stringify(bundleAll(),null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='english-progress.json'; a.click(); URL.revokeObjectURL(a.href); });
-  document.getElementById('ebImportBtn').addEventListener('click',()=>document.getElementById('ebImportFile').click());
-  document.getElementById('ebImportFile').addEventListener('change',e=>{ const f=e.target.files[0]; if(!f)return; const rd=new FileReader(); rd.onload=()=>{ try{ applyAndRender(JSON.parse(rd.result)); if(window.__cloudPushNow)window.__cloudPushNow(); toast('اتحمّل ✓'); }catch(err){toast('ملف غير صالح');} }; rd.readAsText(f); });
+  // Storage: Firestore is the source of truth. On login the remote bundle loads;
+  // every local change auto-saves to boards/{email}. (window.EB is the bridge the
+  // Firebase module below uses to read/apply the full data bundle.)
+  window.EB={ bundle:bundleAll, apply:applyAndRender, status:ebStatus };
 
   // ================= IDEAS (20) =================
   const IDEAS=[

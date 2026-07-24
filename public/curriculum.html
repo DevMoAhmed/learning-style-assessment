@@ -502,36 +502,38 @@
 
   <!-- SYNC -->
   <section id="p-sync" class="panel" role="tabpanel">
-    <div class="note ar" dir="rtl">احفظ تقدّمك على GitHub عشان يتزامن بين موبايلك واللاب. بيتخزن في Gist خاص بتوكن انت بتعمله. التوكن بيتخزن في المتصفح ده بس — متستخدموش على كمبيوتر عام.</div>
+    <div class="note ar" dir="rtl">تقدّمك بيتزامن <b>لحظيًا</b> عبر Firebase بين كل أجهزتك. مفيش توكن ولا تسجيل. المعلّم والطالب بيستخدموا نفس «كود اللوح».</div>
     <div class="row">
-      <h3 class="ar" dir="rtl">١) التوكن (مرة واحدة)</h3>
-      <ol class="ar" dir="rtl" style="font-size:.9rem;padding-inline-start:20px;line-height:1.9">
-        <li>افتح <a href="https://github.com/settings/tokens/new?scopes=gist&amp;description=English%20progress" target="_blank" rel="noopener">GitHub → New token (classic)</a></li>
-        <li>اختار صلاحية <b>gist</b> بس، ومدة صلاحية (٩٠ يوم مثلاً).</li>
-        <li>انسخ التوكن والصقه هنا:</li>
-      </ol>
+      <h3 class="ar" dir="rtl">كود اللوح</h3>
+      <p class="ex ar" dir="rtl">اكتبوا نفس الكود على الجهازين عشان يتزامنوا (أي كلمة سرية بسيطة).</p>
       <div class="task-add">
-        <input id="ghToken" class="fld" type="password" placeholder="ghp_… التوكن">
-        <button class="btn-solid" id="ghSaveToken">حفظ التوكن</button>
-        <button class="btn-ghost danger" id="ghClearToken">مسح التوكن</button>
+        <input id="ebBoard" class="fld" placeholder="mohammed">
+        <button class="btn-solid" id="ebConnect">اتصال ومزامنة</button>
+        <button class="btn-solid" id="ebSave">💾 احفظ الآن</button>
       </div>
-      <p class="ex" id="ghTokenState"></p>
+      <p class="ex" id="ebStatus">… بيحمّل Firebase</p>
+      <p class="ex ar" dir="rtl">بعد الاتصال، أي تغيير بيتحفظ ويتزامن تلقائيًا. غيّر حاجة على اللاب → تظهر على الموبايل فورًا.</p>
     </div>
     <div class="row">
-      <h3 class="ar" dir="rtl">٢) المزامنة</h3>
-      <div class="task-add">
-        <button class="btn-solid" id="ghSave">⬆️ احفظ على GitHub</button>
-        <button class="btn-solid" id="ghLoad">⬇️ حمّل من GitHub</button>
-      </div>
-      <label class="mini-lbl ar" dir="rtl">Gist ID (لو عندك واحد من جهاز تاني):
-        <input id="ghGistId" class="fld fld-sm" placeholder="اختياري"></label>
-      <p class="ex" id="ghSyncState"></p>
-      <p class="ex ar" dir="rtl">على اللاب اعمل «احفظ» أول مرة → هيطلع Gist ID، انسخه وحطه على الموبايل واعمل «حمّل». كده الاتنين متزامنين.</p>
+      <h3 class="ar" dir="rtl">تفعيل لأول مرة (في Firebase Console)</h3>
+      <ol class="ar" dir="rtl" style="font-size:.88rem;padding-inline-start:20px;line-height:1.9">
+        <li>Build → <b>Firestore Database</b> → Create database.</li>
+        <li>Build → <b>Authentication</b> → Sign-in method → فعّل <b>Anonymous</b>.</li>
+        <li>Firestore → Rules → الصق ده واحفظ:</li>
+      </ol>
+      <pre style="background:var(--surface-2);border-radius:8px;padding:10px;overflow-x:auto;font-size:.78rem;direction:ltr">rules_version = '2';
+service cloud.firestore {
+  match /databases/{db}/documents {
+    match /boards/{board} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}</pre>
     </div>
     <div class="tool-row">
-      <button class="btn-ghost" id="ghExport">⬇️ نسخة JSON</button>
-      <button class="btn-ghost" id="ghImportBtn">⬆️ استيراد JSON</button>
-      <input id="ghImportFile" type="file" accept="application/json" hidden>
+      <button class="btn-ghost" id="ebExport">⬇️ نسخة JSON احتياطية</button>
+      <button class="btn-ghost" id="ebImportBtn">⬆️ استيراد JSON</button>
+      <input id="ebImportFile" type="file" accept="application/json" hidden>
     </div>
   </section>
 
@@ -732,7 +734,7 @@
     ['h4','🎙️ رسالة صوتية للمعلّم (دقيقة)']
   ];
   const load=(k,f)=>{ try{ return JSON.parse(localStorage.getItem(k)) ?? f; }catch(e){ return f; } };
-  const save=(k,v)=>{ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} };
+  const save=(k,v)=>{ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} if(!window.__applyingRemote && window.__cloudPush) window.__cloudPush(); };
   const todayKey=()=>{ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
   const dayKey=(d)=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
   function toast(msg){ let t=document.querySelector('.toast'); if(!t){t=document.createElement('div');t.className='toast';document.body.appendChild(t);} t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1600); }
@@ -1179,44 +1181,25 @@
     set('rpStreak',cur); set('rpBest',best); set('rpKnown',vocab.filter(w=>w.box>=6).length);
   }
 
-  // ================= GITHUB SYNC (Gist) =================
-  const GH='https://api.github.com';
-  function ghHeaders(){ return {'Authorization':'Bearer '+(localStorage.getItem('gh_token')||''),'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2026-03-10','Content-Type':'application/json'}; }
-  function bundleAll(){ return {tasks:load(LS.tasks,[]),log:load(LS.log,{}),habitsDone:load(LS.habitsDone,{}),goal:load(LS.goal,7),vocab:load(LSV,[]),mistakes:load(MIST,[]),best:load('m_best',0),savedAt:todayKey()}; }
+  // ================= CLOUD SYNC (Firebase) =================
+  function bundleAll(){ return {tasks:load(LS.tasks,[]),log:load(LS.log,{}),habitsDone:load(LS.habitsDone,{}),goal:load(LS.goal,7),vocab:load(LSV,[]),mistakes:load(MIST,[]),best:load('m_best',0)}; }
   function applyBundle(b){ if(!b)return; if(b.tasks)save(LS.tasks,b.tasks); if(b.log)save(LS.log,b.log); if(b.habitsDone)save(LS.habitsDone,b.habitsDone); if(b.goal!=null)save(LS.goal,b.goal); if(b.vocab)save(LSV,b.vocab); if(b.mistakes)save(MIST,b.mistakes); if(b.best!=null)save('m_best',b.best); }
-  function ghState(msg){ const e=document.getElementById('ghSyncState'); if(e)e.textContent=msg; }
-  function ghTokenState(){ const has=!!localStorage.getItem('gh_token'); document.getElementById('ghTokenState').textContent=has?'✅ التوكن محفوظ في المتصفح ده.':'مفيش توكن.'; }
-  document.getElementById('ghSaveToken').addEventListener('click',()=>{ const t=document.getElementById('ghToken').value.trim(); if(!t)return; localStorage.setItem('gh_token',t); document.getElementById('ghToken').value=''; ghTokenState(); toast('اتحفظ التوكن'); });
-  document.getElementById('ghClearToken').addEventListener('click',()=>{ localStorage.removeItem('gh_token'); ghTokenState(); toast('اتمسح التوكن'); });
-  const gid=document.getElementById('ghGistId'); gid.value=localStorage.getItem('gh_gist_id')||'';
-  gid.addEventListener('change',()=>{ if(gid.value.trim())localStorage.setItem('gh_gist_id',gid.value.trim()); });
-  document.getElementById('ghSave').addEventListener('click',async()=>{
-    if(!localStorage.getItem('gh_token')){ ghState('❌ احفظ التوكن الأول.'); return; }
-    ghState('… بيحفظ'); const body={files:{'progress.json':{content:JSON.stringify(bundleAll(),null,2)}}};
-    try{
-      let id=localStorage.getItem('gh_gist_id');
-      let res;
-      if(id){ res=await fetch(GH+'/gists/'+id,{method:'PATCH',headers:ghHeaders(),body:JSON.stringify(body)}); }
-      else { res=await fetch(GH+'/gists',{method:'POST',headers:ghHeaders(),body:JSON.stringify({description:'English progress',public:false,files:body.files})}); }
-      if(!res.ok)throw new Error(res.status);
-      const g=await res.json(); if(g.id){ localStorage.setItem('gh_gist_id',g.id); gid.value=g.id; }
-      ghState('✅ اتحفظ. Gist ID: '+localStorage.getItem('gh_gist_id'));
-    }catch(e){ ghState('❌ فشل الحفظ ('+e.message+'). اتأكد من التوكن.'); }
-  });
-  document.getElementById('ghLoad').addEventListener('click',async()=>{
-    const id=(gid.value.trim())||localStorage.getItem('gh_gist_id');
-    if(!localStorage.getItem('gh_token')||!id){ ghState('❌ محتاج توكن + Gist ID.'); return; }
-    ghState('… بيحمّل');
-    try{
-      const res=await fetch(GH+'/gists/'+id,{headers:ghHeaders()}); if(!res.ok)throw new Error(res.status);
-      const g=await res.json(); const c=g.files&&g.files['progress.json']&&g.files['progress.json'].content;
-      if(!c)throw new Error('empty'); applyBundle(JSON.parse(c)); localStorage.setItem('gh_gist_id',id);
-      ghState('✅ اتحمّل. بيعيد التحميل…'); setTimeout(()=>location.reload(),700);
-    }catch(e){ ghState('❌ فشل التحميل ('+e.message+').'); }
-  });
-  document.getElementById('ghExport').addEventListener('click',()=>{ const blob=new Blob([JSON.stringify(bundleAll(),null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='english-progress.json'; a.click(); URL.revokeObjectURL(a.href); });
-  document.getElementById('ghImportBtn').addEventListener('click',()=>document.getElementById('ghImportFile').click());
-  document.getElementById('ghImportFile').addEventListener('change',e=>{ const f=e.target.files[0]; if(!f)return; const rd=new FileReader(); rd.onload=()=>{ try{ applyBundle(JSON.parse(rd.result)); toast('اتحمّل. بيعيد التحميل…'); setTimeout(()=>location.reload(),600);}catch(err){toast('ملف غير صالح');} }; rd.readAsText(f); });
+  function applyAndRender(b){
+    window.__applyingRemote=true;
+    applyBundle(b);
+    tasks=load(LS.tasks,[]); logData=load(LS.log,{}); habitsDone=load(LS.habitsDone,{}); goal=load(LS.goal,7); vocab=load(LSV,[]); mistakes=load(MIST,[]);
+    const gi2=document.getElementById('goalInput'); if(gi2)gi2.value=goal;
+    renderDay(); renderTasks(); renderTaskStats(); renderLog(); renderPicker(); renderMistakes(); renderVocab(); renderProgress(); updateBadge();
+    window.__applyingRemote=false;
+  }
+  function ebStatus(m){ const e=document.getElementById('ebStatus'); if(e)e.textContent=m; }
+  window.EB={ bundle:bundleAll, apply:applyAndRender, status:ebStatus, board:()=>localStorage.getItem('eb_board')||'mohammed' };
+  const boardIn=document.getElementById('ebBoard'); if(boardIn)boardIn.value=localStorage.getItem('eb_board')||'mohammed';
+  document.getElementById('ebConnect').addEventListener('click',()=>{ const c=((boardIn.value||'').trim()||'mohammed'); localStorage.setItem('eb_board',c); ebStatus('… بيتصل بـ '+c); if(window.__ebConnect)window.__ebConnect(c); else ebStatus('لسه بيحمّل Firebase…'); });
+  document.getElementById('ebSave').addEventListener('click',()=>{ if(window.__cloudPushNow)window.__cloudPushNow(); else ebStatus('لسه بيحمّل Firebase…'); });
+  document.getElementById('ebExport').addEventListener('click',()=>{ const blob=new Blob([JSON.stringify(bundleAll(),null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='english-progress.json'; a.click(); URL.revokeObjectURL(a.href); });
+  document.getElementById('ebImportBtn').addEventListener('click',()=>document.getElementById('ebImportFile').click());
+  document.getElementById('ebImportFile').addEventListener('change',e=>{ const f=e.target.files[0]; if(!f)return; const rd=new FileReader(); rd.onload=()=>{ try{ applyAndRender(JSON.parse(rd.result)); if(window.__cloudPushNow)window.__cloudPushNow(); toast('اتحمّل ✓'); }catch(err){toast('ملف غير صالح');} }; rd.readAsText(f); });
 
   // ================= IDEAS (20) =================
   const IDEAS=[
@@ -1260,7 +1243,7 @@
 
   // init
   renderDay(); renderTasks(); renderTaskStats(); renderLog(); checkImport();
-  renderPicker(); renderMistakes(); renderVocab(); renderProgress(); renderIdeas(); ghTokenState(); updateBadge();
+  renderPicker(); renderMistakes(); renderVocab(); renderProgress(); renderIdeas(); updateBadge();
 
   // ---- theme ----
   const tb=document.getElementById('themeBtn');
@@ -1269,6 +1252,62 @@
     const isDark = cur? cur==='dark' : matchMedia('(prefers-color-scheme:dark)').matches;
     document.documentElement.setAttribute('data-theme', isDark?'light':'dark');
   });
+</script>
+
+<!-- ================= FIREBASE CLOUD SYNC ================= -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+  import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+  import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBuL9tK-UJ10HvzwPocXNIYjXGjDKtDB3E",
+    authDomain: "englishboard-adc4c.firebaseapp.com",
+    projectId: "englishboard-adc4c",
+    storageBucket: "englishboard-adc4c.firebasestorage.app",
+    messagingSenderId: "552512992591",
+    appId: "1:552512992591:web:993f1a4aa9b9b61600813a"
+  };
+
+  const EB = window.EB || {};
+  const status = m => (EB.status ? EB.status(m) : 0);
+
+  let db = null, ready = false, curRef = null, unsub = null, pushT = null;
+
+  try {
+    const app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
+    const auth = getAuth(app);
+    signInAnonymously(auth)
+      .then(() => { ready = true; status('Firebase جاهز ✓ — اكتب كود اللوح واضغط اتصال'); const saved = localStorage.getItem('eb_board'); if (saved) connect(saved); })
+      .catch(e => status('خطأ دخول Firebase: ' + (e.code || e.message) + ' — فعّل Anonymous في Authentication'));
+  } catch (e) {
+    status('فشل تحميل Firebase: ' + (e.message || e));
+  }
+
+  function connect(code) {
+    if (!ready || !db) { status('… Firebase لسه بيحمّل، استنى ثانية'); return; }
+    code = (code || '').trim(); if (!code) return;
+    if (unsub) { unsub(); unsub = null; }
+    curRef = doc(db, 'boards', code);
+    status('… بيتزامن مع «' + code + '»');
+    unsub = onSnapshot(curRef, snap => {
+      if (snap.metadata.hasPendingWrites) return;         // تجاهل صدى الكتابة المحلية
+      if (!snap.exists()) { pushNow(); return; }           // لوح جديد → ارفع بياناتك الحالية
+      const d = snap.data();
+      if (d && d.bundle) { EB.apply(d.bundle); status('متزامن ✓ «' + code + '»'); }
+    }, err => status('خطأ مزامنة: ' + (err.code || err.message)));
+  }
+
+  async function pushNow() {
+    if (!curRef) { status('اكتب كود اللوح واضغط اتصال الأول'); return; }
+    try { await setDoc(curRef, { bundle: EB.bundle(), at: Date.now() }); status('اتحفظ على السحابة ✓'); }
+    catch (e) { status('فشل الحفظ: ' + (e.code || e.message)); }
+  }
+
+  window.__ebConnect = connect;
+  window.__cloudPushNow = pushNow;
+  window.__cloudPush = () => { if (!curRef) return; clearTimeout(pushT); pushT = setTimeout(pushNow, 1200); };
 </script>
 </body>
 </html>

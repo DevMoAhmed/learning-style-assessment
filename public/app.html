@@ -117,11 +117,11 @@
     <div class="logo">📚</div>
     <h2>English Board</h2>
     <p class="sub muted" id="lgSub">سجّل دخولك للمتابعة</p>
-    <div class="field"><label>الإيميل</label><input id="lgEmail" class="fld" type="email" dir="ltr" placeholder="name@example.com" autocomplete="username"></div>
-    <div class="field"><label>كلمة السر</label><input id="lgPass" class="fld" type="password" dir="ltr" placeholder="••••••••" autocomplete="current-password"></div>
     <p class="err" id="lgErr"></p>
-    <button class="btn solid" id="lgBtn" style="width:100%;justify-content:center">دخول</button>
-    <div class="toggle" id="lgToggle"><a id="lgSignupLink">أول مرة كمالك؟ أنشئ حساب المالك</a></div>
+    <button class="btn solid" id="lgBtn" style="width:100%;justify-content:center;gap:9px">
+      <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.4 29.3 35 24 35c-6.1 0-11-4.9-11-11s4.9-11 11-11c2.8 0 5.4 1.1 7.3 2.8l5.7-5.7C33.6 6.1 29 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.3-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c2.8 0 5.4 1.1 7.3 2.8l5.7-5.7C33.6 6.1 29 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 34.9 26.7 36 24 36c-5.3 0-9.7-2.6-11.3-6.9l-6.5 5C9.6 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.1-4.1 5.4l6.2 5.2C41.4 35.6 44 30.3 44 24c0-1.3-.1-2.3-.4-3.5z"/></svg>
+      الدخول بحساب Google
+    </button>
   </div>
 </div>
 
@@ -152,8 +152,8 @@
 <div class="toast" id="toast"></div>
 
 <script type="module">
-  import { initializeApp, deleteApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut }
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut }
     from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
   import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, onSnapshot }
     from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
@@ -182,13 +182,12 @@
   $("modal").addEventListener("click", e=>{ if(e.target.id==="modal") closeModal(); });
   const esc = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
   const authMsg = code => ({
-    "auth/invalid-credential":"الإيميل أو كلمة السر غلط",
-    "auth/invalid-email":"إيميل غير صالح",
-    "auth/user-not-found":"الحساب غير موجود",
-    "auth/wrong-password":"كلمة السر غلط",
-    "auth/too-many-requests":"محاولات كتير — استنى شوية",
-    "auth/weak-password":"كلمة السر قصيرة (٦ أحرف على الأقل)",
-    "auth/email-already-in-use":"الإيميل مستخدم بالفعل"
+    "auth/popup-closed-by-user":"لغيت تسجيل الدخول",
+    "auth/cancelled-popup-request":"",
+    "auth/popup-blocked":"المتصفح منع النافذة — اسمح بالـ popups وجرّب تاني",
+    "auth/unauthorized-domain":"الدومين ده مش مسموح في Firebase (زوّده في Authorized domains)",
+    "auth/network-request-failed":"مشكلة اتصال بالنت",
+    "auth/too-many-requests":"محاولات كتير — استنى شوية"
   }[code] || code);
   const dayKey = d => d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 
@@ -213,30 +212,16 @@
   });
   try{ const th=localStorage.getItem("eb_theme"); if(th) document.documentElement.setAttribute("data-theme",th); }catch(e){}
 
-  // ---------- login ----------
-  let signupMode=false;
-  $("lgSignupLink").addEventListener("click", ()=>{
-    signupMode=!signupMode;
-    $("lgBtn").textContent = signupMode ? "إنشاء حساب المالك" : "دخول";
-    $("lgSub").textContent = signupMode ? "إنشاء حساب المالك لأول مرة فقط" : "سجّل دخولك للمتابعة";
-    $("lgSignupLink").textContent = signupMode ? "← رجوع لتسجيل الدخول" : "أول مرة كمالك؟ أنشئ حساب المالك";
-    $("lgErr").textContent="";
-  });
+  // ---------- login (Google only) ----------
+  const provider = new GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: "select_account" });
   async function doLogin(){
-    const em=lc($("lgEmail").value), pw=$("lgPass").value;
     $("lgErr").textContent=""; $("lgBtn").disabled=true;
-    try{
-      if(signupMode){
-        if(em!==ADMIN_EMAIL){ throw {code:"حساب المالك مخصّص لإيميل المالك فقط. الطلبة يُنشئهم المعلّم من اللوحة."}; }
-        await createUserWithEmailAndPassword(auth, em, pw);
-      }else{
-        await signInWithEmailAndPassword(auth, em, pw);
-      }
-    }catch(e){ $("lgErr").textContent = authMsg(e.code); }
+    try{ await signInWithPopup(auth, provider); }
+    catch(e){ $("lgErr").textContent = authMsg(e.code); }
     finally{ $("lgBtn").disabled=false; }
   }
   $("lgBtn").addEventListener("click", doLogin);
-  $("lgPass").addEventListener("keydown", e=>{ if(e.key==="Enter") doLogin(); });
   $("logoutBtn").addEventListener("click", ()=>signOut(auth));
 
   // ---------- routing ----------
@@ -246,7 +231,6 @@
     $("adminView").style.display="none"; $("studentView").style.display="none";
     $("curFrame").src="about:blank";
     if(usersUnsub){ usersUnsub(); usersUnsub=null; }
-    $("lgPass").value="";
   }
   function enterShell(email, role){
     $("login").style.display="none"; $("shell").style.display="flex";
@@ -315,32 +299,26 @@
     openModal(
       '<span class="close" id="mClose">×</span><h3>➕ إضافة طالب</h3>'+
       '<div class="field"><label>الاسم</label><input id="nsName" class="fld" placeholder="محمد سعد"></div>'+
-      '<div class="field"><label>الإيميل</label><input id="nsEmail" class="fld" type="email" dir="ltr" placeholder="student@example.com"></div>'+
-      '<div class="field"><label>كلمة السر المؤقتة</label><input id="nsPass" class="fld" dir="ltr" placeholder="٦ أحرف على الأقل"></div>'+
+      '<div class="field"><label>إيميل جوجل بتاع الطالب</label><input id="nsEmail" class="fld" type="email" dir="ltr" placeholder="student@gmail.com"></div>'+
       '<p class="err" id="nsErr"></p>'+
-      '<button class="btn solid" id="nsSave" style="width:100%;justify-content:center;margin-top:6px">إنشاء الحساب</button>'+
-      '<p class="hint">هيتعمل حساب دخول للطالب. اديله الإيميل وكلمة السر. يقدر يغيّرها بعدين.</p>'
+      '<button class="btn solid" id="nsSave" style="width:100%;justify-content:center;margin-top:6px">إضافة</button>'+
+      '<p class="hint">اكتب إيميل جوجل بتاع الطالب. هو بيدخل بحساب جوجل بتاعه من نفس الرابط — لازم يكون نفس الإيميل ده بالظبط.</p>'
     );
     $("mClose").addEventListener("click",closeModal);
     $("nsSave").addEventListener("click",createStudent);
   });
 
   async function createStudent(){
-    const name=$("nsName").value.trim(), email=lc($("nsEmail").value), pw=$("nsPass").value;
+    const name=$("nsName").value.trim(), email=lc($("nsEmail").value);
     $("nsErr").textContent="";
-    if(!name||!email||pw.length<6){ $("nsErr").textContent="اكمل البيانات (كلمة السر ٦ أحرف+)"; return; }
+    if(!name || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ $("nsErr").textContent="اكتب اسم وإيميل صحيح"; return; }
     if(email===ADMIN_EMAIL){ $("nsErr").textContent="ده إيميل المالك"; return; }
     $("nsSave").disabled=true;
-    // create the auth user in a SECONDARY app so the admin stays signed in
-    const app2=initializeApp(firebaseConfig, "secondary-"+email);
     try{
-      const a2=getAuth(app2);
-      await createUserWithEmailAndPassword(a2, email, pw);
-      await signOut(a2);
       await setDoc(doc(db,"users",email), { role:"student", name, createdAt:Date.now(), by:ADMIN_EMAIL });
-      toast("اتعمل حساب "+name+" ✓"); closeModal();
-    }catch(e){ $("nsErr").textContent=authMsg(e.code); }
-    finally{ $("nsSave").disabled=false; try{ await deleteApp(app2); }catch(e){} }
+      toast("اتضاف "+name+" ✓ — يقدر يدخل دلوقتي"); closeModal();
+    }catch(e){ $("nsErr").textContent="فشل: "+(e.code||e.message); }
+    finally{ $("nsSave").disabled=false; }
   }
 
   // ---------- admin: delete student ----------

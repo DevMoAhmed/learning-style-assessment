@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" style="visibility:hidden">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1243,13 +1243,14 @@
     onAuthStateChanged(auth, user => {
       if (user && user.email) {
         ready = true;
+        document.documentElement.style.visibility = 'visible';   // auth guard: reveal only when logged in
         // Admin can open a student's screen via ?board=student@email (rules allow it).
         const board = boardOverride || user.email.toLowerCase();
         hideManualSync(board, board !== user.email.toLowerCase());
         connect(board);
       } else {
         ready = false;
-        status('سجّل الدخول من صفحة الدخول (app.html) عشان المزامنة تشتغل');
+        location.replace('app.html');   // no access without login
       }
     });
   } catch (e) {

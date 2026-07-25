@@ -672,34 +672,39 @@
   VOWELS.forEach(s=>document.getElementById('vowels').appendChild(soundCard(s)));
   CONS.forEach(s=>document.getElementById('consonants').appendChild(soundCard(s)));
 
-  // ---- grammar ----
+  // ---- grammar (status is per-student, set by the teacher) ----
   const stMap={done:['Learned ✓','st-done'],next:['Next','st-next'],later:['Later','st-later']};
+  const GST='m_gstatus';
   const gc=document.getElementById('grammar');
-  GROUPS.forEach(([gname,gic,items])=>{
-    const grp=document.createElement('div'); grp.className='g-group';
-    grp.innerHTML='<div class="g-title"><span class="g-ic">'+gic+'</span>'+gname+'</div>';
-    items.forEach(it=>{
-      const r=document.createElement('div'); r.className='row'; const s=stMap[it.st];
-      r.innerHTML='<div class="rowtop"><h3>'+it.t+'</h3><span class="status '+s[1]+'">'+s[0]+'</span></div>'+
-        '<p class="ex">Form: <strong>'+it.form+'</strong></p>'+
-        '<p class="ex en">'+it.ex+'</p>';
-      const acts=document.createElement('div'); acts.className='g-actions';
-      const pb=document.createElement('button'); pb.className='btn-learn'; pb.textContent='▶ Example';
-      pb.addEventListener('click',()=>say(it.ex,0.85)); acts.appendChild(pb);
-      if(it.detail){
-        const lb=document.createElement('button'); lb.className='btn-learn'; lb.textContent='📖 اشرح أكتر';
-        const d=document.createElement('div'); d.className='detail'; d.innerHTML=it.detail;
-        lb.addEventListener('click',()=>{ const o=d.classList.toggle('open'); lb.textContent=o?'📖 إخفاء الشرح':'📖 اشرح أكتر'; });
-        acts.appendChild(lb); r.appendChild(acts); r.appendChild(d);
-      } else { r.appendChild(acts); }
-      if(it.game){
-        const gb=document.createElement('button'); gb.className='btn-game'; gb.textContent='🎮 العب على القاعدة دي';
-        gb.addEventListener('click',()=>goToGame(it.game)); acts.appendChild(gb);
-      }
-      grp.appendChild(r);
+  let gstatus={};   // { lessonTitle: 'done'|'next'|'later' } — overrides the default st
+  function renderGrammar(){
+    gc.innerHTML='';
+    GROUPS.forEach(([gname,gic,items])=>{
+      const grp=document.createElement('div'); grp.className='g-group';
+      grp.innerHTML='<div class="g-title"><span class="g-ic">'+gic+'</span>'+gname+'</div>';
+      items.forEach(it=>{
+        const r=document.createElement('div'); r.className='row'; const s=stMap[gstatus[it.t]||it.st]||stMap.later;
+        r.innerHTML='<div class="rowtop"><h3>'+it.t+'</h3><span class="status '+s[1]+'">'+s[0]+'</span></div>'+
+          '<p class="ex">Form: <strong>'+it.form+'</strong></p>'+
+          '<p class="ex en">'+it.ex+'</p>';
+        const acts=document.createElement('div'); acts.className='g-actions';
+        const pb=document.createElement('button'); pb.className='btn-learn'; pb.textContent='▶ Example';
+        pb.addEventListener('click',()=>say(it.ex,0.85)); acts.appendChild(pb);
+        if(it.detail){
+          const lb=document.createElement('button'); lb.className='btn-learn'; lb.textContent='📖 اشرح أكتر';
+          const d=document.createElement('div'); d.className='detail'; d.innerHTML=it.detail;
+          lb.addEventListener('click',()=>{ const o=d.classList.toggle('open'); lb.textContent=o?'📖 إخفاء الشرح':'📖 اشرح أكتر'; });
+          acts.appendChild(lb); r.appendChild(acts); r.appendChild(d);
+        } else { r.appendChild(acts); }
+        if(it.game){
+          const gb=document.createElement('button'); gb.className='btn-game'; gb.textContent='🎮 العب على القاعدة دي';
+          gb.addEventListener('click',()=>goToGame(it.game)); acts.appendChild(gb);
+        }
+        grp.appendChild(r);
+      });
+      gc.appendChild(grp);
     });
-    gc.appendChild(grp);
-  });
+  }
 
   // (games engine defined later, after the storage layer)
 
@@ -807,9 +812,15 @@
     const sp=document.createElement('span'); sp.className='txt'; sp.textContent=t.text;
     li.appendChild(cb); li.appendChild(dot); li.appendChild(sp);
     if(t.due && !hideDue){ const d=document.createElement('span'); d.className='due'; d.textContent=t.due; li.appendChild(d); }
-    const del=document.createElement('button'); del.className='del'; del.textContent='🗑'; del.title='حذف المهمة';
-    del.addEventListener('click',()=>{ if(confirm('حذف المهمة دي؟')){ tasks=tasks.filter(x=>x.id!==t.id); save(LS.tasks,tasks); refreshTasks(); } });
-    li.appendChild(del); return li;
+    if(t.by==='teacher'){
+      // Teacher-assigned: the student can tick it done but not delete it.
+      const lk=document.createElement('span'); lk.className='due'; lk.title='مهمة من المعلّم'; lk.textContent='🔒 معلّم'; li.appendChild(lk);
+    } else {
+      const del=document.createElement('button'); del.className='del'; del.textContent='🗑'; del.title='حذف المهمة';
+      del.addEventListener('click',()=>{ if(confirm('حذف المهمة دي؟')){ tasks=tasks.filter(x=>x.id!==t.id); save(LS.tasks,tasks); refreshTasks(); } });
+      li.appendChild(del);
+    }
+    return li;
   }
   function renderTasks(){
     const box=document.getElementById('taskGroups'); box.innerHTML='';
@@ -1106,7 +1117,8 @@
     ["happy","سعيد","I am happy today.","feelings"],["buy","يشتري","I want to buy a car.","daily"]];
   function mkWord(word,mean,ex,tag){ return {id:newId(),word,mean:mean||'',ex:ex||'',tag:tag||'',box:1,due:todayKey(),r:0,w:0}; }
   let vocab=load(LSV,null);
-  if(vocab===null){ vocab=SEED.map(s=>mkWord(s[0],s[1],s[2],s[3])); save(LSV,vocab); }
+  // New students start with an EMPTY dictionary; the teacher assigns words per student.
+  if(vocab===null){ vocab=[]; save(LSV,vocab); }
   function saveVocab(){ save(LSV,vocab); }
   function dueWords(){ const tk=todayKey(); return vocab.filter(w=>w.box<6 && w.due<=tk); }
   function updateBadge(){
@@ -1182,14 +1194,14 @@
   }
 
   // ================= CLOUD SYNC (Firebase) =================
-  function bundleAll(){ return {tasks:load(LS.tasks,[]),log:load(LS.log,{}),habitsDone:load(LS.habitsDone,{}),goal:load(LS.goal,7),vocab:load(LSV,[]),mistakes:load(MIST,[]),best:load('m_best',0)}; }
-  function applyBundle(b){ if(!b)return; if(b.tasks)save(LS.tasks,b.tasks); if(b.log)save(LS.log,b.log); if(b.habitsDone)save(LS.habitsDone,b.habitsDone); if(b.goal!=null)save(LS.goal,b.goal); if(b.vocab)save(LSV,b.vocab); if(b.mistakes)save(MIST,b.mistakes); if(b.best!=null)save('m_best',b.best); }
+  function bundleAll(){ return {tasks:load(LS.tasks,[]),log:load(LS.log,{}),habitsDone:load(LS.habitsDone,{}),goal:load(LS.goal,7),vocab:load(LSV,[]),mistakes:load(MIST,[]),best:load('m_best',0),gstatus:load(GST,{})}; }
+  function applyBundle(b){ if(!b)return; if(b.tasks)save(LS.tasks,b.tasks); if(b.log)save(LS.log,b.log); if(b.habitsDone)save(LS.habitsDone,b.habitsDone); if(b.goal!=null)save(LS.goal,b.goal); if(b.vocab)save(LSV,b.vocab); if(b.mistakes)save(MIST,b.mistakes); if(b.best!=null)save('m_best',b.best); if(b.gstatus)save(GST,b.gstatus); }
   function applyAndRender(b){
     window.__applyingRemote=true;
     applyBundle(b);
-    tasks=load(LS.tasks,[]); logData=load(LS.log,{}); habitsDone=load(LS.habitsDone,{}); goal=load(LS.goal,7); vocab=load(LSV,[]); mistakes=load(MIST,[]);
+    tasks=load(LS.tasks,[]); logData=load(LS.log,{}); habitsDone=load(LS.habitsDone,{}); goal=load(LS.goal,7); vocab=load(LSV,[]); mistakes=load(MIST,[]); gstatus=load(GST,{});
     const gi2=document.getElementById('goalInput'); if(gi2)gi2.value=goal;
-    renderDay(); renderTasks(); renderTaskStats(); renderLog(); renderPicker(); renderMistakes(); renderVocab(); renderProgress(); updateBadge();
+    renderDay(); renderTasks(); renderTaskStats(); renderLog(); renderPicker(); renderMistakes(); renderVocab(); renderProgress(); renderGrammar(); updateBadge();
     window.__applyingRemote=false;
   }
   function ebStatus(m){ const e=document.getElementById('ebStatus'); if(e)e.textContent=m; }
@@ -1259,8 +1271,9 @@
   }));
 
   // init
+  gstatus=load(GST,{});
   renderDay(); renderTasks(); renderTaskStats(); renderLog(); checkImport();
-  renderPicker(); renderMistakes(); renderVocab(); renderProgress(); renderIdeas(); updateBadge();
+  renderPicker(); renderMistakes(); renderVocab(); renderProgress(); renderGrammar(); renderIdeas(); updateBadge();
 
   // ---- theme ----
   const tb=document.getElementById('themeBtn');

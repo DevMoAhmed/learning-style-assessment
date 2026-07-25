@@ -404,7 +404,18 @@
   // ---------- admin: manage (assign tasks, vocab, goal, wipes) ----------
   const CATS=[["grammar","Grammar"],["speaking","Speaking"],["listening","Listening"],["vocab","Vocabulary"],["pronunciation","Pronunciation"],["other","Other"]];
   const catLabel=c=>((CATS.find(x=>x[0]===c)||[,c])[1]);
-  function normBundle(b){ return Object.assign({ tasks:[], log:{}, habitsDone:{}, goal:7, vocab:[], mistakes:[], best:0 }, b||{}); }
+  // Grammar lesson catalog — titles MUST match GROUPS[].items[].t in curriculum.html exactly.
+  const GRAMMAR=[
+    ["Verb “to be” (present)","done"],
+    ["Articles (indefinite & definite)","next"],
+    ["Present continuous","next"],
+    ["Present simple","later"],
+    ["Past simple","later"],
+    ["Present perfect","later"],
+    ["Questions","later"],
+    ["Comparatives","later"]
+  ];
+  function normBundle(b){ return Object.assign({ tasks:[], log:{}, habitsDone:{}, goal:7, vocab:[], mistakes:[], best:0, gstatus:{} }, b||{}); }
   async function loadBundle(email){ try{ const s=await getDoc(doc(db,"boards",email)); if(s.exists()) return s.data().bundle||{}; }catch(e){} return {}; }
   async function saveBundle(email,nb){ await setDoc(doc(db,"boards",email), { bundle:nb, at:Date.now(), by:ADMIN_EMAIL }); }
 
@@ -440,6 +451,18 @@
       '<button class="btn" id="mgWAdd" style="margin-top:8px">➕ ضيف الكلمة</button>'+
 
       '<div class="divider"></div>'+
+      '<h3 style="font-size:.95rem">📐 حالة القواعد لكل درس</h3>'+
+      GRAMMAR.map(g=>{
+        const cur=(b.gstatus&&b.gstatus[g[0]])||g[1];
+        return '<div class="kv" style="align-items:center;gap:8px"><span style="direction:ltr;unicode-bidi:isolate">'+esc(g[0])+'</span>'+
+          '<select class="fld" style="width:auto;flex:0 0 auto" data-gs="'+esc(g[0])+'">'+
+            '<option value="done"'+(cur==="done"?" selected":"")+'>Learned ✓</option>'+
+            '<option value="next"'+(cur==="next"?" selected":"")+'>Next</option>'+
+            '<option value="later"'+(cur==="later"?" selected":"")+'>Later</option>'+
+          '</select></div>';
+      }).join('')+
+
+      '<div class="divider"></div>'+
       '<h3 style="font-size:.95rem">⚠️ إجراءات</h3>'+
       '<div style="display:flex;flex-wrap:wrap;gap:8px">'+
         '<button class="btn sm" id="mgOpen">👁 افتح شاشته</button>'+
@@ -471,7 +494,7 @@
       const txt=$("mgText").value.trim(); if(!txt){ $("mgErr").textContent="اكتب المهمة"; return; }
       $("mgErr").textContent="";
       b=normBundle(await loadBundle(u.email));
-      b.tasks.push({ id:"t"+Date.now().toString(36), text:txt, cat:$("mgCat").value, due:$("mgDue").value||null, done:false });
+      b.tasks.push({ id:"t"+Date.now().toString(36), text:txt, cat:$("mgCat").value, due:$("mgDue").value||null, done:false, by:"teacher" });
       try{ await saveBundle(u.email,b); $("mgText").value=""; $("mgDue").value=""; renderTaskList(); toast("اتعيّنت المهمة ✓"); }
       catch(e){ $("mgErr").textContent="فشل: "+(e.code||e.message); }
     });
@@ -500,6 +523,13 @@
       if(w==="mist") b.mistakes=[];
       if(w==="tasks") b.tasks=[];
       try{ await saveBundle(u.email,b); renderTaskList(); toast("تم ✓"); }catch(e){ $("mgErr").textContent="فشل"; }
+    }));
+
+    $("mbox").querySelectorAll("[data-gs]").forEach(sel=>sel.addEventListener("change", async ()=>{
+      const key=sel.dataset.gs, val=sel.value;
+      b=normBundle(await loadBundle(u.email));
+      b.gstatus=b.gstatus||{}; b.gstatus[key]=val;
+      try{ await saveBundle(u.email,b); toast("اتحدّثت القاعدة ✓"); }catch(e){ $("mgErr").textContent="فشل"; }
     }));
   }
 </script>

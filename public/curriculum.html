@@ -706,6 +706,7 @@
   function say(text,rate){
     if(!('speechSynthesis' in window) && !window.Audio){ alert('Sound not supported on this browser.'); return; }
     stopSpeech();
+    rate=(rate||0.9)*(window.__rateMul||1);   // teacher-set speed multiplier
     if(localGood || !navigator.onLine || !window.Audio) synthSay(text,rate);
     else onlineSay(text,rate);   // robotic-only PC → use natural online voice
   }
@@ -1244,14 +1245,27 @@
   }
 
   // ================= CLOUD SYNC (Firebase) =================
-  function bundleAll(){ return {tasks:load(LS.tasks,[]),log:load(LS.log,{}),habitsDone:load(LS.habitsDone,{}),goal:load(LS.goal,7),vocab:load(LSV,[]),mistakes:load(MIST,[]),best:load('m_best',0),gstatus:load(GST,{}),units:load(UPROG,{})}; }
-  function applyBundle(b){ if(!b)return; if(b.tasks)save(LS.tasks,b.tasks); if(b.log)save(LS.log,b.log); if(b.habitsDone)save(LS.habitsDone,b.habitsDone); if(b.goal!=null)save(LS.goal,b.goal); if(b.vocab)save(LSV,b.vocab); if(b.mistakes)save(MIST,b.mistakes); if(b.best!=null)save('m_best',b.best); if(b.gstatus)save(GST,b.gstatus); if(b.units)save(UPROG,b.units); }
+  const SETK='m_settings';
+  function bundleAll(){ return {tasks:load(LS.tasks,[]),log:load(LS.log,{}),habitsDone:load(LS.habitsDone,{}),goal:load(LS.goal,7),vocab:load(LSV,[]),mistakes:load(MIST,[]),best:load('m_best',0),gstatus:load(GST,{}),units:load(UPROG,{}),settings:load(SETK,{})}; }
+  function applyBundle(b){ if(!b)return; if(b.tasks)save(LS.tasks,b.tasks); if(b.log)save(LS.log,b.log); if(b.habitsDone)save(LS.habitsDone,b.habitsDone); if(b.goal!=null)save(LS.goal,b.goal); if(b.vocab)save(LSV,b.vocab); if(b.mistakes)save(MIST,b.mistakes); if(b.best!=null)save('m_best',b.best); if(b.gstatus)save(GST,b.gstatus); if(b.units)save(UPROG,b.units); if(b.settings)save(SETK,b.settings); }
+  function applySettings(){
+    const s=load(SETK,{})||{};
+    const h1=document.querySelector('header h1'); if(h1) h1.textContent=(s.displayName||'Mohammed')+' — English Curriculum';
+    let mb=document.getElementById('ebMsg');
+    if(s.message){ if(!mb){ mb=document.createElement('div'); mb.id='ebMsg'; mb.className='note ar'; mb.dir='rtl'; mb.style.cssText='background:var(--amber-soft);border:1px solid var(--amber);'; const wrap=document.querySelector('.wrap')||document.body; const tabs=document.querySelector('.tabs'); wrap.insertBefore(mb,tabs); } mb.textContent='📣 '+s.message; mb.style.display='block'; }
+    else if(mb){ mb.style.display='none'; }
+    const hidden=new Set(s.hiddenTabs||[]);
+    document.querySelectorAll('.tab').forEach(t=>{ t.style.display=hidden.has((t.dataset.panel||'').replace('p-',''))?'none':''; });
+    const at=document.querySelector('.tab[aria-selected="true"]');
+    if(at && at.style.display==='none'){ const first=[...document.querySelectorAll('.tab')].find(t=>t.style.display!=='none'); if(first) first.click(); }
+    window.__rateMul=parseFloat(s.rate)||1;
+  }
   function applyAndRender(b){
     window.__applyingRemote=true;
     applyBundle(b);
     tasks=load(LS.tasks,[]); logData=load(LS.log,{}); habitsDone=load(LS.habitsDone,{}); goal=load(LS.goal,7); vocab=load(LSV,[]); mistakes=load(MIST,[]); gstatus=load(GST,{}); unitsProg=load(UPROG,{});
     const gi2=document.getElementById('goalInput'); if(gi2)gi2.value=goal;
-    renderDay(); renderTasks(); renderTaskStats(); renderLog(); renderPicker(); renderMistakes(); renderVocab(); renderProgress(); renderGrammar(); renderJourney(); updateBadge();
+    renderDay(); renderTasks(); renderTaskStats(); renderLog(); renderPicker(); renderMistakes(); renderVocab(); renderProgress(); renderGrammar(); renderJourney(); applySettings(); updateBadge();
     window.__applyingRemote=false;
   }
   function ebStatus(m){ const e=document.getElementById('ebStatus'); if(e)e.textContent=m; }
@@ -1414,7 +1428,7 @@
   // init
   gstatus=load(GST,{}); unitsProg=load(UPROG,{});
   renderDay(); renderTasks(); renderTaskStats(); renderLog(); checkImport();
-  renderPicker(); renderMistakes(); renderVocab(); renderProgress(); renderGrammar(); renderJourney(); renderIdeas(); updateBadge();
+  renderPicker(); renderMistakes(); renderVocab(); renderProgress(); renderGrammar(); renderJourney(); renderIdeas(); applySettings(); updateBadge();
 
   // ---- theme ----
   const tb=document.getElementById('themeBtn');

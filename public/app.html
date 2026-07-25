@@ -93,6 +93,35 @@
   .srow .acts{margin-inline-start:auto;display:flex;gap:6px;flex-wrap:wrap;}
   .empty{color:var(--faint);padding:20px;text-align:center;}
 
+  /* ---- manage page ---- */
+  #manageView{display:none;max-width:860px;margin:0 auto;padding:18px 16px 70px;width:100%;}
+  .mv-top{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;}
+  .mv-name{font-size:1.35rem;margin:0;}
+  .mv-email{font-size:.8rem;color:var(--faint);direction:ltr;unicode-bidi:isolate;}
+  .mv-quick{margin-inline-start:auto;display:flex;gap:6px;flex-wrap:wrap;}
+  .mv-stats{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 4px;}
+  .mv-stats .chip{background:var(--surface-2);border-radius:10px;padding:6px 11px;font-size:.78rem;text-align:center;}
+  .mv-stats .chip b{display:block;color:var(--teal);font-size:1.05rem;}
+  .mv-nav{display:flex;gap:6px;overflow-x:auto;padding:10px 0;margin:8px 0 4px;position:sticky;top:53px;z-index:10;
+    background:var(--bg);border-bottom:1px solid var(--line);}
+  .mv-nav button{flex:0 0 auto;border:1px solid var(--line);background:var(--surface);color:var(--soft);
+    border-radius:99px;padding:7px 13px;font-size:.82rem;font-weight:600;cursor:pointer;white-space:nowrap;}
+  .mv-nav button.on{background:var(--teal);color:#fff;border-color:var(--teal);}
+  .mv-body{padding-top:8px;}
+  .ctl{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:10px 0;box-shadow:var(--shadow);}
+  .ctl h3{margin:0 0 8px;font-size:1rem;}
+  .ctl .sub{font-size:.8rem;color:var(--faint);margin:-4px 0 8px;}
+  .ctl .rowf{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  .ctl .rowf .fld{flex:1;min-width:120px;}
+  .listrow{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px dashed var(--line);font-size:.9rem;}
+  .listrow:last-child{border-bottom:0;}
+  .listrow .gap{margin-inline-start:auto;}
+  .glist{display:grid;gap:8px;}
+  .grow{display:flex;align-items:center;gap:8px;}
+  .grow span{flex:1;direction:ltr;unicode-bidi:isolate;font-size:.85rem;}
+  .grow select{width:auto;flex:0 0 auto;}
+  .danger-zone{border-color:#c0483b55;}
+
   /* ---- modal ---- */
   #modal{position:fixed;inset:0;z-index:50;background:rgba(10,20,20,.5);display:none;place-items:center;padding:16px;}
   #modal.open{display:grid;}
@@ -159,11 +188,28 @@
     <p class="muted">افتح شاشة أي طالب بالداتا بتاعته، تابع تقدّمه، أو عدّل بياناته.</p>
     <ul class="slist" id="students"></ul>
   </div>
+
+  <!-- MANAGE (dedicated per-student control page) -->
+  <div id="manageView">
+    <div class="mv-top">
+      <div>
+        <h1 class="mv-name" id="mvName">—</h1>
+        <div class="mv-email" id="mvEmail"></div>
+      </div>
+      <div class="mv-quick">
+        <button class="btn sm" id="mvOpen">👁 شاشته</button>
+      </div>
+    </div>
+    <div class="mv-stats" id="mvStats"></div>
+    <nav class="mv-nav" id="mvNav"></nav>
+    <div class="mv-body" id="mvBody"></div>
+  </div>
 </div>
 
 <div id="modal"><div class="mbox" id="mbox"></div></div>
 <div class="toast" id="toast"></div>
 
+<script src="eew-book1.js"></script>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
   import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut }
@@ -259,7 +305,7 @@
   function enterAdmin(email){
     enterShell(email,"admin");
     $("backBtn").style.display="none";
-    $("studentView").style.display="none"; $("adminView").style.display="block";
+    $("studentView").style.display="none"; $("manageView").style.display="none"; $("adminView").style.display="block";
     listenStudents();
   }
 
@@ -274,6 +320,7 @@
   $("backBtn").addEventListener("click", ()=>{
     $("curFrame").src = "about:blank";
     $("studentView").style.display="none";
+    $("manageView").style.display="none";
     $("backBtn").style.display="none";
     $("adminView").style.display="block";
     $("waWho").textContent = ADMIN_EMAIL;
@@ -415,122 +462,173 @@
     ["Questions","later"],
     ["Comparatives","later"]
   ];
-  function normBundle(b){ return Object.assign({ tasks:[], log:{}, habitsDone:{}, goal:7, vocab:[], mistakes:[], best:0, gstatus:{} }, b||{}); }
+  function normBundle(b){ return Object.assign({ tasks:[], log:{}, habitsDone:{}, goal:7, vocab:[], mistakes:[], best:0, gstatus:{}, units:{}, settings:{} }, b||{}); }
+  const CURR_TABS=[["journey","🗺️ Journey"],["sounds","🔊 Pronunciation"],["grammar","📐 Grammar"],["speaking","💬 Speaking"],["vocab","📚 Vocabulary"],["games","🎮 Games"],["listening","🎧 Listening"],["tasks","✅ Tasks"],["log","⏱️ Log"],["progress","📈 Progress"],["ideas","💡 Ideas"]];
   async function loadBundle(email){ try{ const s=await getDoc(doc(db,"boards",email)); if(s.exists()) return s.data().bundle||{}; }catch(e){} return {}; }
   async function saveBundle(email,nb){ await setDoc(doc(db,"boards",email), { bundle:nb, at:Date.now(), by:ADMIN_EMAIL }); }
 
+  const H=(s)=>String(s??"");
   async function manageStudent(u){
-    openModal('<span class="close" id="mClose">×</span><h3>⚙️ '+esc(u.name||u.email)+'</h3><p class="muted">… بيحمّل</p>');
-    $("mClose").addEventListener("click",closeModal);
+    $("adminView").style.display="none"; $("studentView").style.display="none";
+    $("manageView").style.display="block"; $("backBtn").style.display="inline-flex";
+    $("waWho").textContent=u.name||u.email;
+    $("mvName").textContent=u.name||u.email; $("mvEmail").textContent=u.email;
+    $("mvOpen").onclick=()=>adminOpenCurriculum(u.email,u.name);
+    window.scrollTo({top:0});
+
+    const U=(window.EEW&&window.EEW.units)||[];
     let b=normBundle(await loadBundle(u.email));
 
-    const catOpts=CATS.map(c=>'<option value="'+c[0]+'">'+c[1]+'</option>').join("");
-    openModal(
-      '<span class="close" id="mClose">×</span><h3>⚙️ إدارة '+esc(u.name||u.email)+'</h3>'+
-
-      '<h3 style="font-size:.95rem;margin-top:4px">📋 تعيين مهمة</h3>'+
-      '<div class="field"><input id="mgText" class="fld" placeholder="اكتب المهمة… / write a task"></div>'+
-      '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
-        '<select id="mgCat" class="fld" style="flex:1;min-width:120px">'+catOpts+'</select>'+
-        '<input id="mgDue" class="fld" type="date" style="flex:1;min-width:120px">'+
-      '</div>'+
-      '<button class="btn solid" id="mgAdd" style="width:100%;justify-content:center;margin-top:8px">➕ عيّن المهمة</button>'+
-      '<div id="mgTasks" style="margin-top:10px"></div>'+
-
-      '<div class="divider"></div>'+
-      '<h3 style="font-size:.95rem">🎯 هدف الأسبوع (ساعات)</h3>'+
-      '<div style="display:flex;gap:8px"><input id="mgGoal" class="fld" type="number" min="1" max="40" value="'+(b.goal||7)+'" style="flex:1"><button class="btn" id="mgGoalSave">حفظ</button></div>'+
-
-      '<div class="divider"></div>'+
-      '<h3 style="font-size:.95rem">📘 ضيف كلمة للقاموس</h3>'+
-      '<div class="field"><input id="mgW" class="fld" dir="ltr" placeholder="word"></div>'+
-      '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
-        '<input id="mgM" class="fld" placeholder="المعنى بالعربي" style="flex:1;min-width:120px">'+
-        '<input id="mgEx" class="fld" dir="ltr" placeholder="example (اختياري)" style="flex:1;min-width:120px">'+
-      '</div>'+
-      '<button class="btn" id="mgWAdd" style="margin-top:8px">➕ ضيف الكلمة</button>'+
-
-      '<div class="divider"></div>'+
-      '<h3 style="font-size:.95rem">📐 حالة القواعد لكل درس</h3>'+
-      GRAMMAR.map(g=>{
-        const cur=(b.gstatus&&b.gstatus[g[0]])||g[1];
-        return '<div class="kv" style="align-items:center;gap:8px"><span style="direction:ltr;unicode-bidi:isolate">'+esc(g[0])+'</span>'+
-          '<select class="fld" style="width:auto;flex:0 0 auto" data-gs="'+esc(g[0])+'">'+
-            '<option value="done"'+(cur==="done"?" selected":"")+'>Learned ✓</option>'+
-            '<option value="next"'+(cur==="next"?" selected":"")+'>Next</option>'+
-            '<option value="later"'+(cur==="later"?" selected":"")+'>Later</option>'+
-          '</select></div>';
-      }).join('')+
-
-      '<div class="divider"></div>'+
-      '<h3 style="font-size:.95rem">⚠️ إجراءات</h3>'+
-      '<div style="display:flex;flex-wrap:wrap;gap:8px">'+
-        '<button class="btn sm" id="mgOpen">👁 افتح شاشته</button>'+
-        '<button class="btn sm red" data-w="log">صفّر السجل/الستريك</button>'+
-        '<button class="btn sm red" data-w="mist">امسح الأخطاء</button>'+
-        '<button class="btn sm red" data-w="tasks">امسح كل المهام</button>'+
-      '</div>'+
-      '<p class="err" id="mgErr"></p>'+
-      '<p class="hint">أي تغيير هنا بيتزامن مع شاشة الطالب فورًا.</p>'
-    );
-    $("mClose").addEventListener("click",closeModal);
-
-    function renderTaskList(){
-      const el=$("mgTasks"), ts=b.tasks||[];
-      if(!ts.length){ el.innerHTML='<p class="muted" style="font-size:.82rem">مفيش مهام معيّنة لسه.</p>'; return; }
-      el.innerHTML=ts.map((t,i)=>
-        '<div class="kv"><span>'+(t.done?'✅ ':'')+esc(t.text)+' <span style="color:var(--faint);font-size:.74rem">['+esc(catLabel(t.cat))+(t.due?' · '+esc(t.due):'')+']</span></span>'+
-        '<button class="btn sm red" data-rm="'+i+'">✕</button></div>'
-      ).join("");
-      el.querySelectorAll("[data-rm]").forEach(btn=>btn.addEventListener("click", async ()=>{
-        const idx=+btn.dataset.rm;
-        b=normBundle(await loadBundle(u.email)); b.tasks.splice(idx,1);
-        try{ await saveBundle(u.email,b); renderTaskList(); toast("اتشالت ✓"); }catch(e){ $("mgErr").textContent="فشل: "+(e.code||e.message); }
-      }));
+    function renderStats(){
+      const s=stats(b), done=Object.values(b.units||{}).filter(x=>x&&x.done).length;
+      $("mvStats").innerHTML=[['🔥',s.streak,'ستريك'],['🏆',s.best,'أطول'],['⏱',s.totalH,'ساعة'],['📅',s.days,'يوم'],['📘',s.vocab,'كلمة'],['🧠',s.mistakes,'خطأ'],['📋',s.tasks,'مهمة'],['🗺️',done+'/'+U.length,'محطة']]
+        .map(x=>'<span class="chip">'+x[0]+' <b>'+x[1]+'</b>'+x[2]+'</span>').join('');
     }
-    renderTaskList();
+    async function mutate(fn){
+      try{ const nb=normBundle(await loadBundle(u.email)); fn(nb); await saveBundle(u.email,nb); b=nb; renderStats(); renderActive(); }
+      catch(e){ toast("فشل: "+(e.code||e.message)); }
+    }
+    const ctl=(t,inner,sub)=>'<div class="ctl"><h3>'+t+'</h3>'+(sub?'<p class="sub">'+sub+'</p>':'')+inner+'</div>';
 
-    $("mgAdd").addEventListener("click", async ()=>{
-      const txt=$("mgText").value.trim(); if(!txt){ $("mgErr").textContent="اكتب المهمة"; return; }
-      $("mgErr").textContent="";
-      b=normBundle(await loadBundle(u.email));
-      b.tasks.push({ id:"t"+Date.now().toString(36), text:txt, cat:$("mgCat").value, due:$("mgDue").value||null, done:false, by:"teacher" });
-      try{ await saveBundle(u.email,b); $("mgText").value=""; $("mgDue").value=""; renderTaskList(); toast("اتعيّنت المهمة ✓"); }
-      catch(e){ $("mgErr").textContent="فشل: "+(e.code||e.message); }
-    });
+    const SECTIONS=[
+      {k:'profile',label:'👤 بروفايل',render:renderProfile},
+      {k:'tasks',label:'📋 مهام',render:renderTasksS},
+      {k:'study',label:'⏱️ مذاكرة',render:renderStudy},
+      {k:'vocab',label:'📘 كلمات',render:renderVocabS},
+      {k:'grammar',label:'📐 قواعد',render:renderGrammarS},
+      {k:'journey',label:'🗺️ الرحلة',render:renderJourneyS},
+      {k:'mistakes',label:'🧠 أخطاء',render:renderMistakesS},
+      {k:'settings',label:'⚙️ إعدادات',render:renderSettingsS}
+    ];
+    let active='profile';
+    function renderNav(){
+      $("mvNav").innerHTML=SECTIONS.map(s=>'<button data-k="'+s.k+'" class="'+(s.k===active?'on':'')+'">'+s.label+'</button>').join('');
+      $("mvNav").querySelectorAll('button').forEach(btn=>btn.addEventListener('click',()=>{ active=btn.dataset.k; renderNav(); renderActive(); }));
+    }
+    function renderActive(){ const s=SECTIONS.find(x=>x.k===active)||SECTIONS[0]; $("mvBody").innerHTML=''; s.render($("mvBody")); }
+    renderStats(); renderNav(); renderActive();
 
-    $("mgGoalSave").addEventListener("click", async ()=>{
-      b=normBundle(await loadBundle(u.email));
-      b.goal=Math.max(1,Math.min(40,parseInt($("mgGoal").value)||7));
-      try{ await saveBundle(u.email,b); toast("الهدف اتحفظ ✓"); }catch(e){ $("mgErr").textContent="فشل"; }
-    });
+    // ---------- PROFILE ----------
+    function renderProfile(box){
+      box.innerHTML=
+        ctl('✏️ اسم الطالب','<div class="rowf"><input id="pName" class="fld" value="'+esc(u.name||"")+'"><button class="btn solid" id="pSave">حفظ</button></div>')+
+        ctl('🧹 تصفير كل البيانات','<button class="btn red" id="pWipe">امسح كل تقدّم الطالب</button>','بيرجّعه من الأول (مهام، كلمات، أخطاء، رحلة، قواعد).')+
+        '<div class="ctl danger-zone">'+'<h3>🗑 حذف الطالب</h3><p class="sub">بيشيل صلاحيته وكل داتاه. حساب الدخول يتشال من Firebase Console.</p><button class="btn red" id="pDel">احذف الطالب</button></div>';
+      $("pSave").onclick=async()=>{ const n=$("pName").value.trim(); if(!n)return; try{ await setDoc(doc(db,"users",u.email),{name:n},{merge:true}); u.name=n; $("mvName").textContent=n; $("waWho").textContent=n; toast("الاسم اتغيّر ✓"); }catch(e){ toast("فشل"); } };
+      $("pWipe").onclick=()=>{ if(!confirm("متأكد؟ هيتصفّر كل حاجة."))return; mutate(nb=>{ Object.assign(nb,{tasks:[],log:{},habitsDone:{},goal:7,vocab:[],mistakes:[],best:0,gstatus:{},units:{}}); }); toast("اتصفّر ✓"); };
+      $("pDel").onclick=async()=>{ if(!confirm("حذف "+(u.name||u.email)+"؟"))return; try{ await deleteDoc(doc(db,"users",u.email)); await deleteDoc(doc(db,"boards",u.email)).catch(()=>{}); toast("اتحذف ✓"); $("backBtn").click(); }catch(e){ toast("فشل"); } };
+    }
 
-    $("mgWAdd").addEventListener("click", async ()=>{
-      const w=$("mgW").value.trim(); if(!w){ $("mgErr").textContent="اكتب الكلمة"; return; }
-      $("mgErr").textContent="";
-      b=normBundle(await loadBundle(u.email));
-      b.vocab.push({ id:"a"+Date.now().toString(36), word:w, mean:$("mgM").value.trim(), ex:$("mgEx").value.trim(), tag:"", box:1, due:dayKey(new Date()), r:0, w:0 });
-      try{ await saveBundle(u.email,b); $("mgW").value=""; $("mgM").value=""; $("mgEx").value=""; toast("الكلمة اتضافت ✓"); }
-      catch(e){ $("mgErr").textContent="فشل"; }
-    });
+    // ---------- TASKS ----------
+    function renderTasksS(box){
+      const catOpts=CATS.map(c=>'<option value="'+c[0]+'">'+c[1]+'</option>').join("");
+      const ts=b.tasks||[];
+      box.innerHTML=
+        ctl('➕ عيّن مهمة',
+          '<div class="field" style="margin-bottom:8px"><input id="tText" class="fld" placeholder="اكتب المهمة… / write a task"></div>'+
+          '<div class="rowf"><select id="tCat" class="fld">'+catOpts+'</select><input id="tDue" class="fld" type="date"><button class="btn solid" id="tAdd">عيّن</button></div>',
+          'بتظهر عند الطالب فورًا بعلامة 🔒 (مش هيقدر يمسحها).')+
+        ctl('⚡ مهام سريعة',
+          '<div class="rowf"><button class="btn" id="tBusuu">Busuu يومي</button><button class="btn" id="tElllo">Elllo + أغنية</button><button class="btn" id="tShadow">تظليل صوتي</button></div>')+
+        ctl('📋 مهامه ('+ts.length+')',
+          (ts.length? '<div>'+ts.map((t,i)=>'<div class="listrow">'+(t.done?'✅':'⬜')+' <span>'+esc(t.text)+'</span><small style="color:var(--faint)">'+esc(catLabel(t.cat))+(t.due?' · '+esc(t.due):'')+'</small><button class="btn sm" data-tg="'+i+'">'+(t.done?'↩':'✓')+'</button><button class="btn sm red" data-tr="'+i+'">✕</button></div>').join('')+'</div>' : '<p class="sub">مفيش مهام لسه.</p>')+
+          (ts.length?'<button class="btn sm red" id="tClear" style="margin-top:10px">امسح كل المهام</button>':''));
+      $("tAdd").onclick=()=>{ const v=$("tText").value.trim(); if(!v)return; const cat=$("tCat").value,due=$("tDue").value||null; mutate(nb=>nb.tasks.push({id:"t"+Date.now().toString(36),text:v,cat,due,done:false,by:"teacher"})); };
+      const quick=(txt,cat)=>mutate(nb=>nb.tasks.push({id:"t"+Date.now().toString(36),text:txt,cat,due:null,done:false,by:"teacher"}));
+      $("tBusuu").onclick=()=>quick("ذاكر 10 دقايق على Busuu كل يوم","vocab");
+      $("tElllo").onclick=()=>quick("اسمع درس Elllo + أغنية بالكلمات","listening");
+      $("tShadow").onclick=()=>quick("تظليل صوتي: كرر ورا الجملة 3 مرات","speaking");
+      box.querySelectorAll("[data-tg]").forEach(x=>x.onclick=()=>mutate(nb=>{ const t=nb.tasks[+x.dataset.tg]; if(t)t.done=!t.done; }));
+      box.querySelectorAll("[data-tr]").forEach(x=>x.onclick=()=>mutate(nb=>nb.tasks.splice(+x.dataset.tr,1)));
+      if($("tClear")) $("tClear").onclick=()=>{ if(confirm("متأكد؟")) mutate(nb=>nb.tasks=[]); };
+    }
 
-    $("mgOpen").addEventListener("click", ()=>{ closeModal(); adminOpenCurriculum(u.email, u.name); });
+    // ---------- STUDY ----------
+    function renderStudy(box){
+      box.innerHTML=
+        ctl('🎯 هدف الأسبوع (ساعات)','<div class="rowf"><input id="sGoal" class="fld" type="number" min="1" max="40" value="'+(b.goal||7)+'"><button class="btn solid" id="sGoalSave">حفظ</button></div>')+
+        ctl('➕ سجّل ساعات مذاكرة','<div class="rowf"><input id="sHrs" class="fld" type="number" min="0" max="12" step="0.5" placeholder="ساعات"><input id="sDate" class="fld" type="date" value="'+dayKey(new Date())+'"><button class="btn" id="sHrsAdd">أضف</button></div>','بيتحسب في الستريك والتقرير.')+
+        ctl('🏆 أطول ستريك','<div class="rowf"><input id="sBest" class="fld" type="number" min="0" value="'+(b.best||0)+'"><button class="btn" id="sBestSave">حفظ</button></div>')+
+        '<div class="ctl danger-zone"><h3>🔄 تصفير السجل/الستريك</h3><button class="btn red" id="sReset">صفّر</button></div>';
+      $("sGoalSave").onclick=()=>mutate(nb=>nb.goal=Math.max(1,Math.min(40,parseInt($("sGoal").value)||7)));
+      $("sHrsAdd").onclick=()=>{ const h=parseFloat($("sHrs").value)||0, d=$("sDate").value||dayKey(new Date()); if(h<=0)return; mutate(nb=>{ const p=(nb.log[d]&&nb.log[d].h)||0; nb.log[d]={h:p+h,note:(nb.log[d]&&nb.log[d].note)||"المعلّم"}; }); };
+      $("sBestSave").onclick=()=>mutate(nb=>nb.best=Math.max(0,parseInt($("sBest").value)||0));
+      $("sReset").onclick=()=>{ if(confirm("متأكد؟")) mutate(nb=>{ nb.log={}; nb.best=0; }); };
+    }
 
-    $("mbox").querySelectorAll("[data-w]").forEach(btn=>btn.addEventListener("click", async ()=>{
-      const w=btn.dataset.w; if(!confirm("متأكد؟")) return;
-      b=normBundle(await loadBundle(u.email));
-      if(w==="log"){ b.log={}; b.best=0; }
-      if(w==="mist") b.mistakes=[];
-      if(w==="tasks") b.tasks=[];
-      try{ await saveBundle(u.email,b); renderTaskList(); toast("تم ✓"); }catch(e){ $("mgErr").textContent="فشل"; }
-    }));
+    // ---------- VOCAB ----------
+    function renderVocabS(box){
+      const uOpts=U.map(x=>'<option value="'+x.id+'">Unit '+x.id+' — '+esc(x.title)+' ('+x.words.length+')</option>').join("");
+      const vs=b.vocab||[];
+      box.innerHTML=
+        ctl('➕ ضيف كلمة',
+          '<div class="field" style="margin-bottom:8px"><input id="vW" class="fld" dir="ltr" placeholder="word"></div>'+
+          '<div class="rowf"><input id="vM" class="fld" placeholder="المعنى بالعربي"><input id="vEx" class="fld" dir="ltr" placeholder="example"><button class="btn solid" id="vAdd">ضيف</button></div>')+
+        ctl('📦 استورد وحدة كلمات','<div class="rowf"><select id="vUnit" class="fld">'+uOpts+'</select><button class="btn" id="vImp">استورد الـ20 كلمة</button></div>','بيضيف كلمات الوحدة لقاموسه (المراجعة المتباعدة).')+
+        ctl('📘 قاموسه ('+vs.length+')',
+          (vs.length? '<div style="max-height:280px;overflow:auto">'+vs.map((w,i)=>'<div class="listrow"><span>'+esc(w.word)+' — '+esc(w.mean||"")+'</span><button class="btn sm red" data-vr="'+i+'">✕</button></div>').join('')+'</div><button class="btn sm red" id="vClear" style="margin-top:10px">امسح القاموس</button>' : '<p class="sub">القاموس فاضي.</p>'));
+      $("vAdd").onclick=()=>{ const w=$("vW").value.trim(); if(!w)return; mutate(nb=>nb.vocab.push({id:"a"+Date.now().toString(36),word:w,mean:$("vM").value.trim(),ex:$("vEx").value.trim(),tag:"",box:1,due:dayKey(new Date()),r:0,w:0})); };
+      $("vImp").onclick=()=>{ const id=+$("vUnit").value, un=U.find(x=>x.id===id); if(!un)return; mutate(nb=>{ const have=new Set((nb.vocab||[]).map(v=>(v.word||"").toLowerCase())); un.words.forEach((wd,j)=>{ if(!have.has(wd.w.toLowerCase())) nb.vocab.push({id:"u"+id+"_"+j+"_"+Date.now().toString(36),word:wd.w,mean:wd.ar,ex:wd.ex,tag:"Unit "+id,box:1,due:dayKey(new Date()),r:0,w:0}); }); }); toast("اتستوردت ✓"); };
+      box.querySelectorAll("[data-vr]").forEach(x=>x.onclick=()=>mutate(nb=>nb.vocab.splice(+x.dataset.vr,1)));
+      if($("vClear")) $("vClear").onclick=()=>{ if(confirm("متأكد؟")) mutate(nb=>nb.vocab=[]); };
+    }
 
-    $("mbox").querySelectorAll("[data-gs]").forEach(sel=>sel.addEventListener("change", async ()=>{
-      const key=sel.dataset.gs, val=sel.value;
-      b=normBundle(await loadBundle(u.email));
-      b.gstatus=b.gstatus||{}; b.gstatus[key]=val;
-      try{ await saveBundle(u.email,b); toast("اتحدّثت القاعدة ✓"); }catch(e){ $("mgErr").textContent="فشل"; }
-    }));
+    // ---------- GRAMMAR ----------
+    function renderGrammarS(box){
+      box.innerHTML=
+        ctl('📐 حالة كل درس',
+          '<div class="glist">'+GRAMMAR.map(g=>{ const cur=(b.gstatus&&b.gstatus[g[0]])||g[1];
+            return '<div class="grow"><span>'+esc(g[0])+'</span><select class="fld" data-gs="'+esc(g[0])+'">'+
+              ['done|Learned ✓','next|Next','later|Later'].map(o=>{const[v,l]=o.split('|');return '<option value="'+v+'"'+(cur===v?' selected':'')+'>'+l+'</option>';}).join('')+
+            '</select></div>'; }).join('')+'</div>')+
+        ctl('⚡ سريع','<div class="rowf"><button class="btn" id="gAll">اعتبرها كلها Learned</button><button class="btn red" id="gReset">رجّع الافتراضي</button></div>');
+      box.querySelectorAll("[data-gs]").forEach(sel=>sel.onchange=()=>mutate(nb=>{ nb.gstatus=nb.gstatus||{}; nb.gstatus[sel.dataset.gs]=sel.value; }));
+      $("gAll").onclick=()=>mutate(nb=>{ nb.gstatus={}; GRAMMAR.forEach(g=>nb.gstatus[g[0]]="done"); });
+      $("gReset").onclick=()=>mutate(nb=>nb.gstatus={});
+    }
+
+    // ---------- JOURNEY ----------
+    function renderJourneyS(box){
+      const prog=b.units||{};
+      const upOpts=U.map(x=>'<option value="'+x.id+'">لحد Unit '+x.id+'</option>').join("");
+      box.innerHTML=
+        ctl('🔓 افتح لحد وحدة','<div class="rowf"><select id="jTo" class="fld">'+upOpts+'</select><button class="btn solid" id="jUnlock">افتح</button></div>','بيعتبر الوحدات لحد دي مكتملة عشان تفتح اللي بعدها.')+
+        ctl('🗺️ الوحدات',
+          '<div class="glist">'+U.map(x=>{ const done=!!(prog[x.id]&&prog[x.id].done);
+            return '<div class="grow"><span>'+x.emoji+' Unit '+x.id+' — '+esc(x.title)+'</span><label style="font-size:.8rem"><input type="checkbox" data-ju="'+x.id+'"'+(done?' checked':'')+'> مكتملة</label></div>'; }).join('')+'</div>')+
+        '<div class="ctl danger-zone"><h3>🔄 تصفير الرحلة</h3><button class="btn red" id="jReset">صفّر كل التقدّم</button></div>';
+      $("jUnlock").onclick=()=>{ const n=+$("jTo").value; mutate(nb=>{ nb.units=nb.units||{}; for(let i=1;i<=n;i++){ if(!(nb.units[i]&&nb.units[i].done)) nb.units[i]={done:true,best:100}; } }); };
+      box.querySelectorAll("[data-ju]").forEach(cb=>cb.onchange=()=>{ const id=+cb.dataset.ju; mutate(nb=>{ nb.units=nb.units||{}; if(cb.checked)nb.units[id]={done:true,best:(nb.units[id]&&nb.units[id].best)||100}; else delete nb.units[id]; }); });
+      $("jReset").onclick=()=>{ if(confirm("متأكد؟")) mutate(nb=>nb.units={}); };
+    }
+
+    // ---------- MISTAKES ----------
+    function renderMistakesS(box){
+      const ms=b.mistakes||[];
+      box.innerHTML=
+        ctl('➕ ضيف خطأ للمراجعة',
+          '<div class="field" style="margin-bottom:8px"><input id="mQ" class="fld" placeholder="السؤال / الجملة الصح"></div>'+
+          '<div class="rowf"><input id="mA" class="fld" placeholder="الإجابة"><input id="mWhy" class="fld" placeholder="ليه (اختياري)"><button class="btn solid" id="mAdd">ضيف</button></div>')+
+        ctl('🧠 بنكه ('+ms.length+')',
+          (ms.length? '<div style="max-height:280px;overflow:auto">'+ms.map((m,i)=>'<div class="listrow"><span>'+esc(m.q||"")+' → '+esc(m.a||m.ans||"")+'</span><button class="btn sm red" data-mr="'+i+'">✕</button></div>').join('')+'</div><button class="btn sm red" id="mClear2" style="margin-top:10px">امسح البنك</button>' : '<p class="sub">مفيش أخطاء.</p>'));
+      $("mAdd").onclick=()=>{ const q=$("mQ").value.trim(); if(!q)return; mutate(nb=>nb.mistakes.unshift({q,ans:$("mA").value.trim(),why:$("mWhy").value.trim(),ts:dayKey(new Date())})); };
+      box.querySelectorAll("[data-mr]").forEach(x=>x.onclick=()=>mutate(nb=>nb.mistakes.splice(+x.dataset.mr,1)));
+      if($("mClear2")) $("mClear2").onclick=()=>{ if(confirm("متأكد؟")) mutate(nb=>nb.mistakes=[]); };
+    }
+
+    // ---------- SETTINGS ----------
+    function renderSettingsS(box){
+      const st=b.settings||{}, hidden=st.hiddenTabs||[];
+      box.innerHTML=
+        ctl('🏷️ اسم يظهر في المنهج','<div class="rowf"><input id="stName" class="fld" value="'+esc(st.displayName||"")+'" placeholder="مثلاً Mohammed"><button class="btn solid" id="stNameSave">حفظ</button></div>','بيتغيّر عنوان صفحة المنهج بتاعته.')+
+        ctl('📣 رسالة تظهر له','<div class="rowf"><input id="stMsg" class="fld" value="'+esc(st.message||"")+'" placeholder="رسالة تحفيزية أو تعليمات"><button class="btn solid" id="stMsgSave">حفظ</button></div>')+
+        ctl('🗣️ سرعة النطق','<div class="rowf"><select id="stRate" class="fld">'+[['0.8','أبطأ'],['1','عادي'],['1.15','أسرع']].map(o=>'<option value="'+o[0]+'"'+((st.rate||'1')==o[0]?' selected':'')+'>'+o[1]+'</option>').join('')+'</select></div>')+
+        ctl('👁️ إخفاء تابات','<div class="glist">'+CURR_TABS.map(t=>'<label class="grow" style="font-size:.85rem"><input type="checkbox" data-ht="'+t[0]+'"'+(hidden.includes(t[0])?' checked':'')+'> <span>'+t[1]+'</span></label>').join('')+'</div>','التابات المتشالة مش هتظهر للطالب.');
+      $("stNameSave").onclick=()=>mutate(nb=>{ nb.settings=nb.settings||{}; nb.settings.displayName=$("stName").value.trim(); });
+      $("stMsgSave").onclick=()=>mutate(nb=>{ nb.settings=nb.settings||{}; nb.settings.message=$("stMsg").value.trim(); });
+      $("stRate").onchange=()=>mutate(nb=>{ nb.settings=nb.settings||{}; nb.settings.rate=$("stRate").value; });
+      box.querySelectorAll("[data-ht]").forEach(cb=>cb.onchange=()=>mutate(nb=>{ nb.settings=nb.settings||{}; const h=new Set(nb.settings.hiddenTabs||[]); cb.checked?h.add(cb.dataset.ht):h.delete(cb.dataset.ht); nb.settings.hiddenTabs=[...h]; }));
+    }
   }
 </script>
 </body>

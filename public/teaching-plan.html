@@ -8,7 +8,7 @@
   // Auth guard: no access without login — bounce to the login shell.
   import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-  const cfg = { apiKey:"AIzaSyBuL9tK-UJ10HvzwPocXNIYjXGjDKtDB3E", authDomain:"englishboard-adc4c.firebaseapp.com", projectId:"englishboard-adc4c", storageBucket:"englishboard-adc4c.firebasestorage.app", messagingSenderId:"552512992591", appId:"1:552512992591:web:993f1a4aa9b9b61600813a" };
+  const cfg = { apiKey:"AIzaSyBuL9tK-UJ10HvzwPocXNIYjXGjDKtDB3E", authDomain:"englishboard.web.app", projectId:"englishboard-adc4c", storageBucket:"englishboard-adc4c.firebasestorage.app", messagingSenderId:"552512992591", appId:"1:552512992591:web:993f1a4aa9b9b61600813a" };
   if(!getApps().length) initializeApp(cfg);
   onAuthStateChanged(getAuth(), u => {
     if(u && u.email) document.documentElement.style.visibility = "visible";

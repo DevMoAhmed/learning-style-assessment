@@ -245,6 +245,47 @@
   #ideasList .ibt{font-weight:700;}
   #ideasList .iw{font-size:.85rem;color:var(--soft);}
   #ideasList .ist{flex:0 0 auto;font-size:.9rem;}
+
+  /* ---- journey map ---- */
+  .jmap{position:relative;padding:14px 0 30px;}
+  .jmap::before{content:"";position:absolute;top:30px;bottom:30px;left:50%;width:4px;transform:translateX(-50%);
+    background:repeating-linear-gradient(var(--line) 0 10px,transparent 10px 20px);z-index:0;}
+  .jnode{position:relative;z-index:1;display:flex;align-items:center;gap:14px;width:62%;margin:0 0 8px;padding:2px 0;}
+  .jnode:nth-child(odd){margin-inline-start:auto;flex-direction:row-reverse;text-align:end;}
+  .jdot{flex:0 0 auto;width:62px;height:62px;border-radius:50%;display:grid;place-items:center;font-size:1.7rem;
+    border:3px solid var(--line);background:var(--surface);box-shadow:var(--shadow);cursor:pointer;transition:transform .12s;position:relative;}
+  .jdot:hover{transform:scale(1.06);}
+  .jnode.done .jdot{background:var(--green);border-color:var(--green);color:#fff;}
+  .jnode.current .jdot{border-color:var(--teal);animation:jpulse 1.6s infinite;}
+  .jnode.locked .jdot{opacity:.5;cursor:not-allowed;filter:grayscale(.6);}
+  @keyframes jpulse{0%,100%{box-shadow:0 0 0 0 var(--teal-soft);}50%{box-shadow:0 0 0 10px transparent;}}
+  .jdot .jbadge{position:absolute;bottom:-4px;right:-4px;font-size:.85rem;background:var(--surface);border-radius:50%;padding:0 2px;}
+  .jmeta{min-width:0;}
+  .jmeta .jt{font-weight:800;font-size:.98rem;}
+  .jmeta .js{font-size:.78rem;color:var(--soft);}
+  .jmeta .jw{font-size:.72rem;color:var(--faint);}
+  .jstart{display:inline-block;margin-top:2px;font-size:.72rem;color:var(--teal);font-weight:700;}
+
+  /* ---- unit view ---- */
+  .uv-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
+  .uv-back{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:6px 13px;font-weight:600;cursor:pointer;color:var(--ink);}
+  .uv-title{font-family:var(--serif);font-size:1.3rem;margin:0;}
+  .wcard{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:7px 0;box-shadow:var(--shadow);}
+  .wcard .wen{font-weight:800;font-size:1.05rem;}
+  .wcard .war{color:var(--soft);font-size:.9rem;direction:rtl;}
+  .wcard .wex{font-size:.82rem;color:var(--faint);}
+  .wcard .wmid{flex:1;min-width:0;}
+  .wcard .wplay{flex:0 0 auto;border:0;background:var(--teal-soft);color:var(--teal);border-radius:50%;width:38px;height:38px;font-size:1rem;cursor:pointer;}
+  .uv-sec{margin:18px 0 8px;}
+  .passage{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;line-height:1.9;font-size:1.02rem;}
+  .quizbox{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;text-align:center;}
+  .quizbox .qword{font-size:1.6rem;font-weight:800;margin:6px 0 14px;}
+  .quizbox .qopt{display:block;width:100%;margin:6px 0;padding:11px;border:1px solid var(--line);border-radius:10px;
+    background:var(--bg);cursor:pointer;font-size:1rem;direction:rtl;font-family:var(--ar);}
+  .quizbox .qopt:hover{border-color:var(--teal);}
+  .quizbox .qopt.ok{background:var(--green);color:#fff;border-color:var(--green);}
+  .quizbox .qopt.no{background:#c0483b;color:#fff;border-color:#c0483b;}
+  .qprog{font-size:.8rem;color:var(--faint);}
 </style>
 </head>
 <body>
@@ -256,7 +297,8 @@
   </header>
 
   <div class="tabs" role="tablist" aria-label="Curriculum sections">
-    <button class="tab" role="tab" aria-selected="true" data-panel="p-sounds">🔊 Pronunciation</button>
+    <button class="tab" role="tab" aria-selected="true" data-panel="p-journey">🗺️ Journey</button>
+    <button class="tab" role="tab" aria-selected="false" data-panel="p-sounds">🔊 Pronunciation</button>
     <button class="tab" role="tab" aria-selected="false" data-panel="p-grammar">📐 Grammar</button>
     <button class="tab" role="tab" aria-selected="false" data-panel="p-speaking">💬 Speaking</button>
     <button class="tab" role="tab" aria-selected="false" data-panel="p-vocab">📚 Vocabulary</button>
@@ -268,8 +310,15 @@
     <button class="tab" role="tab" aria-selected="false" data-panel="p-ideas">💡 Ideas</button>
   </div>
 
+  <!-- JOURNEY (adventure map) -->
+  <section id="p-journey" class="panel active" role="tabpanel">
+    <div class="note ar" dir="rtl">خريطة رحلتك 🗺️ — كل محطة وحدة كلمات من كتاب <b>4000 Essential English Words</b>. اقفل المحطة تفتح اللي بعدها. دوس على أي محطة مفتوحة تبدأ.</div>
+    <div id="journeyMap"></div>
+    <div id="unitView" style="display:none"></div>
+  </section>
+
   <!-- PRONUNCIATION -->
-  <section id="p-sounds" class="panel active" role="tabpanel">
+  <section id="p-sounds" class="panel" role="tabpanel">
     <div class="note">Train your ear and learn to pronounce English sounds. <span class="ar">الأصوات المعلَّمة بـ⚠ صعبة على الناطق بالعربي — ركّز عليها.</span></div>
     <div class="sec-head"><span class="eyebrow">Vowels</span><h2>Vowel sounds</h2></div>
     <div class="grid" id="vowels"></div>
@@ -508,6 +557,7 @@
 
 <button class="theme-toggle" id="themeBtn" aria-label="Toggle light/dark" title="Light / Dark">◐</button>
 
+<script src="eew-book1.js"></script>
 <script>
   // ---- data ----
   const VOWELS = [
@@ -1194,14 +1244,14 @@
   }
 
   // ================= CLOUD SYNC (Firebase) =================
-  function bundleAll(){ return {tasks:load(LS.tasks,[]),log:load(LS.log,{}),habitsDone:load(LS.habitsDone,{}),goal:load(LS.goal,7),vocab:load(LSV,[]),mistakes:load(MIST,[]),best:load('m_best',0),gstatus:load(GST,{})}; }
-  function applyBundle(b){ if(!b)return; if(b.tasks)save(LS.tasks,b.tasks); if(b.log)save(LS.log,b.log); if(b.habitsDone)save(LS.habitsDone,b.habitsDone); if(b.goal!=null)save(LS.goal,b.goal); if(b.vocab)save(LSV,b.vocab); if(b.mistakes)save(MIST,b.mistakes); if(b.best!=null)save('m_best',b.best); if(b.gstatus)save(GST,b.gstatus); }
+  function bundleAll(){ return {tasks:load(LS.tasks,[]),log:load(LS.log,{}),habitsDone:load(LS.habitsDone,{}),goal:load(LS.goal,7),vocab:load(LSV,[]),mistakes:load(MIST,[]),best:load('m_best',0),gstatus:load(GST,{}),units:load(UPROG,{})}; }
+  function applyBundle(b){ if(!b)return; if(b.tasks)save(LS.tasks,b.tasks); if(b.log)save(LS.log,b.log); if(b.habitsDone)save(LS.habitsDone,b.habitsDone); if(b.goal!=null)save(LS.goal,b.goal); if(b.vocab)save(LSV,b.vocab); if(b.mistakes)save(MIST,b.mistakes); if(b.best!=null)save('m_best',b.best); if(b.gstatus)save(GST,b.gstatus); if(b.units)save(UPROG,b.units); }
   function applyAndRender(b){
     window.__applyingRemote=true;
     applyBundle(b);
-    tasks=load(LS.tasks,[]); logData=load(LS.log,{}); habitsDone=load(LS.habitsDone,{}); goal=load(LS.goal,7); vocab=load(LSV,[]); mistakes=load(MIST,[]); gstatus=load(GST,{});
+    tasks=load(LS.tasks,[]); logData=load(LS.log,{}); habitsDone=load(LS.habitsDone,{}); goal=load(LS.goal,7); vocab=load(LSV,[]); mistakes=load(MIST,[]); gstatus=load(GST,{}); unitsProg=load(UPROG,{});
     const gi2=document.getElementById('goalInput'); if(gi2)gi2.value=goal;
-    renderDay(); renderTasks(); renderTaskStats(); renderLog(); renderPicker(); renderMistakes(); renderVocab(); renderProgress(); renderGrammar(); updateBadge();
+    renderDay(); renderTasks(); renderTaskStats(); renderLog(); renderPicker(); renderMistakes(); renderVocab(); renderProgress(); renderGrammar(); renderJourney(); updateBadge();
     window.__applyingRemote=false;
   }
   function ebStatus(m){ const e=document.getElementById('ebStatus'); if(e)e.textContent=m; }
@@ -1262,18 +1312,109 @@
     });
   }
 
+  // ================= JOURNEY (adventure map + 4000-words units) =================
+  const UNITS=(window.EEW&&window.EEW.units)||[];
+  const UPROG='m_units';
+  let unitsProg={};                                  // { id:{done:true,best:score} }
+  const unitDone=id=>!!(unitsProg[id]&&unitsProg[id].done);
+  const unitUnlocked=id=>id===1||unitDone(id-1);
+  function jshuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+  function renderJourney(){
+    const map=document.getElementById('journeyMap'); if(!map) return;
+    const uv=document.getElementById('unitView'); if(uv) uv.style.display='none';
+    map.style.display='block'; map.className='jmap'; map.innerHTML='';
+    const doneCount=UNITS.filter(u=>unitDone(u.id)).length;
+    const bar=document.createElement('p'); bar.className='ex ar'; bar.dir='rtl'; bar.style.textAlign='center'; bar.style.marginBottom='6px';
+    bar.textContent='خلّصت '+doneCount+' من '+UNITS.length+' محطة 🏁'; map.appendChild(bar);
+    UNITS.forEach(u=>{
+      const done=unitDone(u.id), unlocked=unitUnlocked(u.id), current=unlocked&&!done;
+      const n=document.createElement(unlocked?'button':'div');
+      n.type='button'; n.className='jnode '+(done?'done':current?'current':'locked');
+      n.innerHTML='<span class="jdot">'+(done?'✓':(unlocked?u.emoji:'🔒'))+
+        (done&&unitsProg[u.id].best?'<span class="jbadge">'+unitsProg[u.id].best+'</span>':'')+'</span>'+
+        '<span class="jmeta"><span class="jt">Unit '+u.id+' · '+u.title+'</span>'+
+        '<span class="js" dir="rtl">'+u.ar+'</span> <span class="jw" dir="rtl">'+u.words.length+' كلمة</span>'+
+        (unlocked?'<br><span class="jstart" dir="rtl">'+(done?'راجِع ↺':'ابدأ ▶')+'</span>':'')+'</span>';
+      if(unlocked) n.addEventListener('click',()=>openUnit(u.id));
+      map.appendChild(n);
+    });
+  }
+
+  function openUnit(id){
+    const u=UNITS.find(x=>x.id===id); if(!u) return;
+    document.getElementById('journeyMap').style.display='none';
+    const v=document.getElementById('unitView'); v.style.display='block'; v.innerHTML='';
+    const head=document.createElement('div'); head.className='uv-head';
+    head.innerHTML='<button class="uv-back">← الخريطة</button><h2 class="uv-title">'+u.emoji+' Unit '+u.id+' — '+u.title+'</h2>';
+    head.querySelector('.uv-back').addEventListener('click',renderJourney); v.appendChild(head);
+
+    const ws=document.createElement('div'); ws.className='uv-sec'; ws.innerHTML='<span class="eyebrow">Words</span><h2 style="margin:0">الكلمات ('+u.words.length+')</h2>'; v.appendChild(ws);
+    u.words.forEach(wd=>{
+      const c=document.createElement('div'); c.className='wcard';
+      c.innerHTML='<button class="wplay" title="اسمع الكلمة">▶</button>'+
+        '<span class="wmid"><span class="wen en">'+wd.w+'</span> — <span class="war">'+wd.ar+'</span><br><span class="wex en">'+wd.ex+'</span></span>';
+      c.querySelector('.wplay').addEventListener('click',()=>say(wd.w,0.85));
+      c.querySelector('.wex').addEventListener('click',()=>say(wd.ex,0.85));
+      v.appendChild(c);
+    });
+
+    const gs=document.createElement('div'); gs.className='uv-sec'; gs.innerHTML='<span class="eyebrow">Game</span><h2 style="margin:0">🎮 اختبار الكلمات</h2>'; v.appendChild(gs);
+    const qbox=document.createElement('div'); qbox.className='quizbox'; v.appendChild(qbox);
+    const sb=document.createElement('button'); sb.className='btn-solid'; sb.textContent='ابدأ الاختبار'; qbox.appendChild(sb);
+    sb.addEventListener('click',()=>runUnitQuiz(u,qbox));
+
+    const ps=document.createElement('div'); ps.className='uv-sec'; ps.innerHTML='<span class="eyebrow">Reading · A1</span><h2 style="margin:0">📖 القطعة</h2>'; v.appendChild(ps);
+    const pass=document.createElement('div'); pass.className='passage';
+    const pb=document.createElement('button'); pb.className='miniplay'; pb.style.cssText='float:inline-end;margin-inline-start:8px'; pb.textContent='▶ اسمع';
+    const ptx=document.createElement('span'); ptx.className='en'; ptx.textContent=u.passage;
+    pb.addEventListener('click',()=>say(u.passage,0.85)); pass.appendChild(pb); pass.appendChild(ptx); v.appendChild(pass);
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  function runUnitQuiz(u,box){
+    const qs=jshuffle(u.words).slice(0,Math.min(10,u.words.length)); let i=0,score=0;
+    function step(){
+      if(i>=qs.length){ return finish(); }
+      const w=qs[i]; const opts=jshuffle([w,...jshuffle(u.words.filter(x=>x.w!==w.w)).slice(0,3)]);
+      box.innerHTML='<div class="qprog">'+(i+1)+' / '+qs.length+' · نقط: '+score+'</div><button class="miniplay">▶</button><div class="qword en">'+w.w+'</div>';
+      box.querySelector('.miniplay').addEventListener('click',()=>say(w.w,0.85));
+      opts.forEach(o=>{
+        const b=document.createElement('button'); b.className='qopt'; b.textContent=o.ar;
+        b.addEventListener('click',()=>{
+          box.querySelectorAll('.qopt').forEach(x=>x.disabled=true);
+          if(o.w===w.w){ b.classList.add('ok'); score++; }
+          else{ b.classList.add('no'); box.querySelectorAll('.qopt').forEach(x=>{ if(x.textContent===w.ar)x.classList.add('ok'); }); }
+          setTimeout(()=>{ i++; step(); },750);
+        });
+        box.appendChild(b);
+      });
+    }
+    function finish(){
+      const pct=Math.round(score/qs.length*100), passed=pct>=60;
+      box.innerHTML='<div class="qword">'+(passed?'🎉':'💪')+' '+score+'/'+qs.length+' ('+pct+'%)</div>'+
+        '<p class="ex ar" dir="rtl">'+(passed?'برافو! فتحت المحطة اللي بعدها.':'قريّب! جرّب تاني توصل ٦٠٪.')+'</p>';
+      const again=document.createElement('button'); again.className='btn-ghost'; again.textContent='↺ تاني'; again.addEventListener('click',()=>runUnitQuiz(u,box));
+      const back=document.createElement('button'); back.className='btn-solid'; back.style.marginInlineStart='8px'; back.textContent='← الخريطة'; back.addEventListener('click',renderJourney);
+      box.appendChild(again); box.appendChild(back);
+      if(passed){ const prev=unitsProg[u.id]||{}; unitsProg[u.id]={done:true,best:Math.max(prev.best||0,pct)}; save(UPROG,unitsProg); toast('محطة خلصت ✓'); }
+    }
+    step();
+  }
+
   // refresh on tab switch
   document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
     const p=t.dataset.panel;
+    if(p==='p-journey')renderJourney();
     if(p==='p-vocab')renderVocab();
     if(p==='p-games')renderMistakes();
     if(p==='p-progress')renderProgress();
   }));
 
   // init
-  gstatus=load(GST,{});
+  gstatus=load(GST,{}); unitsProg=load(UPROG,{});
   renderDay(); renderTasks(); renderTaskStats(); renderLog(); checkImport();
-  renderPicker(); renderMistakes(); renderVocab(); renderProgress(); renderGrammar(); renderIdeas(); updateBadge();
+  renderPicker(); renderMistakes(); renderVocab(); renderProgress(); renderGrammar(); renderJourney(); renderIdeas(); updateBadge();
 
   // ---- theme ----
   const tb=document.getElementById('themeBtn');

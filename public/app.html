@@ -270,6 +270,7 @@
     try{ localStorage.setItem("eb_theme", dark?"light":"dark"); }catch(e){}
   });
   try{ const th=localStorage.getItem("eb_theme"); if(th) document.documentElement.setAttribute("data-theme",th); }catch(e){}
+  window.addEventListener("storage", e=>{ if(e.key==="eb_theme" && e.newValue) document.documentElement.setAttribute("data-theme", e.newValue); });
 
   // ---------- login (Google only) ----------
   const provider = new GoogleAuthProvider();

@@ -80,6 +80,9 @@
   .snd{position:relative;border:1.5px solid var(--line);background:var(--surface);border-radius:16px;padding:13px 10px 11px;text-align:center;box-shadow:var(--shadow);}
   .snd .ipa{font-family:var(--serif);font-size:1.4rem;font-weight:700;color:var(--ink);}
   .snd .word{color:var(--faint);font-size:.9rem;margin-top:1px;}
+  .snd .artic{margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:.78rem;line-height:1.65;color:var(--soft);text-align:right;}
+  .snd .artic b{color:var(--ink);}
+  #vowels,#consonants{grid-template-columns:repeat(auto-fill,minmax(198px,1fr));}
   .play{margin-top:9px;display:inline-flex;align-items:center;gap:6px;border:none;cursor:pointer;
     background:var(--teal-soft);color:var(--teal);font-weight:700;font-size:.8rem;border-radius:99px;padding:6px 14px;font-family:var(--sans);}
   .play:hover{background:var(--teal-btn);color:#fff;}
@@ -582,16 +585,49 @@
 <script src="eew-book1.js"></script>
 <script>
   // ---- data ----
+  // [ipa, exampleWord, hard?, وصف عربي: إزاي تحرّك بقك ولسانك]
   const VOWELS = [
-    ["ɑ","hot"],["æ","cat",1],["ʌ","but"],["ɛ","bed",1],["eɪ","say"],["ɚ","bird"],
-    ["ɪ","ship",1],["i","sheep",1],["ə","about"],["oʊ","boat"],["ʊ","foot"],["u","food"],
-    ["aʊ","cow"],["aɪ","time"],["ɔɪ","boy"]
+    ["ɑ","hot",0,"افتح بقك واسع، اللسان لتحت ولورا — زي «آه» قصيرة عند الدكتور."],
+    ["æ","cat",1,"افتح بقك وافرد شفايفك للجنب، اللسان قدام لتحت — صوت بين الفتحة والكسرة (a/e)."],
+    ["ʌ","but",0,"بق نص مفتوح ومرتخي، صوت قصير من وسط الحلق — زي «اَ» خفيفة سريعة."],
+    ["ɛ","bed",1,"بق نص مفتوح، اللسان قدام لفوق شوية — زي كسرة مفتوحة «e»."],
+    ["eɪ","say",0,"ابدأ بـ«e» وزحلق لـ«i»؛ الفك بيقفل شوية والشفايف بتتفرد — زي «ايه»."],
+    ["ɚ","bird",0,"لِف طرف اللسان لفوق ولورا من غير ما يلمس، الصوت من الوسط — «إر» أمريكية."],
+    ["ɪ","ship",1,"كسرة **قصيرة** مرتخية، بق نص مقفول، اللسان قدام لفوق — مش «ي» طويلة."],
+    ["i","sheep",1,"كسرة **طويلة** مشدودة، افرد شفايفك زي الابتسامة — «يييي»."],
+    ["ə","about",0,"صوت مرتخي جدًا وسريع من وسط البق (schwa) — «اَ» خفيفة مش واضحة."],
+    ["oʊ","boat",0,"ابدأ «o» وقفّل شفايفك لدايرة صغيرة نحو «u» — زي «أوه»."],
+    ["ʊ","foot",0,"ضمة **قصيرة** مرتخية، شفايف مدوّرة شوية — مش «و» طويلة."],
+    ["u","food",0,"ضمة **طويلة**، دوّر شفايفك لقدام قوي، اللسان ورا لفوق — «ووو»."],
+    ["aʊ","cow",0,"ابدأ بق مفتوح «a» وزحلق لضمة «u»، الشفايف بتتدوّر — زي «آو»."],
+    ["aɪ","time",0,"ابدأ بق مفتوح «a» وزحلق لكسرة «i» — زي «آي»."],
+    ["ɔɪ","boy",0,"ابدأ شفايف مدوّرة «o» وزحلق لكسرة «i» — زي «أوي»."]
   ];
   const CONS = [
-    ["b","book"],["tʃ","chair",1],["d","day"],["f","fish"],["g","go"],["h","home"],
-    ["dʒ","job"],["k","key"],["l","lion"],["m","man"],["n","no"],["ŋ","sing",1],
-    ["p","pen",1],["r","red"],["s","sun"],["t","tea"],["v","van",1],["w","we"],
-    ["j","yes"],["z","zoo"],["ʃ","she",1],["ʒ","vision",1],["θ","think",1],["ð","this",1]
+    ["b","book",0,"اقفل شفايفك واضغط، وافتحهم بصوت من الحبال الصوتية — زي «ب»."],
+    ["tʃ","chair",1,"طرف اللسان على سقف البق ورا الأسنان، أطلقه بنفخة — «تش»."],
+    ["d","day",0,"طرف اللسان ورا الأسنان العليا، المس واطلق بصوت — «د»."],
+    ["f","fish",0,"سنانك العليا على شفتك السفلى وانفخ — «ف»."],
+    ["g","go",0,"مؤخرة اللسان لسقف الحلق، المس واطلق بصوت — زي «چ/g» المصرية."],
+    ["h","home",0,"نفخة هوا خفيفة من الحلق بدون اهتزاز — «هـ»."],
+    ["dʒ","job",0,"زي «tʃ» بس **بصوت/اهتزاز** — «دج» — زي «ج» الفصحى."],
+    ["k","key",0,"مؤخرة اللسان لسقف الحلق، اطلق بنفخة **بدون صوت** — «ك»."],
+    ["l","lion",0,"طرف اللسان ورا الأسنان العليا، الهوا يخرج من الجنب — «ل»."],
+    ["m","man",0,"اقفل شفايفك والصوت يطلع من مناخيرك — «م»."],
+    ["n","no",0,"طرف اللسان ورا الأسنان العليا والصوت من المناخير — «ن»."],
+    ["ŋ","sing",1,"مؤخرة اللسان لسقف الحلق والصوت من المناخير — «نغ» من غير ما تنطق g."],
+    ["p","pen",1,"زي «b» بس **بدون صوت** ومعاها نفخة قوية — حط ورقة قدام بقك تترجرج (مش «ب»)."],
+    ["r","red",0,"لِف طرف اللسان لفوق نحو وسط البق **من غير ما يلمس** — مش «ر» المتدحرجة."],
+    ["s","sun",0,"طرف اللسان قريب من الأسنان، هوا رفيع بصفير — «س»."],
+    ["t","tea",0,"طرف اللسان ورا الأسنان العليا، اطلق بنفخة بدون صوت — «ت»."],
+    ["v","van",1,"زي «f» بس **بصوت/اهتزاز** — سنانك على شفتك السفلى مع صوت (مش «ف»)."],
+    ["w","we",0,"دوّر شفايفك لدايرة صغيرة وافتحها بسرعة — زي «و» في «وردة»."],
+    ["j","yes",0,"اللسان قدام لفوق قريب من السقف وازحلق بسرعة — زي «ي» في «يد»."],
+    ["z","zoo",0,"زي «s» بس **بصوت/اهتزاز** — «ز»."],
+    ["ʃ","she",1,"شفايفك لقدام شوية واللسان عريض قرب السقف — «ش»."],
+    ["ʒ","vision",1,"زي «ʃ» بس بصوت — صوت نادر، زي «s» في measure."],
+    ["θ","think",1,"طلّع طرف لسانك **بين سنانك** وانفخ بدون صوت — مفيش زيه بالعربي، مش «س» ولا «ت»."],
+    ["ð","this",1,"زي «θ» بس **بصوت/اهتزاز** — طرف اللسان بين السنان مع صوت — زي «ذ»."]
   ];
   const ARTICLES_DETAIL = `
     <p class="arp">في العربي عندنا <b>«الـ»</b> للتعريف بس، ومفيش أداة للتنكير — بنقول «كتاب» على طول. في الإنجليزي عندك <b>٣ اختيارات</b>: <b>a</b> / <b>an</b> / <b>the</b> — وأحيانًا <b>ولا حاجة</b>. عشان كده بتتلخبط. خلّينا نفكّها.</p>
@@ -734,11 +770,12 @@
   }
 
   // ---- render sounds ----
-  function soundCard([ipa,word,hard]){
+  function soundCard([ipa,word,hard,desc]){
     const d=document.createElement('div'); d.className='snd';
+    const dhtml = desc ? '<div class="artic ar" dir="rtl">🗣️ '+desc.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>')+'</div>' : '';
     d.innerHTML = (hard?'<span class="hard">⚠ صعب</span>':'')+
       '<div class="ipa">/'+ipa+'/</div><div class="word">'+word+'</div>'+
-      '<button class="play">▶ '+word+'</button>';
+      '<button class="play">▶ '+word+'</button>'+dhtml;
     d.querySelector('.play').addEventListener('click',()=>say(word,0.75));
     return d;
   }
@@ -805,11 +842,14 @@
 
   // ================= TASKS + LOG SYSTEM =================
   const LS={ tasks:'m_tasks', log:'m_log', habitsDone:'m_habits_done', goal:'m_goal' };
-  const HABITS=[
-    ['h1','🎧 اسمع بودكاست + shadowing (٢٠ د)'],
-    ['h3','💬 كلام مع Gemini بالصوت (٥–١٠ د)'],
-    ['h4','🎙️ رسالة صوتية للمعلّم (دقيقة)']
+  const DEFAULT_HABITS=[
+    '🎧 اسمع بودكاست + shadowing (٢٠ د)',
+    '📗 وحدة من تطبيق Busuu (١٠ د)',
+    '🎧 درس واحد من موقع Elllo',
+    '💬 كلام مع Gemini بالصوت (٥–١٠ د)',
+    '🎙️ رسالة صوتية للمعلّم (دقيقة)'
   ];
+  function getHabits(){ let s={}; try{ s=load(SETK,{})||{}; }catch(e){} const l=(Array.isArray(s.habits)&&s.habits.length)?s.habits:DEFAULT_HABITS; return l.map((label,i)=>['h'+i,label]); }
   const load=(k,f)=>{ try{ return JSON.parse(localStorage.getItem(k)) ?? f; }catch(e){ return f; } };
   const save=(k,v)=>{ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} if(!window.__applyingRemote && window.__cloudPush) window.__cloudPush(); };
   const todayKey=()=>{ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
@@ -844,7 +884,7 @@
   function renderHabits(){
     const done=habitsDone[viewDate]||[];
     const ul=document.getElementById('habitList'); ul.innerHTML='';
-    HABITS.forEach(([id,label])=>{
+    getHabits().forEach(([id,label])=>{
       const li=document.createElement('li'); li.className='titem'+(done.includes(id)?' done':'');
       const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=done.includes(id);
       cb.addEventListener('change',()=>{
@@ -911,7 +951,7 @@
   function renderTaskStats(){
     const tk=todayKey();
     const dueToday=tasks.filter(t=>t.due && t.due<=tk);
-    const habitTotal=HABITS.length, habitDone=(habitsDone[tk]||[]).length;
+    const habitTotal=getHabits().length, habitDone=(habitsDone[tk]||[]).length;
     const doneToday=dueToday.filter(t=>t.done).length + habitDone;
     const totalToday=dueToday.length + habitTotal;
     document.getElementById('tkTodayDone').textContent=doneToday+'/'+totalToday;

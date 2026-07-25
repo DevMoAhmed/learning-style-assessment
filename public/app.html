@@ -465,6 +465,8 @@
   ];
   function normBundle(b){ return Object.assign({ tasks:[], log:{}, habitsDone:{}, goal:7, vocab:[], mistakes:[], best:0, gstatus:{}, units:{}, settings:{} }, b||{}); }
   const CURR_TABS=[["journey","🗺️ Journey"],["sounds","🔊 Pronunciation"],["grammar","📐 Grammar"],["speaking","💬 Speaking"],["vocab","📚 Vocabulary"],["games","🎮 Games"],["listening","🎧 Listening"],["tasks","✅ Tasks"],["log","⏱️ Log"],["progress","📈 Progress"],["ideas","💡 Ideas"]];
+  // Keep identical to DEFAULT_HABITS in curriculum.html
+  const DEFAULT_HABITS=["🎧 اسمع بودكاست + shadowing (٢٠ د)","📗 وحدة من تطبيق Busuu (١٠ د)","🎧 درس واحد من موقع Elllo","💬 كلام مع Gemini بالصوت (٥–١٠ د)","🎙️ رسالة صوتية للمعلّم (دقيقة)"];
   async function loadBundle(email){ try{ const s=await getDoc(doc(db,"boards",email)); if(s.exists()) return s.data().bundle||{}; }catch(e){} return {}; }
   async function saveBundle(email,nb){ await setDoc(doc(db,"boards",email), { bundle:nb, at:Date.now(), by:ADMIN_EMAIL }); }
 
@@ -620,13 +622,20 @@
     // ---------- SETTINGS ----------
     function renderSettingsS(box){
       const st=b.settings||{}, hidden=st.hiddenTabs||[];
+      const habits=(Array.isArray(st.habits)&&st.habits.length)?st.habits:DEFAULT_HABITS;
       box.innerHTML=
         ctl('🏷️ اسم يظهر في المنهج','<div class="rowf"><input id="stName" class="fld" value="'+esc(st.displayName||"")+'" placeholder="مثلاً Mohammed"><button class="btn solid" id="stNameSave">حفظ</button></div>','بيتغيّر عنوان صفحة المنهج بتاعته.')+
         ctl('📣 رسالة تظهر له','<div class="rowf"><input id="stMsg" class="fld" value="'+esc(st.message||"")+'" placeholder="رسالة تحفيزية أو تعليمات"><button class="btn solid" id="stMsgSave">حفظ</button></div>')+
+        ctl('📅 المهام اليومية الثابتة',
+          '<div>'+habits.map((h,i)=>'<div class="listrow"><span>'+esc(h)+'</span><button class="btn sm red gap" data-hd="'+i+'">✕</button></div>').join('')+'</div>'+
+          '<div class="rowf" style="margin-top:10px"><input id="stHab" class="fld" placeholder="مهمة يومية جديدة… مثلاً: وحدة Busuu"><button class="btn solid" id="stHabAdd">ضيف</button></div>',
+          'بتظهر كل يوم في تاب Tasks عشان الطالب يعلّمها. دي منفصلة عن المهام اللي بتعيّنها من تاب «مهام».')+
         ctl('🗣️ سرعة النطق','<div class="rowf"><select id="stRate" class="fld">'+[['0.8','أبطأ'],['1','عادي'],['1.15','أسرع']].map(o=>'<option value="'+o[0]+'"'+((st.rate||'1')==o[0]?' selected':'')+'>'+o[1]+'</option>').join('')+'</select></div>')+
         ctl('👁️ إخفاء تابات','<div class="glist">'+CURR_TABS.map(t=>'<label class="grow" style="font-size:.85rem"><input type="checkbox" data-ht="'+t[0]+'"'+(hidden.includes(t[0])?' checked':'')+'> <span>'+t[1]+'</span></label>').join('')+'</div>','التابات المتشالة مش هتظهر للطالب.');
       $("stNameSave").onclick=()=>mutate(nb=>{ nb.settings=nb.settings||{}; nb.settings.displayName=$("stName").value.trim(); });
       $("stMsgSave").onclick=()=>mutate(nb=>{ nb.settings=nb.settings||{}; nb.settings.message=$("stMsg").value.trim(); });
+      $("stHabAdd").onclick=()=>{ const v=$("stHab").value.trim(); if(!v)return; mutate(nb=>{ nb.settings=nb.settings||{}; const cur=(Array.isArray(nb.settings.habits)&&nb.settings.habits.length)?nb.settings.habits:DEFAULT_HABITS.slice(); nb.settings.habits=[...cur,v]; }); };
+      box.querySelectorAll("[data-hd]").forEach(btn=>btn.onclick=()=>mutate(nb=>{ nb.settings=nb.settings||{}; const cur=(Array.isArray(nb.settings.habits)&&nb.settings.habits.length)?nb.settings.habits.slice():DEFAULT_HABITS.slice(); cur.splice(+btn.dataset.hd,1); nb.settings.habits=cur; }));
       $("stRate").onchange=()=>mutate(nb=>{ nb.settings=nb.settings||{}; nb.settings.rate=$("stRate").value; });
       box.querySelectorAll("[data-ht]").forEach(cb=>cb.onchange=()=>mutate(nb=>{ nb.settings=nb.settings||{}; const h=new Set(nb.settings.hiddenTabs||[]); cb.checked?h.add(cb.dataset.ht):h.delete(cb.dataset.ht); nb.settings.hiddenTabs=[...h]; }));
     }

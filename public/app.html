@@ -346,11 +346,15 @@
     if(!user){ showLogin(); return; }
     const email=lc(user.email);
     if(email===ADMIN_EMAIL){ enterAdmin(email); return; }
+    // Open access: anyone who signs in becomes a student. Auto-register on first login
+    // so they show up in the teacher's dashboard.
     try{
       const snap=await getDoc(doc(db,"users",email));
-      if(!snap.exists()){ showBlocked(email); return; }
-      enterStudent(email);
-    }catch(e){ $("lgErr").textContent="خطأ صلاحيات: "+(e.code||e.message); showLogin(); }
+      if(!snap.exists()){
+        try{ await setDoc(doc(db,"users",email), { role:"student", name:(user.displayName||email), createdAt:Date.now(), self:true }); }catch(e){}
+      }
+    }catch(e){}
+    enterStudent(email);
   });
 
   // ---------- admin: list students ----------

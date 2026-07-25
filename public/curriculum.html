@@ -608,18 +608,56 @@
   ];
 
   // ---- speech ----
-  let voice=null;
+  // PCs often expose only old robotic SAPI voices (David/Zira). We rank voices and,
+  // when no good local voice exists, fall back to an online HD voice (same Google
+  // voice Android uses) so pronunciation sounds natural everywhere.
+  let voice=null, localGood=false, curAudio=null;
+  function scoreVoice(v){
+    const n=(v.name||'').toLowerCase(), l=(v.lang||'').toLowerCase();
+    if(!/^en/.test(l)) return -1e6;
+    let s=0;
+    if(/en[-_]us/.test(l)) s+=3; else if(/en[-_]gb/.test(l)) s+=2; else s+=1;
+    if(/google/.test(n)) s+=10;                                   // Android / Chrome OS
+    if(/natural|neural|online|premium|enhanced/.test(n)) s+=9;    // MS "Online (Natural)" (Edge)
+    if(/aria|jenny|guy|ava|andrew|emma|libby|sonia|ryan|michelle/.test(n)) s+=4;
+    if(/david|zira|mark|hazel|susan|george|sean|catherine/.test(n)) s-=4; // old SAPI
+    if(/espeak|festival|pico/.test(n)) s-=8;
+    if(v.localService===false) s+=3;                             // network voices ≈ higher quality
+    return s;
+  }
   function pickVoice(){
-    const vs = speechSynthesis.getVoices();
-    voice = vs.find(v=>/en[-_]US/i.test(v.lang)) || vs.find(v=>/^en/i.test(v.lang)) || null;
+    const vs=speechSynthesis.getVoices(); if(!vs.length) return;
+    let best=null, bs=-1e9;
+    vs.forEach(v=>{ const s=scoreVoice(v); if(s>bs){ bs=s; best=v; } });
+    voice=best; localGood = bs>=9;   // a Google/Natural/Neural/Online voice is present
   }
   if('speechSynthesis' in window){ pickVoice(); speechSynthesis.onvoiceschanged=pickVoice; }
-  function say(text,rate){
-    if(!('speechSynthesis' in window)){ alert('Sound not supported on this browser.'); return; }
-    speechSynthesis.cancel();
+
+  function stopSpeech(){ if(curAudio){ try{curAudio.pause();}catch(e){} curAudio=null; } if('speechSynthesis' in window) speechSynthesis.cancel(); }
+  function synthSay(text,rate){
+    if(!('speechSynthesis' in window)) return;
     const u=new SpeechSynthesisUtterance(text);
-    u.lang='en-US'; u.rate=rate||0.9; if(voice)u.voice=voice;
+    u.lang=(voice&&voice.lang)||'en-US'; u.rate=rate||0.9; u.pitch=1; if(voice)u.voice=voice;
     speechSynthesis.speak(u);
+  }
+  function chunkText(text,max){ const w=text.split(/\s+/); const out=[]; let c=''; for(const x of w){ if((c+' '+x).trim().length>max){ if(c)out.push(c); c=x; } else c=(c?c+' ':'')+x; } if(c)out.push(c); return out; }
+  function onlineSay(text,rate){
+    const parts=chunkText(text,180), pr=Math.max(0.7,Math.min(1,rate||0.9)); let i=0;
+    const next=()=>{
+      if(i>=parts.length) return;
+      const a=new Audio('https://translate.google.com/translate_tts?ie=UTF-8&tl=en&client=tw-ob&q='+encodeURIComponent(parts[i]));
+      a.playbackRate=pr; curAudio=a;
+      a.onended=()=>{ i++; next(); };
+      const fail=()=>{ if(curAudio===a){ curAudio=null; synthSay(text,rate); } };
+      a.onerror=fail; a.play().catch(fail);
+    };
+    next();
+  }
+  function say(text,rate){
+    if(!('speechSynthesis' in window) && !window.Audio){ alert('Sound not supported on this browser.'); return; }
+    stopSpeech();
+    if(localGood || !navigator.onLine || !window.Audio) synthSay(text,rate);
+    else onlineSay(text,rate);   // robotic-only PC → use natural online voice
   }
 
   // ---- render sounds ----
@@ -683,7 +721,7 @@
     document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
     t.setAttribute('aria-selected','true');
     document.getElementById(t.dataset.panel).classList.add('active');
-    if('speechSynthesis' in window) speechSynthesis.cancel();
+    stopSpeech();
     window.scrollTo({top:0,behavior:'smooth'});
   }));
 

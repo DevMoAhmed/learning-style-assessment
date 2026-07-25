@@ -316,12 +316,12 @@
         '<span class="acts">'+
           '<button class="btn sm" data-a="open">👁 شاشته</button>'+
           '<button class="btn sm" data-a="view">📈 التقدّم</button>'+
-          '<button class="btn sm" data-a="edit">✏️ تعديل</button>'+
+          '<button class="btn sm" data-a="manage">⚙️ إدارة</button>'+
           '<button class="btn sm red" data-a="del">🗑</button>'+
         '</span>';
       li.querySelector('[data-a="open"]').addEventListener("click",()=>adminOpenCurriculum(u.email, u.name));
       li.querySelector('[data-a="view"]').addEventListener("click",()=>viewStudent(u));
-      li.querySelector('[data-a="edit"]').addEventListener("click",()=>editStudent(u));
+      li.querySelector('[data-a="manage"]').addEventListener("click",()=>manageStudent(u));
       li.querySelector('[data-a="del"]').addEventListener("click",()=>delStudent(u));
       ul.appendChild(li);
     });
@@ -401,53 +401,106 @@
     $("mClose").addEventListener("click",closeModal);
   }
 
-  // ---------- admin: edit data ----------
-  async function editStudent(u){
-    let b={};
-    try{ const s=await getDoc(doc(db,"boards",u.email)); if(s.exists()) b=s.data().bundle||{}; }catch(e){}
+  // ---------- admin: manage (assign tasks, vocab, goal, wipes) ----------
+  const CATS=[["grammar","Grammar"],["speaking","Speaking"],["listening","Listening"],["vocab","Vocabulary"],["pronunciation","Pronunciation"],["other","Other"]];
+  const catLabel=c=>((CATS.find(x=>x[0]===c)||[,c])[1]);
+  function normBundle(b){ return Object.assign({ tasks:[], log:{}, habitsDone:{}, goal:7, vocab:[], mistakes:[], best:0 }, b||{}); }
+  async function loadBundle(email){ try{ const s=await getDoc(doc(db,"boards",email)); if(s.exists()) return s.data().bundle||{}; }catch(e){} return {}; }
+  async function saveBundle(email,nb){ await setDoc(doc(db,"boards",email), { bundle:nb, at:Date.now(), by:ADMIN_EMAIL }); }
+
+  async function manageStudent(u){
+    openModal('<span class="close" id="mClose">×</span><h3>⚙️ '+esc(u.name||u.email)+'</h3><p class="muted">… بيحمّل</p>');
+    $("mClose").addEventListener("click",closeModal);
+    let b=normBundle(await loadBundle(u.email));
+
+    const catOpts=CATS.map(c=>'<option value="'+c[0]+'">'+c[1]+'</option>').join("");
     openModal(
-      '<span class="close" id="mClose">×</span><h3>✏️ تعديل بيانات '+esc(u.name||u.email)+'</h3>'+
-      '<div class="field"><label>هدف الأسبوع (ساعات)</label><input id="edGoal" class="fld" type="number" min="1" max="40" value="'+(b.goal||7)+'"></div>'+
-      '<div class="divider"></div>'+
-      '<h3 style="font-size:.92rem">➕ ضيف كلمة للقاموس</h3>'+
-      '<div class="field"><input id="edW" class="fld" dir="ltr" placeholder="word"></div>'+
-      '<div class="field"><input id="edM" class="fld" placeholder="المعنى بالعربي"></div>'+
-      '<div class="field"><input id="edEx" class="fld" dir="ltr" placeholder="example sentence (اختياري)"></div>'+
-      '<div class="divider"></div>'+
-      '<div style="display:flex;flex-wrap:wrap;gap:8px">'+
-        '<button class="btn sm red" data-c="log">صفّر السجل/الستريك</button>'+
-        '<button class="btn sm red" data-c="mist">امسح بنك الأخطاء</button>'+
-        '<button class="btn sm red" data-c="tasks">امسح المهام</button>'+
+      '<span class="close" id="mClose">×</span><h3>⚙️ إدارة '+esc(u.name||u.email)+'</h3>'+
+
+      '<h3 style="font-size:.95rem;margin-top:4px">📋 تعيين مهمة</h3>'+
+      '<div class="field"><input id="mgText" class="fld" placeholder="اكتب المهمة… / write a task"></div>'+
+      '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
+        '<select id="mgCat" class="fld" style="flex:1;min-width:120px">'+catOpts+'</select>'+
+        '<input id="mgDue" class="fld" type="date" style="flex:1;min-width:120px">'+
       '</div>'+
-      '<p class="err" id="edErr"></p>'+
-      '<button class="btn solid" id="edSave" style="width:100%;justify-content:center;margin-top:12px">💾 احفظ التعديلات</button>'+
-      '<p class="hint">التعديل بيتزامن مع جهاز الطالب فورًا (نفس اللوح).</p>'
+      '<button class="btn solid" id="mgAdd" style="width:100%;justify-content:center;margin-top:8px">➕ عيّن المهمة</button>'+
+      '<div id="mgTasks" style="margin-top:10px"></div>'+
+
+      '<div class="divider"></div>'+
+      '<h3 style="font-size:.95rem">🎯 هدف الأسبوع (ساعات)</h3>'+
+      '<div style="display:flex;gap:8px"><input id="mgGoal" class="fld" type="number" min="1" max="40" value="'+(b.goal||7)+'" style="flex:1"><button class="btn" id="mgGoalSave">حفظ</button></div>'+
+
+      '<div class="divider"></div>'+
+      '<h3 style="font-size:.95rem">📘 ضيف كلمة للقاموس</h3>'+
+      '<div class="field"><input id="mgW" class="fld" dir="ltr" placeholder="word"></div>'+
+      '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
+        '<input id="mgM" class="fld" placeholder="المعنى بالعربي" style="flex:1;min-width:120px">'+
+        '<input id="mgEx" class="fld" dir="ltr" placeholder="example (اختياري)" style="flex:1;min-width:120px">'+
+      '</div>'+
+      '<button class="btn" id="mgWAdd" style="margin-top:8px">➕ ضيف الكلمة</button>'+
+
+      '<div class="divider"></div>'+
+      '<h3 style="font-size:.95rem">⚠️ إجراءات</h3>'+
+      '<div style="display:flex;flex-wrap:wrap;gap:8px">'+
+        '<button class="btn sm" id="mgOpen">👁 افتح شاشته</button>'+
+        '<button class="btn sm red" data-w="log">صفّر السجل/الستريك</button>'+
+        '<button class="btn sm red" data-w="mist">امسح الأخطاء</button>'+
+        '<button class="btn sm red" data-w="tasks">امسح كل المهام</button>'+
+      '</div>'+
+      '<p class="err" id="mgErr"></p>'+
+      '<p class="hint">أي تغيير هنا بيتزامن مع شاشة الطالب فورًا.</p>'
     );
     $("mClose").addEventListener("click",closeModal);
-    let clearLog=false, clearMist=false, clearTasks=false;
-    $("mbox").querySelectorAll("[data-c]").forEach(btn=>btn.addEventListener("click",()=>{
-      const c=btn.dataset.c;
-      if(c==="log")clearLog=!clearLog; if(c==="mist")clearMist=!clearMist; if(c==="tasks")clearTasks=!clearTasks;
-      btn.style.opacity = btn.style.opacity==="0.45" ? "1" : "0.45";
-      btn.textContent = (btn.style.opacity==="0.45"?"سيُمسح ✓ ":"")+btn.textContent.replace("سيُمسح ✓ ","");
-    }));
-    $("edSave").addEventListener("click", async ()=>{
-      const nb = Object.assign({ tasks:[], log:{}, habitsDone:{}, goal:7, vocab:[], mistakes:[], best:0 }, b);
-      nb.goal = Math.max(1, parseInt($("edGoal").value)||7);
-      if(clearLog){ nb.log={}; nb.best=0; }
-      if(clearMist) nb.mistakes=[];
-      if(clearTasks) nb.tasks=[];
-      const w=$("edW").value.trim();
-      if(w){
-        nb.vocab = nb.vocab||[];
-        nb.vocab.push({ id:"a"+Date.now().toString(36), word:w, mean:$("edM").value.trim(), ex:$("edEx").value.trim(),
-          tag:"", box:1, due:dayKey(new Date()), r:0, w:0 });
-      }
-      try{
-        await setDoc(doc(db,"boards",u.email), { bundle:nb, at:Date.now(), by:ADMIN_EMAIL });
-        toast("اتحفظ ✓"); closeModal();
-      }catch(e){ $("edErr").textContent="فشل: "+(e.code||e.message); }
+
+    function renderTaskList(){
+      const el=$("mgTasks"), ts=b.tasks||[];
+      if(!ts.length){ el.innerHTML='<p class="muted" style="font-size:.82rem">مفيش مهام معيّنة لسه.</p>'; return; }
+      el.innerHTML=ts.map((t,i)=>
+        '<div class="kv"><span>'+(t.done?'✅ ':'')+esc(t.text)+' <span style="color:var(--faint);font-size:.74rem">['+esc(catLabel(t.cat))+(t.due?' · '+esc(t.due):'')+']</span></span>'+
+        '<button class="btn sm red" data-rm="'+i+'">✕</button></div>'
+      ).join("");
+      el.querySelectorAll("[data-rm]").forEach(btn=>btn.addEventListener("click", async ()=>{
+        const idx=+btn.dataset.rm;
+        b=normBundle(await loadBundle(u.email)); b.tasks.splice(idx,1);
+        try{ await saveBundle(u.email,b); renderTaskList(); toast("اتشالت ✓"); }catch(e){ $("mgErr").textContent="فشل: "+(e.code||e.message); }
+      }));
+    }
+    renderTaskList();
+
+    $("mgAdd").addEventListener("click", async ()=>{
+      const txt=$("mgText").value.trim(); if(!txt){ $("mgErr").textContent="اكتب المهمة"; return; }
+      $("mgErr").textContent="";
+      b=normBundle(await loadBundle(u.email));
+      b.tasks.push({ id:"t"+Date.now().toString(36), text:txt, cat:$("mgCat").value, due:$("mgDue").value||null, done:false });
+      try{ await saveBundle(u.email,b); $("mgText").value=""; $("mgDue").value=""; renderTaskList(); toast("اتعيّنت المهمة ✓"); }
+      catch(e){ $("mgErr").textContent="فشل: "+(e.code||e.message); }
     });
+
+    $("mgGoalSave").addEventListener("click", async ()=>{
+      b=normBundle(await loadBundle(u.email));
+      b.goal=Math.max(1,Math.min(40,parseInt($("mgGoal").value)||7));
+      try{ await saveBundle(u.email,b); toast("الهدف اتحفظ ✓"); }catch(e){ $("mgErr").textContent="فشل"; }
+    });
+
+    $("mgWAdd").addEventListener("click", async ()=>{
+      const w=$("mgW").value.trim(); if(!w){ $("mgErr").textContent="اكتب الكلمة"; return; }
+      $("mgErr").textContent="";
+      b=normBundle(await loadBundle(u.email));
+      b.vocab.push({ id:"a"+Date.now().toString(36), word:w, mean:$("mgM").value.trim(), ex:$("mgEx").value.trim(), tag:"", box:1, due:dayKey(new Date()), r:0, w:0 });
+      try{ await saveBundle(u.email,b); $("mgW").value=""; $("mgM").value=""; $("mgEx").value=""; toast("الكلمة اتضافت ✓"); }
+      catch(e){ $("mgErr").textContent="فشل"; }
+    });
+
+    $("mgOpen").addEventListener("click", ()=>{ closeModal(); adminOpenCurriculum(u.email, u.name); });
+
+    $("mbox").querySelectorAll("[data-w]").forEach(btn=>btn.addEventListener("click", async ()=>{
+      const w=btn.dataset.w; if(!confirm("متأكد؟")) return;
+      b=normBundle(await loadBundle(u.email));
+      if(w==="log"){ b.log={}; b.best=0; }
+      if(w==="mist") b.mistakes=[];
+      if(w==="tasks") b.tasks=[];
+      try{ await saveBundle(u.email,b); renderTaskList(); toast("تم ✓"); }catch(e){ $("mgErr").textContent="فشل"; }
+    }));
   }
 </script>
 </body>

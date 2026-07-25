@@ -212,7 +212,7 @@
 <script src="eew-book1.js"></script>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-  import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut }
+  import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut }
     from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
   import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, onSnapshot }
     from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
@@ -275,11 +275,20 @@
   // ---------- login (Google only) ----------
   const provider = new GoogleAuthProvider();
   provider.setCustomParameters({ prompt: "select_account" });
+  const isMobile = /Android|iPhone|iPad|iPod|Mobile|Silk/i.test(navigator.userAgent);
+  // Complete a redirect sign-in if we're coming back from Google.
+  getRedirectResult(auth).catch(e=>{ if(e && e.code) $("lgErr").textContent = authMsg(e.code); });
   async function doLogin(){
     $("lgErr").textContent=""; $("lgBtn").disabled=true;
-    try{ await signInWithPopup(auth, provider); }
-    catch(e){ $("lgErr").textContent = authMsg(e.code); }
-    finally{ $("lgBtn").disabled=false; }
+    try{
+      if(isMobile){ await signInWithRedirect(auth, provider); return; }   // popups are unreliable on phones
+      await signInWithPopup(auth, provider);
+    }catch(e){
+      // Popup blocked / unsupported → fall back to a full-page redirect.
+      if(["auth/popup-blocked","auth/operation-not-supported-in-this-environment","auth/cancelled-popup-request"].includes(e.code)){
+        try{ await signInWithRedirect(auth, provider); return; }catch(e2){ $("lgErr").textContent = authMsg(e2.code); }
+      } else { $("lgErr").textContent = authMsg(e.code); }
+    }finally{ $("lgBtn").disabled=false; }
   }
   $("lgBtn").addEventListener("click", doLogin);
   $("logoutBtn").addEventListener("click", ()=>signOut(auth));

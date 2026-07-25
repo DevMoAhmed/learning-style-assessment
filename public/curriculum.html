@@ -1571,7 +1571,11 @@
         connect(board);
       } else {
         ready = false;
-        location.replace('app.html');   // no access without login
+        // Only redirect when opened directly (top window). Inside the login shell's
+        // iframe we NEVER redirect — that would nest app.html and look like a login loop.
+        document.documentElement.style.visibility = 'visible';
+        if (window.self === window.top) location.replace('app.html');
+        else status('… بيحمّل تسجيل الدخول');
       }
     });
   } catch (e) {

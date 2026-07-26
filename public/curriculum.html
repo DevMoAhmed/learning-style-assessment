@@ -1467,6 +1467,12 @@
     const sb=document.createElement('button'); sb.className='btn-solid'; sb.textContent='ابدأ الاختبار'; qbox.appendChild(sb);
     sb.addEventListener('click',()=>runUnitQuiz(u,qbox));
 
+    const sps=document.createElement('div'); sps.className='uv-sec'; sps.innerHTML='<span class="eyebrow">Spelling</span><h2 style="margin:0">✍️ اختبار الكتابة</h2>'; v.appendChild(sps);
+    const spHint=document.createElement('p'); spHint.className='ex ar'; spHint.dir='rtl'; spHint.style.marginTop='0'; spHint.textContent='اكتب الكلمة، وياخد نسبة توافق مع الأصلية (الكابيتال والسمول مش فارقة).'; v.appendChild(spHint);
+    const sbox=document.createElement('div'); sbox.className='quizbox'; v.appendChild(sbox);
+    const spStart=document.createElement('button'); spStart.className='btn-solid'; spStart.textContent='ابدأ اختبار الكتابة'; sbox.appendChild(spStart);
+    spStart.addEventListener('click',()=>runSpellQuiz(u,sbox));
+
     const ps=document.createElement('div'); ps.className='uv-sec'; ps.innerHTML='<span class="eyebrow">Reading · A1</span><h2 style="margin:0">📖 القطعة</h2>'; v.appendChild(ps);
     const pass=document.createElement('div'); pass.className='passage';
     const pb=document.createElement('button'); pb.className='miniplay'; pb.style.cssText='float:inline-end;margin-inline-start:8px'; pb.textContent='▶ اسمع';
@@ -1501,6 +1507,62 @@
       const back=document.createElement('button'); back.className='btn-solid'; back.style.marginInlineStart='8px'; back.textContent='← الخريطة'; back.addEventListener('click',renderJourney);
       box.appendChild(again); box.appendChild(back);
       if(passed){ const prev=unitsProg[u.id]||{}; unitsProg[u.id]={done:true,best:Math.max(prev.best||0,pct)}; save(UPROG,unitsProg); toast('محطة خلصت ✓'); }
+    }
+    step();
+  }
+
+  // ---- smart spelling match (case-insensitive Levenshtein similarity) ----
+  function levDist(a,b){
+    a=(a||'').trim().toLowerCase(); b=(b||'').trim().toLowerCase();
+    const m=a.length,n=b.length; if(!m)return n; if(!n)return m;
+    let prev=Array.from({length:n+1},(_,j)=>j), cur=new Array(n+1);
+    for(let i=1;i<=m;i++){ cur[0]=i;
+      for(let j=1;j<=n;j++){ cur[j]=a[i-1]===b[j-1]?prev[j-1]:1+Math.min(prev[j-1],prev[j],cur[j-1]); }
+      [prev,cur]=[cur,prev];
+    }
+    return prev[n];
+  }
+  function simPct(typed,correct){
+    const a=(typed||'').trim().toLowerCase(), b=(correct||'').trim().toLowerCase();
+    if(!a) return 0;
+    const L=Math.max(a.length,b.length)||1;
+    return Math.round(Math.max(0,(L-levDist(a,b))/L)*100);
+  }
+
+  function runSpellQuiz(u,box){
+    const qs=jshuffle(u.words).slice(0,Math.min(10,u.words.length)); let i=0,total=0;
+    function step(){
+      if(i>=qs.length) return finish();
+      const w=qs[i];
+      box.innerHTML='<div class="qprog">'+(i+1)+' / '+qs.length+'</div>'+
+        '<button class="miniplay">▶ اسمع</button>'+
+        '<div class="qword ar" dir="rtl" style="font-size:1.15rem">'+w.ar+'</div>';
+      const inp=document.createElement('input'); inp.className='fld'; inp.dir='ltr'; inp.autocomplete='off'; inp.autocapitalize='off'; inp.spellcheck=false;
+      inp.placeholder='اكتب الكلمة بالإنجليزي'; inp.style.cssText='text-align:center;font-size:1.15rem;max-width:260px;margin:4px auto 0;display:block';
+      const chk=document.createElement('button'); chk.className='btn-solid'; chk.style.marginTop='12px'; chk.textContent='تحقق';
+      box.querySelector('.miniplay').addEventListener('click',()=>say(w.w,0.8));
+      box.appendChild(inp); box.appendChild(chk); inp.focus();
+      const grade=()=>{
+        const pct=simPct(inp.value,w.w); total+=pct;
+        const face=pct>=90?'✅':(pct>=60?'🟡':'❌');
+        box.innerHTML='';
+        const h=document.createElement('div'); h.className='qword'; h.textContent=face+' '+pct+'%'; box.appendChild(h);
+        const p=document.createElement('p'); p.className='ex'; p.style.textAlign='center';
+        p.innerHTML='إنت كتبت: <b class="en" id="spTyped"></b><br>الصح: <b class="en" id="spRight"></b>';
+        box.appendChild(p); box.querySelector('#spTyped').textContent=inp.value.trim()||'—'; box.querySelector('#spRight').textContent=w.w;
+        const nx=document.createElement('button'); nx.className='btn-solid'; nx.style.marginTop='10px'; nx.textContent=(i+1>=qs.length?'النتيجة':'التالي ▶');
+        nx.addEventListener('click',()=>{ i++; step(); }); box.appendChild(nx);
+      };
+      chk.addEventListener('click',grade);
+      inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); grade(); } });
+    }
+    function finish(){
+      const avg=Math.round(total/qs.length);
+      box.innerHTML='<div class="qword">✍️ متوسط التوافق: '+avg+'%</div>'+
+        '<p class="ex ar" dir="rtl">'+(avg>=90?'إملاء ممتاز! 🎉':(avg>=60?'كويس — راجِع اللي غلط فيه.':'محتاج تمرين أكتر على الكتابة.'))+'</p>';
+      const again=document.createElement('button'); again.className='btn-ghost'; again.textContent='↺ تاني'; again.addEventListener('click',()=>runSpellQuiz(u,box));
+      const back=document.createElement('button'); back.className='btn-solid'; back.style.marginInlineStart='8px'; back.textContent='← الخريطة'; back.addEventListener('click',renderJourney);
+      box.appendChild(again); box.appendChild(back);
     }
     step();
   }

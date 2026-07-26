@@ -27,7 +27,7 @@ window.EEW = { book: 1, units: [
       {w:"week",ar:"أسبوع",ex:"There are seven days in a week."},
       {w:"wine",ar:"نبيذ",ex:"Wine is made from grapes."}
     ],
-    passage:"My name is Sara. Every week I travel with my family. In August, the weather is hot. We go to the sea on a small boat. I take photos with my camera. I love this trip and I enjoy it a lot." },
+    passage:"Every August my family and I love to travel. It is a typical week for us. We arrive at the capital city and visit my uncle. In the morning we enjoy breakfast, then we catch a boat on the river and see a duck. I use my camera to take photos. My uncle does not drink wine or any alcohol. He will agree to invite us again next month. The weather is warm and the week is perfect." },
 
   { id:2, emoji:"🧪", title:"The Experiment", ar:"التجربة",
     words:[
@@ -52,7 +52,7 @@ window.EEW = { book: 1, units: [
       {w:"terrible",ar:"فظيع",ex:"The weather is terrible today."},
       {w:"worse",ar:"أسوأ",ex:"Today is worse than yesterday."}
     ],
-    passage:"Adam is a scientist. He works carefully in a laboratory. Today he does an experiment with a chemical. He is a little nervous. Suddenly, there is a loud noise! He does not shout. In the end, he laughs. It was not terrible." },
+    passage:"Adam is a scientist. His new project is a big adventure. He works carefully in his laboratory. Today he wants to create a chemical experiment. He is nervous. Suddenly he hears a loud noise. It is terrible! The smell is bad and gets worse. Something evil seems to approach in the dark and tries to scare him. He does not shout. He keeps his experiment a secret. In the end, nothing can kill his plan, and he starts to laugh." },
 
   { id:3, emoji:"🪐", title:"Space & School", ar:"الفضاء والمدرسة",
     words:[
@@ -77,7 +77,7 @@ window.EEW = { book: 1, units: [
       {w:"understand",ar:"يفهم",ex:"I understand the lesson."},
       {w:"view",ar:"منظر",ex:"The view from the window is nice."}
     ],
-    passage:"Omar loves space. He reads about planets in the library. He writes a report about a red planet. He draws a chart and adds a photograph. Suddenly, he has an idea. Now he can describe the planet, and he understands it well." },
+    passage:"Omar loves space. He reads several books in the library about every planet, and he studies more than ever. He wants to write a report and describe an alien. He draws a chart with the shape of each planet and adds a photograph. Suddenly he sees a cloud in a strange shape. The view is beautiful. He does not want to fail, so he works to get a good grade. Instead of playing, he tries to solve hard questions. I suppose he is the best among his friends. Now he can understand space." },
 
   { id:4, emoji:"🌿", title:"Habits & Feelings", ar:"العادات والمشاعر",
     words:[
@@ -102,7 +102,7 @@ window.EEW = { book: 1, units: [
       {w:"stroll",ar:"يتمشى",ex:"We stroll in the park."},
       {w:"village",ar:"قرية",ex:"My grandfather lives in a small village."}
     ],
-    passage:"Nour lives in a small village. She is a calm and patient girl. Every day she strolls in the park. Reading is her habit, and she behaves well. She stays positive and expects a good day." },
+    passage:"Nour lives in a small village. She is a calm and patient girl. Every day she likes to stroll in the park; it is a good habit. She wants to behave well, and her parents never punish her. They expect her to be positive. She frequently helps people, and this is her main concern. Her teacher will instruct the class, and Nour tries to be appropriate. She wants to avoid any issue. None of the students shake with fear. Nour is content, and she wants to spread her smile. She can represent her village." },
 
   { id:5, emoji:"⚽", title:"Sports & Health", ar:"الرياضة والصحة",
     words:[
@@ -127,7 +127,7 @@ window.EEW = { book: 1, units: [
       {w:"plenty",ar:"الكثير / وفرة",ex:"There is plenty of water."},
       {w:"weight",ar:"الوزن",ex:"Sport helps my weight."}
     ],
-    passage:"Ali is an active boy. Every day he rides his bike one kilometer to the park. He plays football with his friends. It is fun. Sport is good for his heart and his weight. He often chooses a healthy life." },
+    passage:"Ali is an active boy. At his age, he loves sport. Every day he rides his bike one kilometer to the park. He can balance very well. He often plays football with his friends; it is a fun game. His father, an adult, plays golf. The doctor says sport is good for the heart and helps his weight. Too much sugar is bad, so Ali drinks plenty of water. During the week he tries to increase his energy. He can choose a healthy life." },
 
   { id:6, emoji:"🌍", title:"Culture & Style", ar:"الثقافة والأناقة",
     words:[
@@ -152,7 +152,7 @@ window.EEW = { book: 1, units: [
       {w:"totally",ar:"تمامًا / كليًا",ex:"You are totally right."},
       {w:"vague",ar:"غامض",ex:"His answer is vague."}
     ],
-    passage:"Lina is bilingual. She speaks Arabic and a foreign language, English. Nowadays, she practices spoken English every day. It is her ritual. At first she was tense, but now she is completely happy and totally sure of herself." },
+    passage:"Lina is bilingual and speaks a foreign language. Nowadays she practices spoken English every day; it is her ritual. At first she was tense, and her plan was vague. But she is completely and totally sure now. Kindness is her best attribute. She looks in the mirror and feels natural. She likes fashionable clothes. Every morning she does a quick dash to the bus and plays one sport. She lives near the gulf. As a participant in class, she is never apart from her friends. She feels no disgust and is always surprised in a good way." },
 
   { id:7, emoji:"🕊️", title:"People & Peace", ar:"الناس والسلام",
     words:[
@@ -177,7 +177,7 @@ window.EEW = { book: 1, units: [
       {w:"sudden",ar:"مفاجئ",ex:"There was a sudden noise."},
       {w:"therefore",ar:"لذلك",ex:"It is raining; therefore, I stay home."}
     ],
-    passage:"Sami is an expert in chess. His teacher announces a big challenge. Sami is famous in his school. He plays in peace and does not force his moves. There is a difference now: he is better. Therefore, everyone claps for him." },
+    passage:"Sami is an expert in chess and he is famous in his school. His teacher will announce a big challenge. Sami sits beside his friend. He does not force his moves and plays in peace. There is a big difference now. He wants to contribute and protect his team. His mother will allow him to play. He has good sense and never wants to harm anyone. A prince once said chess keeps the mind in good condition. Sami can divide his time well. There is no sudden change; therefore, he will lay his pieces with care and claim the win." },
 
   { id:8, emoji:"🎯", title:"Actions & Plans", ar:"أفعال وخطط",
     words:[
@@ -202,7 +202,7 @@ window.EEW = { book: 1, units: [
       {w:"tear",ar:"يمزّق / دمعة",ex:"A tear falls from her eye."},
       {w:"theory",ar:"نظرية",ex:"I have a theory about it."}
     ],
-    passage:"Every day I attend my English class. It is necessary for my job. My teacher encourages me and I am satisfied. The lessons have a clear pattern. My purpose is simple: I want to speak well. I accept every challenge." },
+    passage:"Every day I attend my English class. It is necessary for my job. My teacher will encourage me, and I accept every challenge. The lessons have a familiar pattern. My purpose is simple. I want to arrange my time and I am satisfied. Sometimes I chase a hard idea. There is a big contrast between old and new. This job will require English. I grab my bag and hang my coat. The class is huge, but not a single student is late. My teacher can propose a new theory and release us on time. One happy tear can fall from my eye." },
 
   { id:9, emoji:"🐴", title:"Animals & Places", ar:"حيوانات وأماكن",
     words:[
@@ -227,7 +227,7 @@ window.EEW = { book: 1, units: [
       {w:"see",ar:"يرى",ex:"I see the sea from here."},
       {w:"service",ar:"خدمة",ex:"The service here is good."}
     ],
-    passage:"I love animals. I have a dog, a cat, and a rabbit. Every morning I open the door and see them. My dog helps me and depends on me. When I am sad, I hear them and I feel happy. They are my friends." },
+    passage:"I love every animal. I have a dog, a cat, and a rabbit. My dog is my best friend. Every morning I open the door and see them. My dog can help me and knows a command like 'sit'. Children depend on their parents. I go to school by bus. A horse has a long leg. When someone is sick, they go to the hospital for medical service. I can hear my pets, and I gently pull the door to open it. They make me happy." },
 
   { id:10, emoji:"🌟", title:"Nature & Focus", ar:"الطبيعة والتركيز",
     words:[
@@ -252,6 +252,6 @@ window.EEW = { book: 1, units: [
       {w:"tail",ar:"ذيل",ex:"The dog wags its tail."},
       {w:"trouble",ar:"مشكلة",ex:"I do not want any trouble."}
     ],
-    passage:"English is essential for me. My primary goal is to speak well. Every day I focus and I do not stop. I am certain it has a good effect on my life. I take a short rest, then I study again. I am proud of myself." }
+    passage:"English is essential for me. My primary goal is to speak well. Every day I focus and I remain calm. I am certain it has a good effect and a real benefit. Give me a chance. Sleep has an immediate function for the brain, so I take a short rest. I keep a clear image in my mind. The school is not far. A guard stands near the green grass. I try to separate work and rest and stay on this good site. A dog wags its tail. I am proud of myself and I want no trouble." }
 
 ]};

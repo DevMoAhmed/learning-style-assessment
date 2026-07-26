@@ -302,7 +302,9 @@
   .wcard .wmid{flex:1;min-width:0;}
   .wcard .wplay{flex:0 0 auto;border:0;background:var(--teal-soft);color:var(--teal);border-radius:50%;width:38px;height:38px;font-size:1rem;cursor:pointer;}
   .uv-sec{margin:18px 0 8px;}
-  .passage{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;line-height:1.9;font-size:1.02rem;}
+  .passage{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;line-height:2;font-size:1.02rem;}
+  .passage .pw{background:var(--teal-soft);color:var(--teal);border-radius:5px;padding:1px 4px;cursor:pointer;font-weight:700;transition:background .12s,color .12s;}
+  .passage .pw:hover{background:var(--teal-btn);color:#fff;}
   .quizbox{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;text-align:center;}
   .quizbox .qword{font-size:1.6rem;font-weight:800;margin:6px 0 14px;}
   .quizbox .qopt{display:block;width:100%;margin:6px 0;padding:11px;border:1px solid var(--line);border-radius:10px;
@@ -1444,6 +1446,13 @@
     });
   }
 
+  function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function markPassage(text, words){
+    const list=[...new Set(words.map(w=>w.w))].sort((a,b)=>b.length-a.length);
+    if(!list.length) return escHtml(text);
+    const re=new RegExp('\\b('+list.join('|')+')\\b','gi');
+    return escHtml(text).replace(re, m=>'<b class="pw" data-w="'+m.toLowerCase()+'">'+m+'</b>');
+  }
   function openUnit(id){
     const u=UNITS.find(x=>x.id===id); if(!u) return;
     document.getElementById('journeyMap').style.display='none';
@@ -1474,10 +1483,14 @@
     spStart.addEventListener('click',()=>runSpellQuiz(u,sbox));
 
     const ps=document.createElement('div'); ps.className='uv-sec'; ps.innerHTML='<span class="eyebrow">Reading · A1</span><h2 style="margin:0">📖 القطعة</h2>'; v.appendChild(ps);
+    const pHint=document.createElement('p'); pHint.className='ex ar'; pHint.dir='rtl'; pHint.style.marginTop='0'; pHint.textContent='كل كلمات الوحدة موجودة هنا ومظلّلة — دوس على أي كلمة مظلّلة تسمعها.'; v.appendChild(pHint);
     const pass=document.createElement('div'); pass.className='passage';
-    const pb=document.createElement('button'); pb.className='miniplay'; pb.style.cssText='float:inline-end;margin-inline-start:8px'; pb.textContent='▶ اسمع';
-    const ptx=document.createElement('span'); ptx.className='en'; ptx.textContent=u.passage;
-    pb.addEventListener('click',()=>say(u.passage,0.85)); pass.appendChild(pb); pass.appendChild(ptx); v.appendChild(pass);
+    const pb=document.createElement('button'); pb.className='miniplay'; pb.style.cssText='float:inline-end;margin-inline-start:8px'; pb.textContent='▶ اسمع الكل';
+    const ptx=document.createElement('span'); ptx.className='en'; ptx.innerHTML=markPassage(u.passage,u.words);
+    pb.addEventListener('click',()=>say(u.passage,0.85));
+    pass.appendChild(pb); pass.appendChild(ptx);
+    ptx.querySelectorAll('.pw').forEach(el=>el.addEventListener('click',()=>say(el.dataset.w||el.textContent,0.8)));
+    v.appendChild(pass);
     window.scrollTo({top:0,behavior:'smooth'});
   }
 

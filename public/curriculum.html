@@ -255,6 +255,13 @@
   .freq-bank{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;justify-content:center;}
   @keyframes fshake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
   .fl-row.shake{animation:fshake .35s;}
+  .svc-teach{background:var(--amber-soft);border:1.5px solid color-mix(in srgb,var(--gold) 55%,transparent);border-radius:12px;padding:12px 14px;margin:10px 0;font-size:.92rem;line-height:1.8;}
+  .svc-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0;}
+  .svc-btn{border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:14px;padding:16px 10px;cursor:pointer;font-family:var(--sans);font-weight:800;font-size:1rem;line-height:1.5;}
+  .svc-btn small{font-weight:600;color:var(--soft);font-size:.75rem;}
+  .svc-btn:hover{border-color:var(--teal);}
+  .svc-btn.correct{background:var(--teal-btn);color:#fff;border-color:var(--teal-btn);}
+  .svc-btn.wrong{background:#c4553f;color:#fff;border-color:#c4553f;}
   .chip-word:hover{background:var(--teal-btn);color:#fff;}
   .scramble-bank{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;}
   /* vocab notebook */
@@ -767,7 +774,7 @@
       {t:"Articles (indefinite & definite)",form:"a / an / the / —",ex:"I have an apple. The apple is red.",st:"next",detail:ARTICLES_DETAIL,game:"articles"}
     ]],
     ["Tenses","⏳",[
-      {t:"Present continuous",form:"am/is/are + verb-ing",ex:"I am drinking now.",st:"next",detail:PC_DETAIL},
+      {t:"Present continuous",form:"am/is/are + verb-ing",ex:"I am drinking now.",st:"next",detail:PC_DETAIL,game:"simplecont"},
       {t:"Present simple",form:"he/she/it adds -s",ex:"He works every day.",st:"later",detail:PS_DETAIL,game:"presentsimple",game2:"frequency"},
       {t:"Past simple",form:"-ed / irregular",ex:"I worked yesterday.",st:"later"},
       {t:"Present perfect",form:"have/has + past participle",ex:"I have learned a lot.",st:"later"}
@@ -1211,6 +1218,44 @@
       {w:"rarely",pct:15,ar:"نادرًا",ex:"She rarely watches TV."},
       {w:"never",pct:0,ar:"أبدًا",ex:"I never smoke."}
     ]},
+    simplecont:{title:"Simple ولا Continuous؟",type:"svc",desc:"الفرق بين المضارعين — مستويات",levels:[
+      {name:"المستوى ١ · الإشارات",type:"pick",
+        teach:"<b>Present simple</b> = عادة/حقيقة (every day, usually, always). <b>Present continuous</b> = بيحصل دلوقتي (now, at the moment, Look!, Listen!). الإشارة بتقولك أنهي زمن.",
+        items:[
+          {s:"every day",a:"simple",why:"روتين متكرر → simple."},
+          {s:"now",a:"continuous",why:"دلوقتي → continuous."},
+          {s:"usually",a:"simple",why:"عادة → simple."},
+          {s:"Look!",a:"continuous",why:"Look!/Listen! = حاجة بتحصل دلوقتي → continuous."},
+          {s:"at the moment",a:"continuous",why:"اللحظة دي → continuous."},
+          {s:"on Fridays",a:"simple",why:"عادة أسبوعية → simple."},
+          {s:"right now",a:"continuous",why:"دلوقتي بالظبط → continuous."},
+          {s:"always",a:"simple",why:"دايمًا → عادة → simple."},
+          {s:"Listen!",a:"continuous",why:"Listen! → دلوقتي → continuous."},
+          {s:"sometimes",a:"simple",why:"أحيانًا → عادة → simple."}
+        ]},
+      {name:"المستوى ٢ · شكل الفعل",type:"form",
+        teach:"عرفت الزمن؟ دلوقتي الشكل: <b>Simple</b> = الفعل (+s مع he/she/it). <b>Continuous</b> = am/is/are + الفعل + ing.",
+        items:[
+          {s:"Every day he ___ football.",opts:["plays","is playing"],a:"plays",why:"every day → عادة → simple (+s)."},
+          {s:"Look! The baby ___ .",opts:["cries","is crying"],a:"is crying",why:"Look! → دلوقتي → is + crying."},
+          {s:"I ___ English now.",opts:["study","am studying"],a:"am studying",why:"now → continuous."},
+          {s:"She usually ___ tea.",opts:["drinks","is drinking"],a:"drinks",why:"usually → عادة → simple."},
+          {s:"They ___ TV at the moment.",opts:["watch","are watching"],a:"are watching",why:"at the moment → continuous."},
+          {s:"We ___ to school every day.",opts:["go","are going"],a:"go",why:"every day → simple."},
+          {s:"Listen! He ___ .",opts:["sings","is singing"],a:"is singing",why:"Listen! → دلوقتي."},
+          {s:"My father ___ in a bank.",opts:["works","is working"],a:"works",why:"حقيقة عامة → simple."}
+        ]},
+      {name:"المستوى ٣ · أفعال الحالة",type:"form",
+        teach:"فخّ مهم: أفعال الحالة (want, like, know, have=يملك) <b>مابتتحطش continuous</b> حتى لو دلوقتي.",
+        items:[
+          {s:"I ___ coffee right now.",opts:["want","am wanting"],a:"want",why:"want فعل حالة → simple حتى مع now."},
+          {s:"She ___ a new car.",opts:["has","is having"],a:"has",why:"have = يملك → simple."},
+          {s:"Right now, they ___ dinner.",opts:["have","are having"],a:"are having",why:"have = ياكل → ممكن continuous. دلوقتي → are having."},
+          {s:"He ___ me every week.",opts:["visits","is visiting"],a:"visits",why:"every week → simple."},
+          {s:"Be quiet! I ___ .",opts:["work","am working"],a:"am working",why:"Be quiet! = دلوقتي → continuous."},
+          {s:"Water ___ at 100°C.",opts:["boils","is boiling"],a:"boils",why:"حقيقة علمية → simple."}
+        ]}
+    ]},
     pastsimple:{title:"Past simple — الماضي",type:"mcq",desc:"went / worked / …",items:[
       {s:"Yesterday I ___ to work.",opts:["go","went","goed"],a:"went",why:"go فعل شاذ → went."},
       {s:"She ___ football last week.",opts:["played","play","plaid"],a:"played",why:"فعل عادي + ed → played."},
@@ -1244,7 +1289,8 @@
     const p=document.getElementById('gamePicker'); p.innerHTML='';
     Object.keys(GAMES).forEach(id=>{
       const g=GAMES[id]; const c=document.createElement('button'); c.className='gcard';
-      c.innerHTML='<div class="gt">'+g.title+'</div><div class="gd">'+g.desc+'</div><span class="gtag">'+g.items.length+' سؤال</span>';
+      const tag=g.levels?(g.levels.length+' مستويات'):((g.items?g.items.length:0)+' سؤال');
+      c.innerHTML='<div class="gt">'+g.title+'</div><div class="gd">'+g.desc+'</div><span class="gtag">'+tag+'</span>';
       c.addEventListener('click',()=>{ buildGame(id); setTimeout(()=>gamesArea.scrollIntoView({behavior:'smooth',block:'start'}),60); });
       p.appendChild(c);
     });
@@ -1254,6 +1300,7 @@
     const box=document.createElement('div'); box.className='game'; box.id='game-'+id; gamesArea.appendChild(box);
     if(g.type==='scramble') return scrambleGame(g,box);
     if(g.type==='freq') return freqGame(g,box);
+    if(g.type==='svc') return svcGame(g,box);
     const state={i:0,score:0};
     function draw(){
       if(state.i>=g.items.length){
@@ -1360,6 +1407,57 @@
     }
     ADV.forEach(a=>{ delete a._done; });
     render();
+  }
+  // ---- Simple vs Continuous — multi-level teaching game ----
+  function svcGame(g,box){
+    let L=0;
+    function level(){
+      const lv=g.levels[L];
+      box.innerHTML='<h3>'+g.title+'</h3><div class="g-progress">'+lv.name+' · مستوى '+(L+1)+'/'+g.levels.length+'</div>'+
+        '<div class="svc-teach ar" dir="rtl">📘 '+lv.teach+'</div>'+
+        '<button class="btn-solid" id="svcStart">ابدأ المستوى ▶</button>';
+      box.querySelector('#svcStart').addEventListener('click',()=>runLevel(lv));
+    }
+    function runLevel(lv){
+      let i=0,score=0;
+      function draw(){
+        if(i>=lv.items.length) return levelDone(lv,score);
+        const q=lv.items[i];
+        let btns=[], valOf;
+        if(lv.type==='pick'){
+          box.innerHTML='<h3>'+g.title+'</h3><div class="g-progress">'+lv.name+' · '+(i+1)+'/'+lv.items.length+' · نقاط: '+score+'</div>'+
+            '<div class="g-sentence" dir="ltr">'+q.s+'</div><p class="ex ar" dir="rtl">الإشارة دي مع أنهي زمن؟</p>'+
+            '<div class="svc-opts"><button class="svc-btn" data-v="simple">⏱️ Simple<br><small>عادة</small></button><button class="svc-btn" data-v="continuous">🔴 Continuous<br><small>دلوقتي</small></button></div><div class="g-fb"></div>';
+          btns=[...box.querySelectorAll('.svc-btn')]; valOf=b=>b.dataset.v;
+        } else {
+          box.innerHTML='<h3>'+g.title+'</h3><div class="g-progress">'+lv.name+' · '+(i+1)+'/'+lv.items.length+' · نقاط: '+score+'</div>'+
+            '<div class="g-sentence">'+q.s.replace('___','<span class="g-blank">?</span>')+'</div><div class="g-opts"></div><div class="g-fb"></div>';
+          const ob=box.querySelector('.g-opts');
+          q.opts.forEach(o=>{ const b=document.createElement('button'); b.className='g-opt'; b.textContent=o; ob.appendChild(b); btns.push(b); });
+          valOf=b=>b.textContent;
+        }
+        const fb=box.querySelector('.g-fb');
+        btns.forEach(b=>b.addEventListener('click',()=>{
+          if(fb.classList.contains('show'))return;
+          const ok=(valOf(b)===q.a); b.classList.add(ok?'correct':'wrong');
+          if(ok)score++; else { btns.forEach(x=>{ if(valOf(x)===q.a)x.classList.add('correct'); }); addMistake(q.s,q.a,q.why); }
+          if(lv.type==='form') say(q.s.replace('___',q.a),0.85);
+          fb.className='g-fb show '+(ok?'ok':'no');
+          fb.innerHTML=(ok?'✅ صح! ':'❌ الصح: <b>'+q.a+'</b> ')+'<span class="arp">'+(q.why||'')+'</span>';
+          const nx=document.createElement('button'); nx.className='btn-solid g-next'; nx.textContent='التالي ←'; nx.addEventListener('click',()=>{ i++; draw(); }); fb.appendChild(nx);
+        }));
+      }
+      draw();
+    }
+    function levelDone(lv,score){
+      const pass=score>=Math.ceil(lv.items.length*0.6);
+      box.innerHTML='<div class="g-result"><div class="score">'+score+'/'+lv.items.length+'</div><p class="ar" dir="rtl">'+(pass?'برافو! عدّيت المستوى ✅':'قريّب — راجع المستوى وجرّب تاني 💪')+'</p></div>';
+      const r=box.querySelector('.g-result');
+      if(!pass){ const b=document.createElement('button'); b.className='btn-solid'; b.textContent='إعادة المستوى ↺'; b.addEventListener('click',()=>runLevel(lv)); r.appendChild(b); return; }
+      if(L+1<g.levels.length){ const b=document.createElement('button'); b.className='btn-solid'; b.textContent='المستوى اللي بعده ▶'; b.addEventListener('click',()=>{ L++; level(); }); r.appendChild(b); }
+      else { const p=document.createElement('p'); p.className='ar'; p.dir='rtl'; p.textContent='🎉 خلّصت كل المستويات! بقيت تفرّق كويس.'; r.appendChild(p); const b=document.createElement('button'); b.className='btn-ghost'; b.textContent='من الأول'; b.addEventListener('click',()=>{ L=0; level(); }); r.appendChild(b); }
+    }
+    level();
   }
   function goToGame(id){ document.querySelector('.tab[data-panel="p-games"]').click(); buildGame(id); setTimeout(()=>{const el=document.getElementById('game-'+id); if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},80); }
 

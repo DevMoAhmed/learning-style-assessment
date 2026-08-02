@@ -1659,6 +1659,7 @@
     applyBundle(b);
     tasks=load(LS.tasks,[]); logData=load(LS.log,{}); habitsDone=load(LS.habitsDone,{}); goal=load(LS.goal,7); vocab=load(LSV,[]); mistakes=load(MIST,[]); gstatus=load(GST,{}); unitsProg=load(UPROG,{});
     const gi2=document.getElementById('goalInput'); if(gi2)gi2.value=goal;
+    backfillUnitWords();
     renderDay(); renderTasks(); renderTaskStats(); renderLog(); renderPicker(); renderMistakes(); renderVocab(); renderProgress(); renderGrammar(); renderJourney(); applySettings(); updateBadge();
     window.__applyingRemote=false;
   }
@@ -1805,6 +1806,15 @@
     u.words.forEach(wd=>{ if(!have.has(wd.w.toLowerCase())){ vocab.push(mkWord(wd.w,wd.ar,wd.ex,'Unit '+u.id)); added++; } });
     if(added){ saveVocab(); renderVocab(); updateBadge(); toast('اتضاف '+added+' كلمة للقاموس 📘'); }
   }
+  // add words from units ALREADY completed (before this feature, or synced from another device)
+  function backfillUnitWords(){
+    if(typeof vocab==='undefined'||!UNITS.length) return 0;
+    const have=new Set(vocab.map(v=>(v.word||'').toLowerCase()));
+    let added=0;
+    UNITS.forEach(u=>{ if(unitsProg[u.id]&&unitsProg[u.id].done){ u.words.forEach(wd=>{ const k=wd.w.toLowerCase(); if(!have.has(k)){ vocab.push(mkWord(wd.w,wd.ar,wd.ex,'Unit '+u.id)); have.add(k); added++; } }); } });
+    if(added){ saveVocab(); }
+    return added;
+  }
   function runUnitQuiz(u,box){
     const qs=jshuffle(u.words).slice(0,Math.min(10,u.words.length)); let i=0,score=0;
     function step(){
@@ -1901,7 +1911,7 @@
   }));
 
   // init
-  gstatus=load(GST,{}); unitsProg=load(UPROG,{});
+  gstatus=load(GST,{}); unitsProg=load(UPROG,{}); backfillUnitWords();
   renderDay(); renderTasks(); renderTaskStats(); renderLog(); checkImport();
   renderPicker(); renderMistakes(); renderVocab(); renderProgress(); renderGrammar(); renderJourney(); renderIdeas(); buildGroups(); applySettings(); updateBadge();
 

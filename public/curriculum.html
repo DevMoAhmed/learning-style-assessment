@@ -1533,6 +1533,15 @@
   }
   function boxStatus(box){ if(box>=6)return['اتعلمت ✅','st-done']; if(box>=5)return['قريّب ⭐','st-next']; if(box>=3)return['بيتعلم 📈','st-next']; return['جديدة 🌱','st-later']; }
   function advanceWord(w,ok){ if(ok){ w.box=Math.min(6,w.box+1); w.r++; w.due=w.box>=6?'9999-12-31':shiftDate(todayKey(),BOXD[w.box]||30); } else { w.box=1; w.w++; w.due=shiftDate(todayKey(),1); } saveVocab(); }
+  // credit a word solved correctly in ANY exercise toward the dictionary/learned progress
+  function creditWord(uw,ok){
+    if(typeof vocab==='undefined'||!uw||!uw.w) return;
+    let v=vocab.find(x=>(x.word||'').toLowerCase()===uw.w.toLowerCase());
+    if(!v){ v=mkWord(uw.w,uw.ar||'',uw.ex||'',uw.tag||''); vocab.push(v); }
+    if(ok){ v.box=Math.min(6,v.box+1); v.r++; v.due=v.box>=6?'9999-12-31':shiftDate(todayKey(),BOXD[v.box]||30); }
+    else { v.w=(v.w||0)+1; }   // a miss is noted but doesn't reset progress
+    saveVocab();
+  }
   function vocabQueue(){ const d=dueWords(); return (d.length?d:vocab).slice(); }
 
   // ✍️ typing review — type the whole word (smart % match) → moves the SRS box
@@ -1828,6 +1837,7 @@
           box.querySelectorAll('.qopt').forEach(x=>x.disabled=true);
           if(o.w===w.w){ b.classList.add('ok'); score++; }
           else{ b.classList.add('no'); box.querySelectorAll('.qopt').forEach(x=>{ if(x.textContent===w.ar)x.classList.add('ok'); }); }
+          creditWord(w, o.w===w.w);
           setTimeout(()=>{ i++; step(); },750);
         });
         box.appendChild(b);
@@ -1841,6 +1851,7 @@
       const back=document.createElement('button'); back.className='btn-solid'; back.style.marginInlineStart='8px'; back.textContent='← الخريطة'; back.addEventListener('click',renderJourney);
       box.appendChild(again); box.appendChild(back);
       if(passed){ const prev=unitsProg[u.id]||{}; const first=!prev.done; unitsProg[u.id]={done:true,best:Math.max(prev.best||0,pct)}; save(UPROG,unitsProg); if(first) importUnitWords(u); toast('محطة خلصت ✓'); }
+      renderVocab(); updateBadge();
     }
     step();
   }
@@ -1877,7 +1888,7 @@
       box.querySelector('.miniplay').addEventListener('click',()=>say(w.w,0.8));
       box.appendChild(inp); box.appendChild(chk); inp.focus();
       const grade=()=>{
-        const pct=simPct(inp.value,w.w); total+=pct;
+        const pct=simPct(inp.value,w.w); total+=pct; creditWord(w, pct>=85);
         const face=pct>=90?'✅':(pct>=60?'🟡':'❌');
         box.innerHTML='';
         const h=document.createElement('div'); h.className='qword'; h.textContent=face+' '+pct+'%'; box.appendChild(h);
@@ -1897,6 +1908,7 @@
       const again=document.createElement('button'); again.className='btn-ghost'; again.textContent='↺ تاني'; again.addEventListener('click',()=>runSpellQuiz(u,box));
       const back=document.createElement('button'); back.className='btn-solid'; back.style.marginInlineStart='8px'; back.textContent='← الخريطة'; back.addEventListener('click',renderJourney);
       box.appendChild(again); box.appendChild(back);
+      renderVocab(); updateBadge();
     }
     step();
   }

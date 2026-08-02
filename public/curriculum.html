@@ -241,6 +241,20 @@
   /* unscramble */
   .scramble{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0;min-height:48px;padding:10px;border:1px dashed var(--line);border-radius:10px;}
   .chip-word{border:1px solid var(--teal);background:var(--teal-soft);color:var(--teal);border-radius:8px;padding:8px 14px;cursor:pointer;font-size:1rem;font-family:var(--serif);font-weight:600;}
+  .chip-word.sel{background:var(--teal-btn);color:#fff;border-color:var(--teal-btn);}
+  .freq-ladder{display:flex;flex-direction:column;gap:8px;margin:12px 0;}
+  .fl-row{display:flex;align-items:center;gap:10px;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:8px 10px;cursor:pointer;transition:border-color .12s;}
+  .fl-row:hover{border-color:var(--teal);}
+  .fl-bar{flex:0 0 38%;height:12px;border-radius:99px;background:var(--surface-2);overflow:hidden;}
+  .fl-bar>span{display:block;height:100%;background:linear-gradient(90deg,var(--teal),var(--gold));}
+  .fl-info{flex:1;font-size:.82rem;}
+  .fl-pct{color:var(--teal);font-variant-numeric:tabular-nums;}
+  .fl-ar{color:var(--soft);}
+  .fl-slot{flex:0 0 92px;min-height:32px;border:2px dashed var(--line);border-radius:8px;display:grid;place-items:center;direction:ltr;font-family:var(--sans);font-weight:700;font-size:.9rem;}
+  .fl-slot.filled{border-style:solid;border-color:var(--teal-btn);background:var(--teal-soft);color:var(--teal);}
+  .freq-bank{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;justify-content:center;}
+  @keyframes fshake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+  .fl-row.shake{animation:fshake .35s;}
   .chip-word:hover{background:var(--teal-btn);color:#fff;}
   .scramble-bank{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;}
   /* vocab notebook */
@@ -754,7 +768,7 @@
     ]],
     ["Tenses","⏳",[
       {t:"Present continuous",form:"am/is/are + verb-ing",ex:"I am drinking now.",st:"next",detail:PC_DETAIL},
-      {t:"Present simple",form:"he/she/it adds -s",ex:"He works every day.",st:"later",detail:PS_DETAIL,game:"presentsimple"},
+      {t:"Present simple",form:"he/she/it adds -s",ex:"He works every day.",st:"later",detail:PS_DETAIL,game:"presentsimple",game2:"frequency"},
       {t:"Past simple",form:"-ed / irregular",ex:"I worked yesterday.",st:"later"},
       {t:"Present perfect",form:"have/has + past participle",ex:"I have learned a lot.",st:"later"}
     ]],
@@ -862,10 +876,11 @@
           lb.addEventListener('click',()=>{ const o=d.classList.toggle('open'); lb.textContent=o?'📖 إخفاء الشرح':'📖 اشرح أكتر'; });
           acts.appendChild(lb); r.appendChild(acts); r.appendChild(d);
         } else { r.appendChild(acts); }
-        if(it.game){
-          const gb=document.createElement('button'); gb.className='btn-game'; gb.textContent='🎮 العب على القاعدة دي';
-          gb.addEventListener('click',()=>goToGame(it.game)); acts.appendChild(gb);
-        }
+        [it.game, it.game2].filter(Boolean).forEach(gid=>{
+          const gb=document.createElement('button'); gb.className='btn-game';
+          gb.textContent='🎮 '+(((typeof GAMES!=='undefined')&&GAMES[gid]&&GAMES[gid].title)||'العب على القاعدة دي');
+          gb.addEventListener('click',()=>goToGame(gid)); acts.appendChild(gb);
+        });
         grp.appendChild(r);
       });
       gc.appendChild(grp);
@@ -1188,6 +1203,14 @@
       {s:"___ she work here?",opts:["Do","Does","Is"],a:"Does",why:"سؤال مع she → Does + فعل أصلي."},
       {s:"We ___ every weekend.",opts:["studies","study","studys"],a:"study",why:"we → الفعل زيّ ما هو."}
     ]},
+    frequency:{title:"سلّم التكرار — always/usually/never",type:"freq",desc:"كلمات التكرار على المقياس",items:[
+      {w:"always",pct:100,ar:"دائمًا",ex:"I always drink water."},
+      {w:"usually",pct:90,ar:"عادةً",ex:"I usually wake up early."},
+      {w:"often",pct:70,ar:"غالبًا",ex:"He often plays football."},
+      {w:"sometimes",pct:50,ar:"أحيانًا",ex:"We sometimes eat pizza."},
+      {w:"rarely",pct:15,ar:"نادرًا",ex:"She rarely watches TV."},
+      {w:"never",pct:0,ar:"أبدًا",ex:"I never smoke."}
+    ]},
     pastsimple:{title:"Past simple — الماضي",type:"mcq",desc:"went / worked / …",items:[
       {s:"Yesterday I ___ to work.",opts:["go","went","goed"],a:"went",why:"go فعل شاذ → went."},
       {s:"She ___ football last week.",opts:["played","play","plaid"],a:"played",why:"فعل عادي + ed → played."},
@@ -1230,6 +1253,7 @@
     const g=GAMES[id]; gamesArea.innerHTML='';
     const box=document.createElement('div'); box.className='game'; box.id='game-'+id; gamesArea.appendChild(box);
     if(g.type==='scramble') return scrambleGame(g,box);
+    if(g.type==='freq') return freqGame(g,box);
     const state={i:0,score:0};
     function draw(){
       if(state.i>=g.items.length){
@@ -1288,6 +1312,54 @@
       redraw();
     }
     draw();
+  }
+  // ---- frequency-adverbs ladder game (with interactive tones) ----
+  function freqGame(g,box){
+    const ADV=g.items, rows=ADV.slice().sort((a,b)=>b.pct-a.pct);
+    let ac; const pitchFor=pct=>220+(pct/100)*660;
+    function tone(freq,dur,type){ try{ ac=ac||new (window.AudioContext||window.webkitAudioContext)(); if(ac.state==='suspended')ac.resume(); const o=ac.createOscillator(),gn=ac.createGain(); o.type=type||'sine'; o.frequency.value=freq; o.connect(gn); gn.connect(ac.destination); const t=ac.currentTime; gn.gain.setValueAtTime(0.0001,t); gn.gain.exponentialRampToValueAtTime(0.28,t+0.02); gn.gain.exponentialRampToValueAtTime(0.0001,t+(dur||0.25)); o.start(t); o.stop(t+(dur||0.26)); }catch(e){} }
+    function melody(){ rows.slice().reverse().forEach((r,i)=>setTimeout(()=>tone(pitchFor(r.pct),0.18),i*150)); }
+    let placed=0, sel=null;
+    function render(){
+      box.innerHTML='<h3>'+g.title+'</h3><p class="ex ar" dir="rtl">دوس كلمة تحت، وبعدين دوس صفّها الصح على السلّم. الأعلى = أكتر تكرار 🔊 (اسمع النغمة بتعلى).</p><div class="freq-ladder" id="fl"></div><div class="freq-bank" id="fb"></div><div class="g-fb" id="ff"></div>';
+      const fl=box.querySelector('#fl');
+      rows.forEach(r=>{
+        const row=document.createElement('div'); row.className='fl-row';
+        row.innerHTML='<div class="fl-bar"><span style="width:'+r.pct+'%"></span></div><div class="fl-info"><b class="fl-pct">'+r.pct+'%</b> <span class="fl-ar" dir="rtl">'+r.ar+'</span></div><div class="fl-slot"></div>';
+        row.addEventListener('click',()=>tryPlace(r,row)); fl.appendChild(row);
+      });
+      renderBank();
+    }
+    function renderBank(){
+      const fb=box.querySelector('#fb'); fb.innerHTML='';
+      ADV.filter(a=>!a._done).slice().sort(()=>Math.random()-0.5).forEach(a=>{
+        const c=document.createElement('button'); c.className='chip-word'+(sel&&sel.w===a.w?' sel':''); c.textContent=a.w;
+        c.addEventListener('click',()=>{ sel=(sel&&sel.w===a.w)?null:a; if(sel){ say(a.w,0.85); tone(pitchFor(a.pct),0.18); } renderBank(); });
+        fb.appendChild(c);
+      });
+    }
+    function tryPlace(r,row){
+      const ff=box.querySelector('#ff');
+      if(!sel){ ff.className='g-fb show no'; ff.textContent='اختار كلمة الأول 👇'; return; }
+      if(sel.w===r.w){
+        sel._done=true; const slot=row.querySelector('.fl-slot'); slot.textContent=r.w; slot.classList.add('filled');
+        tone(pitchFor(r.pct),0.3); say(r.ex,0.85); placed++; sel=null;
+        ff.className='g-fb show ok'; ff.innerHTML='✅ '+r.w+' = '+r.pct+'% <span class="arp">'+r.ar+'</span>';
+        if(placed>=ADV.length){ setTimeout(melody,180); finish(); } else renderBank();
+      } else {
+        tone(120,0.22,'sawtooth'); row.classList.add('shake'); setTimeout(()=>row.classList.remove('shake'),380);
+        ff.className='g-fb show no'; ff.textContent='مش هنا — فكّر: «'+sel.w+'» معناها إيه؟';
+        addMistake('كلمة تكرار: '+sel.w, r.w+' مكانها غلط', 'رتّبها على مقياس التكرار');
+      }
+    }
+    function finish(){
+      const ff=box.querySelector('#ff'); ff.className='g-fb show ok'; ff.innerHTML='🎉 كمّلت السلّم! سمعت النغمة بتعلى مع التكرار؟ ';
+      const btn=document.createElement('button'); btn.className='btn-solid g-next'; btn.textContent='العب تاني';
+      btn.addEventListener('click',()=>{ ADV.forEach(a=>{ delete a._done; }); placed=0; sel=null; render(); });
+      ff.appendChild(btn);
+    }
+    ADV.forEach(a=>{ delete a._done; });
+    render();
   }
   function goToGame(id){ document.querySelector('.tab[data-panel="p-games"]').click(); buildGame(id); setTimeout(()=>{const el=document.getElementById('game-'+id); if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},80); }
 

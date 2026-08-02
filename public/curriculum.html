@@ -691,6 +691,60 @@
     </div>
     <p class="arp">دي غلطتك المتكررة — بتنسى <b>am/is/are</b>. الـ ing لوحده مايكفيش، لازم فعل «to be» قبله. زي ما اتعلمنا في درس to be.</p>`;
 
+  const PS_DETAIL = `
+    <p class="arp">المضارع البسيط = <b>عادات</b> و<b>حقائق</b> و<b>روتين</b> — حاجات بتحصل بشكل عام أو متكرر، مش دلوقتي بالذات. لو الحدث «دلوقتي» استخدم المضارع المستمر (درس قبله).</p>
+
+    <div class="acard a-an">
+      <div class="ah">١) الاستخدام <span style="font-weight:400;font-size:.85rem" class="arp">— عادة / حقيقة / روتين</span></div>
+      <p class="arp">بنستخدمه مع كلمات الدلالة دي:</p>
+      <div class="emojis">
+        <span class="emoji-item"><span class="e">🔁</span> always</span>
+        <span class="emoji-item"><span class="e">🙂</span> usually</span>
+        <span class="emoji-item"><span class="e">⏰</span> every day</span>
+        <span class="emoji-item"><span class="e">📅</span> on Mondays</span>
+        <span class="emoji-item"><span class="e">🌙</span> at night</span>
+      </div>
+      <p><span dir="ltr">I <b>drink</b> coffee every morning.</span> · <span dir="ltr">Water <b>boils</b> at 100°C.</span></p>
+    </div>
+
+    <div class="acard a-the">
+      <div class="ah">٢) التكوين <span style="font-weight:400;font-size:.85rem" class="arp">— القاعدة الذهبية</span></div>
+      <p class="arp">الفعل زيّ ما هو مع <b>I / you / we / they</b>. بس مع <b>he / she / it</b> بنزوّد <b>‑s</b>:</p>
+      <table class="artbl">
+        <tr><th>الفاعل</th><th>الفعل</th><th>مثال</th></tr>
+        <tr><td>I / you / we / they</td><td><b>work</b></td><td dir="ltr">They work.</td></tr>
+        <tr><td>he / she / it</td><td><b>work<span style="color:#c4553f">s</span></b></td><td dir="ltr">He work<b>s</b>.</td></tr>
+      </table>
+      <p class="arp">⚠️ دي أكتر غلطة: بتنسى الـ <b>s</b> مع <b>he/she/it</b>.</p>
+    </div>
+
+    <div class="acard a-no">
+      <div class="ah">٣) إملاء الـ ‑s <span style="font-weight:400;font-size:.85rem" class="arp">— مع he/she/it</span></div>
+      <table class="artbl">
+        <tr><th>النهاية</th><th>نعمل إيه</th><th>مثال</th></tr>
+        <tr><td>عادي</td><td>+ s</td><td dir="ltr">play → play<b>s</b></td></tr>
+        <tr><td>o · ch · sh · ss · x</td><td>+ es</td><td dir="ltr">go → go<b>es</b> · watch → watch<b>es</b></td></tr>
+        <tr><td>ساكن + y</td><td>y → ies</td><td dir="ltr">study → stud<b>ies</b></td></tr>
+        <tr><td>متحرك + y</td><td>+ s</td><td dir="ltr">play → play<b>s</b></td></tr>
+      </table>
+      <p class="arp">وشاذ مهم: <span dir="ltr">have → <b>has</b></span> · <span dir="ltr">do → <b>does</b></span> · <span dir="ltr">go → <b>goes</b></span>.</p>
+    </div>
+
+    <h5>٤) النفي والسؤال — <span class="en">do / does</span></h5>
+    <p class="arp"><b>النفي:</b> <span dir="ltr"><b>don't</b></span> مع (I/you/we/they) و<span dir="ltr"><b>doesn't</b></span> مع (he/she/it) + <b>الفعل الأصلي بدون s</b>:</p>
+    <div class="cmp">
+      <div class="cbox bad"><span class="lbl">غلط ❌</span><div dir="ltr">He doesn't plays.</div></div>
+      <div class="cbox good"><span class="lbl">صح ✅</span><div dir="ltr">He <b>doesn't play</b>.</div></div>
+    </div>
+    <p class="arp"><b>السؤال:</b> <span dir="ltr"><b>Do</b>/<b>Does</b> + فاعل + فعل أصلي؟</span> — <span dir="ltr">Does she <b>work</b> here?</span></p>
+
+    <h5>اربطها بالعربي 🇪🇬</h5>
+    <div class="cmp">
+      <div class="cbox bad"><span class="lbl">غلط ❌</span><div dir="ltr">He play football.</div></div>
+      <div class="cbox good"><span class="lbl">صح ✅</span><div dir="ltr">He <b>plays</b> football.</div></div>
+    </div>
+    <p class="arp">في العربي الفعل مابيتغيّرش بالطريقة دي، فدماغك بينسى الـ s. القاعدة: <b>he/she/it → الفعل + s</b>.</p>`;
+
   const GROUPS = [
     ["Basics","🧱",[
       {t:"Verb “to be” (present)",form:"am / is / are",ex:"I am a student.",st:"done"}
@@ -700,7 +754,7 @@
     ]],
     ["Tenses","⏳",[
       {t:"Present continuous",form:"am/is/are + verb-ing",ex:"I am drinking now.",st:"next",detail:PC_DETAIL},
-      {t:"Present simple",form:"he/she adds -s",ex:"I work every day.",st:"later"},
+      {t:"Present simple",form:"he/she/it adds -s",ex:"He works every day.",st:"later",detail:PS_DETAIL,game:"presentsimple"},
       {t:"Past simple",form:"-ed / irregular",ex:"I worked yesterday.",st:"later"},
       {t:"Present perfect",form:"have/has + past participle",ex:"I have learned a lot.",st:"later"}
     ]],
@@ -1120,6 +1174,19 @@
       {s:"She ___ reading a book.",a:"is",why:"she → is + ing."},
       {s:"We ___ learning English.",a:"are",why:"we → are + ing."},
       {s:"I ___ working right now.",a:"am",why:"I → am + ing."}
+    ]},
+    presentsimple:{title:"Present simple — عادات وحقائق",type:"mcq",desc:"work / works / do / does",items:[
+      {s:"He ___ football every day.",opts:["play","plays","playing"],a:"plays",why:"he/she/it → الفعل + s."},
+      {s:"I ___ to school by bus.",opts:["go","goes","going"],a:"go",why:"مع I الفعل زيّ ما هو."},
+      {s:"She ___ TV every night.",opts:["watch","watchs","watches"],a:"watches",why:"بتنتهي بـ ch → نزوّد es."},
+      {s:"The baby ___ every morning.",opts:["cry","crys","cries"],a:"cries",why:"ساكن + y → ies."},
+      {s:"They ___ in Cairo.",opts:["live","lives","living"],a:"live",why:"they → الفعل زيّ ما هو."},
+      {s:"It ___ a long tail.",opts:["have","has","haves"],a:"has",why:"have مع it → has (شاذ)."},
+      {s:"My father ___ English.",opts:["teach","teachs","teaches"],a:"teaches",why:"بتنتهي بـ ch → es."},
+      {s:"He ___ like coffee.",opts:["don't","doesn't","isn't"],a:"doesn't",why:"نفي مع he → doesn't."},
+      {s:"He doesn't ___ at night.",opts:["studies","study","studys"],a:"study",why:"بعد doesn't الفعل أصلي بدون s."},
+      {s:"___ she work here?",opts:["Do","Does","Is"],a:"Does",why:"سؤال مع she → Does + فعل أصلي."},
+      {s:"We ___ every weekend.",opts:["studies","study","studys"],a:"study",why:"we → الفعل زيّ ما هو."}
     ]},
     pastsimple:{title:"Past simple — الماضي",type:"mcq",desc:"went / worked / …",items:[
       {s:"Yesterday I ___ to work.",opts:["go","went","goed"],a:"went",why:"go فعل شاذ → went."},

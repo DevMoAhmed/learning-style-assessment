@@ -412,6 +412,11 @@
       <div class="stat"><div class="stat-num" id="vcKnown">0</div><div class="stat-lbl ar">اتعلمتها ✓</div></div>
     </div>
 
+    <div class="tool-row" id="vGames" style="margin:6px 0 2px">
+      <button class="btn-solid" id="vType">✍️ اكتب الكلمة</button>
+      <button class="btn-ghost" id="vScram">🔀 رتّب الحروف</button>
+      <button class="btn-ghost" id="vFlash">🃏 بطاقات (اسمع وقيّم)</button>
+    </div>
     <div id="reviewCard"></div>
 
     <div class="row">
@@ -1497,7 +1502,8 @@
     shown.forEach(w=>{
       const d=document.createElement('div'); d.className='vitem';
       const top=document.createElement('div'); top.className='vtop';
-      top.innerHTML='<span class="vword">'+w.word+'</span>'+(w.mean?'<span class="vmean">'+w.mean+'</span>':'')+(w.tag?'<span class="vtag">'+w.tag+'</span>':'')+'<span class="vbox">box '+w.box+'</span>';
+      const st=boxStatus(w.box);
+      top.innerHTML='<span class="vword">'+w.word+'</span>'+(w.mean?'<span class="vmean">'+w.mean+'</span>':'')+(w.tag?'<span class="vtag">'+w.tag+'</span>':'')+'<span class="status '+st[1]+'">'+st[0]+'</span>';
       const pb=document.createElement('button'); pb.className='miniplay'; pb.textContent='▶'; pb.addEventListener('click',()=>say(w.word,0.8));
       const del=document.createElement('button'); del.className='del'; del.textContent='🗑'; del.style.width='28px'; del.style.height='28px';
       del.addEventListener('click',()=>{ if(confirm('حذف «'+w.word+'»؟')){ vocab=vocab.filter(x=>x.id!==w.id); saveVocab(); renderVocab(); } });
@@ -1525,6 +1531,66 @@
     }
     card();
   }
+  function boxStatus(box){ if(box>=6)return['اتعلمت ✅','st-done']; if(box>=5)return['قريّب ⭐','st-next']; if(box>=3)return['بيتعلم 📈','st-next']; return['جديدة 🌱','st-later']; }
+  function advanceWord(w,ok){ if(ok){ w.box=Math.min(6,w.box+1); w.r++; w.due=w.box>=6?'9999-12-31':shiftDate(todayKey(),BOXD[w.box]||30); } else { w.box=1; w.w++; w.due=shiftDate(todayKey(),1); } saveVocab(); }
+  function vocabQueue(){ const d=dueWords(); return (d.length?d:vocab).slice(); }
+
+  // ✍️ typing review — type the whole word (smart % match) → moves the SRS box
+  function startTypeReview(queue){
+    const rc=document.getElementById('reviewCard'); let qi=0,right=0;
+    function card(){
+      if(qi>=queue.length){ rc.innerHTML='<div class="review-box"><div class="ar" dir="rtl">✍️ خلصت — '+right+'/'+queue.length+' صح.</div></div>'; renderVocab(); updateBadge(); renderProgress(); return; }
+      const w=queue[qi];
+      rc.innerHTML='<div class="review-box"><div class="ar" dir="rtl" style="font-size:.8rem;color:var(--faint)">'+(qi+1)+' / '+queue.length+'</div>'+
+        '<div class="rmean" dir="rtl">'+(w.mean||'—')+'</div>'+
+        '<button class="miniplay" id="tvPlay" style="margin-top:6px">▶ اسمع</button>'+
+        '<input class="fld" id="tvIn" dir="ltr" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="اكتب الكلمة بالإنجليزي" style="text-align:center;font-size:1.2rem;max-width:260px;margin:12px auto 0;display:block">'+
+        '<button class="btn-solid" id="tvChk" style="margin-top:12px">تحقق</button></div>';
+      rc.querySelector('#tvPlay').addEventListener('click',()=>say(w.word,0.8));
+      const inp=rc.querySelector('#tvIn'); inp.focus();
+      const grade=()=>{
+        const pct=simPct(inp.value,w.word), ok=pct>=85; if(ok)right++; advanceWord(w,ok); say(w.word,0.8);
+        rc.querySelector('.review-box').innerHTML='<div class="rword" dir="ltr">'+w.word+'</div>'+
+          '<div class="rback"><div class="rmean">'+(ok?'✅ ':'❌ ')+pct+'%</div>'+(pct<100?'<div class="rex" dir="rtl">إنت كتبت: <b dir="ltr">'+(inp.value.trim()||'—')+'</b></div>':'')+'</div>'+
+          '<button class="btn-solid" id="tvNext" style="margin-top:10px">'+(qi+1>=queue.length?'خلص':'التالي ←')+'</button>';
+        rc.querySelector('#tvNext').addEventListener('click',()=>{ qi++; card(); });
+      };
+      rc.querySelector('#tvChk').addEventListener('click',grade);
+      inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); grade(); } });
+    }
+    card();
+  }
+
+  // 🔀 letter scramble → build the word from its letters → moves the SRS box
+  function startVScramble(queue){
+    const rc=document.getElementById('reviewCard'); let qi=0,right=0;
+    function card(){
+      if(qi>=queue.length){ rc.innerHTML='<div class="review-box"><div class="ar" dir="rtl">🔀 خلصت — '+right+'/'+queue.length+' صح.</div></div>'; renderVocab(); updateBadge(); renderProgress(); return; }
+      const w=queue[qi], letters=w.word.split(''), bank=letters.map((c,idx)=>({c,idx})).sort(()=>Math.random()-0.5), chosen=[];
+      rc.innerHTML='<div class="review-box"><div class="ar" dir="rtl" style="font-size:.8rem;color:var(--faint)">'+(qi+1)+' / '+queue.length+'</div>'+
+        '<div class="rmean" dir="rtl">'+(w.mean||'—')+'</div><button class="miniplay" id="scPlay" style="margin-top:6px">▶ اسمع</button>'+
+        '<div class="scramble" id="scAns" dir="ltr" style="justify-content:center"></div><div class="scramble-bank" id="scBank" dir="ltr" style="justify-content:center"></div><div class="g-fb" id="scFb"></div></div>';
+      rc.querySelector('#scPlay').addEventListener('click',()=>say(w.word,0.8));
+      const ans=rc.querySelector('#scAns'), bk=rc.querySelector('#scBank'), fb=rc.querySelector('#scFb');
+      function redraw(){
+        ans.innerHTML=''; chosen.forEach((c,ci)=>{ const b=document.createElement('button'); b.className='chip-word'; b.textContent=c.c; b.addEventListener('click',()=>{ chosen.splice(ci,1); bank.push(c); redraw(); }); ans.appendChild(b); });
+        bk.innerHTML=''; bank.forEach((c,bi)=>{ const b=document.createElement('button'); b.className='chip-word'; b.textContent=c.c; b.addEventListener('click',()=>{ chosen.push(c); bank.splice(bi,1); redraw(); check(); }); bk.appendChild(b); });
+      }
+      function check(){
+        if(chosen.length!==letters.length)return;
+        const ok=(chosen.map(c=>c.c).join('').toLowerCase()===w.word.toLowerCase()); if(ok)right++; advanceWord(w,ok); say(w.word,0.8);
+        fb.className='g-fb show '+(ok?'ok':'no'); fb.innerHTML=(ok?'✅ صح! ':'❌ الصح: <b dir="ltr">'+w.word+'</b>');
+        const nx=document.createElement('button'); nx.className='btn-solid g-next'; nx.textContent=(qi+1>=queue.length?'خلص':'التالي ←'); nx.addEventListener('click',()=>{ qi++; card(); }); fb.appendChild(nx);
+      }
+      redraw();
+    }
+    card();
+  }
+
+  document.getElementById('vType').addEventListener('click',()=>{ const q=vocabQueue(); if(!q.length){toast('مفيش كلمات في القاموس');return;} startTypeReview(q); });
+  document.getElementById('vScram').addEventListener('click',()=>{ const q=vocabQueue(); if(!q.length){toast('مفيش كلمات في القاموس');return;} startVScramble(q); });
+  document.getElementById('vFlash').addEventListener('click',()=>{ const q=vocabQueue(); if(!q.length){toast('مفيش كلمات في القاموس');return;} startReview(q); });
+
   document.getElementById('vwAdd').addEventListener('click',()=>{
     const word=document.getElementById('vwWord').value.trim(); if(!word)return;
     vocab.push(mkWord(word,document.getElementById('vwMean').value.trim(),document.getElementById('vwEx').value.trim(),document.getElementById('vwTag').value.trim()));
@@ -1731,6 +1797,14 @@
     window.scrollTo({top:0,behavior:'smooth'});
   }
 
+  // when a unit is completed, add its words to the Vocabulary dictionary (SRS)
+  function importUnitWords(u){
+    if(typeof vocab==='undefined') return;
+    const have=new Set(vocab.map(v=>(v.word||'').toLowerCase()));
+    let added=0;
+    u.words.forEach(wd=>{ if(!have.has(wd.w.toLowerCase())){ vocab.push(mkWord(wd.w,wd.ar,wd.ex,'Unit '+u.id)); added++; } });
+    if(added){ saveVocab(); renderVocab(); updateBadge(); toast('اتضاف '+added+' كلمة للقاموس 📘'); }
+  }
   function runUnitQuiz(u,box){
     const qs=jshuffle(u.words).slice(0,Math.min(10,u.words.length)); let i=0,score=0;
     function step(){
@@ -1756,7 +1830,7 @@
       const again=document.createElement('button'); again.className='btn-ghost'; again.textContent='↺ تاني'; again.addEventListener('click',()=>runUnitQuiz(u,box));
       const back=document.createElement('button'); back.className='btn-solid'; back.style.marginInlineStart='8px'; back.textContent='← الخريطة'; back.addEventListener('click',renderJourney);
       box.appendChild(again); box.appendChild(back);
-      if(passed){ const prev=unitsProg[u.id]||{}; unitsProg[u.id]={done:true,best:Math.max(prev.best||0,pct)}; save(UPROG,unitsProg); toast('محطة خلصت ✓'); }
+      if(passed){ const prev=unitsProg[u.id]||{}; const first=!prev.done; unitsProg[u.id]={done:true,best:Math.max(prev.best||0,pct)}; save(UPROG,unitsProg); if(first) importUnitWords(u); toast('محطة خلصت ✓'); }
     }
     step();
   }

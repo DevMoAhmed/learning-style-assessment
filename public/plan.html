@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="ar" dir="rtl" style="visibility:hidden">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>خطة محمد الذاتية</title>
+<style>
+  /* ===== Playful (Direction A) palette =====
+     --teal = vivid accent (text, borders, soft fills)
+     --teal-btn = deeper green for FILLED surfaces that carry white text (AA-readable both modes) */
+  :root{
+    --bg:#FFFDF6; --surface:#FFFFFF; --surface-2:#F1F5EF; --raise:#FFFFFF;
+    --ink:#1E2A23; --soft:#54615A; --faint:#7C887F; --line:#E6E1D2;
+    --teal:#2FBF71; --teal-btn:#1C9C57; --teal-soft:#2FBF7116; --amber:#B5820A; --amber-soft:#F0B42920;
+    --gold:#F0B429; --coral:#FF6B57;
+    --blue:#4A6FA5; --plum:#8A5A83; --green:#1C9C57;
+    --shadow:0 10px 22px -14px rgba(30,100,66,.30);
+    --serif:"Trebuchet MS","Segoe UI",system-ui,-apple-system,sans-serif;
+    --sans:"Segoe UI",system-ui,-apple-system,sans-serif;
+    --ar:"Segoe UI","Tahoma",sans-serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#161A13; --surface:#1F241C; --surface-2:#29321F; --raise:#1F241C;
+      --ink:#EAF1E6; --soft:#B4C1B2; --faint:#8C9889; --line:#343D30;
+      --teal:#5BDB92; --teal-btn:#209C5B; --teal-soft:#5BDB921E; --amber:#E7C568; --amber-soft:#E7C56818;
+      --gold:#EAC85E; --coral:#FF8873;
+      --blue:#89AEDD; --plum:#CB96C4; --green:#5BDB92; --shadow:0 12px 26px -16px rgba(0,0,0,.7);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#161A13; --surface:#1F241C; --surface-2:#29321F; --raise:#1F241C;
+    --ink:#EAF1E6; --soft:#B4C1B2; --faint:#8C9889; --line:#343D30;
+    --teal:#5BDB92; --teal-btn:#209C5B; --teal-soft:#5BDB921E; --amber:#E7C568; --amber-soft:#E7C56818;
+    --gold:#EAC85E; --coral:#FF8873;
+    --blue:#89AEDD; --plum:#CB96C4; --green:#5BDB92; --shadow:0 12px 26px -16px rgba(0,0,0,.7);
+  }
+  :root[data-theme="light"]{
+    --bg:#FFFDF6; --surface:#FFFFFF; --surface-2:#F1F5EF; --raise:#FFFFFF;
+    --ink:#1E2A23; --soft:#54615A; --faint:#7C887F; --line:#E6E1D2;
+    --teal:#2FBF71; --teal-btn:#1C9C57; --teal-soft:#2FBF7116; --amber:#B5820A; --amber-soft:#F0B42920;
+    --gold:#F0B429; --coral:#FF6B57;
+    --blue:#4A6FA5; --plum:#8A5A83; --green:#1C9C57; --shadow:0 10px 22px -14px rgba(30,100,66,.30);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--ar);line-height:1.6;}
+  .wrap{max-width:1280px;margin:0 auto;padding:24px clamp(18px,4vw,52px) 60px;}
+  h1{font-family:var(--serif);font-size:1.8rem;margin:4px 0 0;}
+  h2{font-family:var(--serif);font-size:1.2rem;margin:0 0 4px;}
+  .eyebrow{font-size:.72rem;letter-spacing:.12em;color:var(--teal);font-weight:700;}
+  .lede{color:var(--soft);margin:6px 0 0;}
+  .top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .top a{margin-inline-start:auto;color:var(--teal);font-weight:700;text-decoration:none;}
+  .hero{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin:14px 0 4px;}
+  .stat{background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:12px;text-align:center;box-shadow:var(--shadow);}
+  .stat b{display:block;font-family:var(--serif);font-size:1.7rem;color:var(--teal);line-height:1.2;}
+  .stat span{font-size:.8rem;color:var(--soft);}
+  .tabs{position:sticky;top:0;z-index:5;display:flex;gap:8px;padding:12px 0;background:var(--bg);overflow-x:auto;scrollbar-width:none;}
+  .tabs button{flex:1 1 0;min-width:max-content;border:1.5px solid var(--line);background:var(--surface);color:var(--soft);border-radius:15px;padding:11px 14px;font-weight:800;font-size:.95rem;cursor:pointer;font-family:inherit;}
+  .tabs button.on{background:var(--teal-btn);color:#fff;border-color:var(--teal-btn);}
+  .sec-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:6px 0 10px;}
+  .sec-h .muted{color:var(--faint);font-size:.85rem;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;}
+  .card{background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:14px 16px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:8px;}
+  .card.done{border-color:color-mix(in srgb,var(--teal) 55%,var(--line));background:color-mix(in srgb,var(--teal) 6%,var(--surface));}
+  .card.done .t{text-decoration:line-through;text-decoration-color:var(--teal);}
+  .card .t{font-weight:800;font-size:1rem;}
+  .card .d{color:var(--soft);font-size:.9rem;white-space:pre-wrap;}
+  .meta{display:flex;gap:6px;flex-wrap:wrap;font-size:.75rem;align-items:center;}
+  .chip{background:var(--surface-2);border-radius:99px;padding:2px 9px;color:var(--soft);}
+  .ty-app{background:var(--teal-soft);color:var(--teal);}
+  .ty-external{background:color-mix(in srgb,var(--blue) 14%,transparent);color:var(--blue);}
+  .ty-produce{background:var(--amber-soft);color:var(--amber);}
+  .ty-hidden{background:color-mix(in srgb,var(--plum) 15%,transparent);color:var(--plum);}
+  .acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  .chk{display:flex;gap:8px;align-items:center;cursor:pointer;font-weight:700;}
+  .chk input{width:20px;height:20px;accent-color:var(--teal-btn);}
+  .go{border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:6px 12px;font-weight:700;text-decoration:none;font-size:.85rem;}
+  .go:hover{border-color:var(--teal);}
+  .btn{border:none;background:var(--teal-btn);color:#fff;border-radius:10px;padding:7px 14px;font-weight:700;cursor:pointer;font-family:inherit;}
+  .btn.ghost{background:var(--surface-2);color:var(--ink);}
+  .note{display:flex;gap:6px;}
+  .note input{flex:1;min-width:0;border:1.5px solid var(--line);border-radius:10px;padding:7px 10px;background:var(--bg);color:var(--ink);font-family:inherit;}
+  .reveal{background:color-mix(in srgb,var(--plum) 12%,transparent);border:1.5px dashed var(--plum);border-radius:12px;padding:8px 12px;font-size:.9rem;}
+  .empty{border:2px dashed var(--line);border-radius:16px;padding:40px 18px;text-align:center;color:var(--faint);font-size:1.05rem;}
+  .bar{height:10px;border-radius:99px;background:var(--surface-2);overflow:hidden;}
+  .bar span{display:block;height:100%;background:linear-gradient(90deg,var(--teal),var(--gold));}
+  .wk{background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;cursor:pointer;}
+  .wk.cur{border-color:var(--teal);}
+  .wk .wt{font-weight:800;}
+  .wk .wg{color:var(--soft);font-size:.85rem;}
+  .days{display:flex;gap:4px;flex-wrap:wrap;}
+  .days i{width:22px;height:22px;border-radius:6px;background:var(--surface-2);display:grid;place-items:center;font-size:.65rem;font-style:normal;color:var(--faint);}
+  .days i.full{background:var(--teal-btn);color:#fff;}
+  .days i.part{background:color-mix(in srgb,var(--gold) 55%,var(--surface-2));color:var(--ink);}
+  .days i.today{outline:2px solid var(--ink);}
+  #status{font-size:.8rem;color:var(--faint);margin-top:6px;min-height:1em;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div><p class="eyebrow">SELF-STUDY PLAN · 30 DAYS</p><h1 id="hTitle">خطة محمد الذاتية</h1>
+    <p class="lede">روتين يومي ثابت + مهام الأسبوع. علّم ✓ على اللي خلّصته واكتب ملاحظة قصيرة.</p></div>
+    <a href="curriculum.html" target="_top">← المنهج</a>
+  </div>
+  <div class="hero" id="hero"></div>
+  <div id="status">… بيحمّل</div>
+  <nav class="tabs" id="tabs"></nav>
+  <main id="body"></main>
+</div>
+
+<script src="plan-data.js"></script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBuL9tK-UJ10HvzwPocXNIYjXGjDKtDB3E",
+    authDomain: "englishboard-adc4c.firebaseapp.com",
+    projectId: "englishboard-adc4c",
+    storageBucket: "englishboard-adc4c.firebasestorage.app",
+    messagingSenderId: "552512992591",
+    appId: "1:552512992591:web:993f1a4aa9b9b61600813a"
+  };
+  const app=initializeApp(firebaseConfig), auth=getAuth(app), db=getFirestore(app);
+  const $=id=>document.getElementById(id);
+  const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  try{ const th=localStorage.getItem("eb_theme"); if(th) document.documentElement.setAttribute("data-theme",th); }catch(e){}
+  window.addEventListener("storage",e=>{ if(e.key==="eb_theme"&&e.newValue) document.documentElement.setAttribute("data-theme",e.newValue); });
+
+  /* bundle.selfplan = { start:'YYYY-MM-DD', daily:[task], weeks:[{n,title,goal,tasks:[task]}],
+       log:{ 'YYYY-MM-DD':{ taskId:{done,note,doneAt} } }, wlog:{ taskId:{done,note,doneAt} } }
+     task = { id, title, desc, type:'app'|'external'|'produce'|'hidden', mins, link, hidden_goal } */
+  const TYPES={app:["📱","داخل التطبيق"],external:["🌐","مصدر برّه"],produce:["📤","تسليم"],hidden:["🎭","تحدّي"]};
+  const EMPTY="لسه المعلّم ما حطّش مهام هنا";
+  const dayKey=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  const parseKey=k=>{ const [y,m,d]=k.split("-").map(Number); return new Date(y,m-1,d); };
+  const today=()=>dayKey(new Date());
+  const boardOverride=(new URLSearchParams(location.search).get("board")||"").trim().toLowerCase();
+  let board=null, plan=null, active="today", openWeek=null;
+
+  function norm(p){ p=Object.assign({start:"",daily:[],weeks:[],log:{},wlog:{}},p||{}); if(!p.start)p.start=today(); return p; }
+  function seed(){ const p=JSON.parse(JSON.stringify(window.DEFAULT_PLAN||{daily:[],weeks:[]})); p.start=today(); p.log={}; p.wlog={}; return p; }
+  function dayNum(){ return Math.max(1, Math.floor((parseKey(today())-parseKey(plan.start))/86400000)+1); }
+  function weekIdx(){ if(!plan.weeks.length) return -1; return Math.min(plan.weeks.length, Math.ceil(dayNum()/7))-1; }
+  function dailyDone(k){ const l=plan.log[k]||{}; return plan.daily.filter(t=>l[t.id]&&l[t.id].done).length; }
+  function streak(){
+    if(!plan.daily.length) return 0;
+    let n=0, d=new Date(); if(dailyDone(dayKey(d))<plan.daily.length) d.setDate(d.getDate()-1);
+    while(dailyDone(dayKey(d))>=plan.daily.length && dayKey(d)>=plan.start){ n++; d.setDate(d.getDate()-1); }
+    return n;
+  }
+  const weekPct=w=>w.tasks.length?Math.round(w.tasks.filter(t=>plan.wlog[t.id]&&plan.wlog[t.id].done).length/w.tasks.length*100):0;
+
+  async function loadBundle(){ const s=await getDoc(doc(db,"boards",board)); return s.exists()?(s.data().bundle||{}):{}; }
+  // read-modify-write: only selfplan changes; every other bundle field is preserved
+  async function mutate(fn,msg){
+    try{
+      const b=await loadBundle(); const sp=b.selfplan?norm(b.selfplan):seed(); fn(sp); b.selfplan=sp;
+      await setDoc(doc(db,"boards",board),{bundle:b,at:Date.now()},{merge:true});
+      plan=sp; render(); $("status").textContent=msg||"اتحفظ ✓";
+    }catch(e){ $("status").textContent="فشل الحفظ: "+(e.code||e.message); }
+  }
+  // state helpers: daily → plan.log[date][id], weekly → plan.wlog[id]
+  const getState=(scope,id)=>scope==="d"?((plan.log[today()]||{})[id]||{}):(plan.wlog[id]||{});
+  function setState(scope,id,patch){
+    mutate(sp=>{
+      let s; if(scope==="d"){ const k=today(); sp.log[k]=sp.log[k]||{}; s=sp.log[k][id]=sp.log[k][id]||{}; } else { s=sp.wlog[id]=sp.wlog[id]||{}; }
+      Object.assign(s,patch); if("done" in patch) s.doneAt=patch.done?Date.now():null;
+    }, patch.done?"برافو ✓":"اتحفظ ✓");
+  }
+
+  function taskCard(t,scope){
+    const st=getState(scope,t.id), ty=TYPES[t.type]||TYPES.app;
+    let go="";
+    if(t.link && t.type==="app") go='<a class="go" href="'+esc(t.link)+'" target="_top">افتح ↗</a>';
+    else if(t.link) go='<a class="go" href="'+esc(t.link)+'" target="_blank" rel="noopener">افتح الموقع ↗</a>';
+    const doneCtl = t.type==="produce"
+      ? (st.done?'<span class="chip ty-produce">📤 اتبعت ✓</span> <button class="btn ghost" data-undo>تراجع</button>':'<button class="btn" data-sent>بعتّه ✓</button>')
+      : '<label class="chk"><input type="checkbox" data-chk'+(st.done?" checked":"")+'> خلّصتها</label>';
+    return '<div class="card'+(st.done?" done":"")+'" data-id="'+esc(t.id)+'" data-scope="'+scope+'">'+
+      '<div class="meta"><span class="chip ty-'+esc(t.type||"app")+'">'+ty[0]+' '+ty[1]+'</span>'+(t.mins?'<span class="chip">⏱ '+(+t.mins)+' د</span>':'')+'</div>'+
+      '<div class="t">'+esc(t.title)+'</div>'+
+      (t.desc?'<div class="d">'+esc(t.desc)+'</div>':'')+
+      (t.type==="hidden"&&st.done&&t.hidden_goal?'<div class="reveal">🎯 الهدف الحقيقي: '+esc(t.hidden_goal)+'</div>':'')+
+      '<div class="acts">'+doneCtl+go+'</div>'+
+      '<div class="note"><input data-note placeholder="ملاحظة قصيرة…" value="'+esc(st.note||"")+'"><button class="btn ghost" data-savenote>حفظ</button></div>'+
+    '</div>';
+  }
+  function wire(root){
+    root.querySelectorAll(".card").forEach(c=>{
+      const id=c.dataset.id, sc=c.dataset.scope;
+      const chk=c.querySelector("[data-chk]"); if(chk) chk.onchange=()=>setState(sc,id,{done:chk.checked});
+      const sent=c.querySelector("[data-sent]"); if(sent) sent.onclick=()=>setState(sc,id,{done:true});
+      const undo=c.querySelector("[data-undo]"); if(undo) undo.onclick=()=>setState(sc,id,{done:false});
+      const sv=c.querySelector("[data-savenote]"), inp=c.querySelector("[data-note]");
+      sv.onclick=()=>setState(sc,id,{note:inp.value.trim()});
+      inp.onkeydown=e=>{ if(e.key==="Enter") sv.click(); };
+    });
+  }
+
+  function renderHero(){
+    const wi=weekIdx(), w=plan.weeks[wi], mins=plan.daily.reduce((a,t)=>a+(+t.mins||0),0);
+    $("hero").innerHTML=
+      '<div class="stat"><b>'+dayNum()+'</b><span>اليوم رقم (من '+(plan.weeks.length?Math.max(30,plan.weeks.length*7-5):30)+')</span></div>'+
+      '<div class="stat"><b>'+dailyDone(today())+'/'+plan.daily.length+'</b><span>روتين النهارده · '+mins+' د</span></div>'+
+      '<div class="stat"><b>🔥 '+streak()+'</b><span>أيام متتالية كاملة</span></div>'+
+      (w?'<div class="stat"><b>'+weekPct(w)+'%</b><span>الأسبوع '+w.n+'</span></div>':'');
+  }
+  function renderTabs(){
+    const T=[["today","☀️ النهارده"],["week","📅 الأسبوع"],["all","🗺️ كل الخطة"],["progress","📈 تقدّمي"]];
+    $("tabs").innerHTML=T.map(s=>'<button data-k="'+s[0]+'" class="'+(s[0]===active?"on":"")+'">'+s[1]+'</button>').join("");
+    $("tabs").querySelectorAll("button").forEach(b=>b.onclick=()=>{ active=b.dataset.k; openWeek=null; render(); });
+  }
+  function weekView(wi){
+    const w=plan.weeks[wi]; if(!w) return '<div class="empty">'+EMPTY+'</div>';
+    const mins=w.tasks.reduce((a,t)=>a+(+t.mins||0),0);
+    return '<div class="sec-h"><h2>'+esc(w.title)+'</h2><span class="muted">'+weekPct(w)+'% · '+w.tasks.length+' مهام · ~'+mins+' د</span></div>'+
+      (w.goal?'<p class="lede" style="margin:-4px 0 10px">🎯 '+esc(w.goal)+'</p>':'')+
+      (w.tasks.length?'<div class="grid">'+w.tasks.map(t=>taskCard(t,"w")).join("")+'</div>':'<div class="empty">'+EMPTY+'</div>');
+  }
+  function render(){
+    renderHero(); renderTabs();
+    const body=$("body");
+    if(active==="today"){
+      const mins=plan.daily.reduce((a,t)=>a+(+t.mins||0),0);
+      body.innerHTML='<div class="sec-h"><h2>الروتين اليومي</h2><span class="muted">يتكرر كل يوم · ~'+mins+' دقيقة</span></div>'+
+        (plan.daily.length?'<div class="grid">'+plan.daily.map(t=>taskCard(t,"d")).join("")+'</div>':'<div class="empty">'+EMPTY+'</div>');
+    } else if(active==="week"){
+      body.innerHTML=weekView(weekIdx());
+    } else if(active==="all"){
+      if(openWeek!==null){ body.innerHTML='<button class="btn ghost" id="backW" style="margin-bottom:10px">← كل الأسابيع</button>'+weekView(openWeek); $("backW").onclick=()=>{ openWeek=null; render(); }; }
+      else {
+        const cur=weekIdx();
+        body.innerHTML=plan.weeks.length?'<div class="grid">'+plan.weeks.map((w,i)=>
+          '<div class="wk'+(i===cur?" cur":"")+'" data-wi="'+i+'"><div class="wt">'+esc(w.title)+(i===cur?' · <span style="color:var(--teal)">الحالي</span>':'')+'</div>'+
+          '<div class="wg">'+esc(w.goal||"")+'</div><div class="bar"><span style="width:'+weekPct(w)+'%"></span></div>'+
+          '<div class="wg">'+weekPct(w)+'% · '+w.tasks.length+' مهام</div></div>').join("")+'</div>':'<div class="empty">'+EMPTY+'</div>';
+        body.querySelectorAll(".wk").forEach(el=>el.onclick=()=>{ openWeek=+el.dataset.wi; render(); });
+      }
+    } else {
+      const total=Math.max(30, dayNum()); const s=parseKey(plan.start); let cells="";
+      for(let i=0;i<Math.min(total,42);i++){ const d=new Date(s); d.setDate(s.getDate()+i); const k=dayKey(d), n=dailyDone(k);
+        const cls=plan.daily.length&&n>=plan.daily.length?"full":(n?"part":""); cells+='<i class="'+cls+(k===today()?" today":"")+'" title="'+k+'">'+(i+1)+'</i>'; }
+      body.innerHTML='<div class="sec-h"><h2>الروتين اليومي — كل يوم</h2><span class="muted">أخضر = كامل · أصفر = جزء</span></div><div class="days">'+cells+'</div>'+
+        '<div class="sec-h" style="margin-top:18px"><h2>إنجاز كل أسبوع</h2></div>'+
+        plan.weeks.map(w=>'<div style="margin:8px 0"><div class="meta" style="justify-content:space-between"><b>'+esc(w.title)+'</b><span>'+weekPct(w)+'%</span></div><div class="bar"><span style="width:'+weekPct(w)+'%"></span></div></div>').join("");
+    }
+    wire(body);
+  }
+
+  onAuthStateChanged(auth, async user=>{
+    document.documentElement.style.visibility="visible";
+    if(!(user&&user.email)){ if(window.self===window.top) location.replace("app.html"); else $("status").textContent="… بيحمّل تسجيل الدخول"; return; }
+    board=boardOverride||user.email.toLowerCase();
+    if(boardOverride&&boardOverride!==user.email.toLowerCase()) $("hTitle").textContent="خطة الطالب: "+boardOverride;
+    try{
+      const b=await loadBundle();
+      if(b.selfplan){ plan=norm(b.selfplan); render(); $("status").textContent=""; }
+      else { plan=seed(); render(); await mutate(()=>{}, "اتجهّزت خطتك ✓"); }   // first visit: seed default plan
+    }catch(e){ $("status").textContent="خطأ تحميل: "+(e.code||e.message); }
+  });
+</script>
+</body>
+</html>

@@ -339,7 +339,7 @@
 <body>
 <div class="wrap">
   <header>
-    <p class="eyebrow">Personal curriculum · A2 → B1</p>
+    <p class="eyebrow">Personal curriculum · A2 → B1 · <a href="plan.html" target="_top" style="color:inherit">🗓️ خطتي الذاتية</a></p>
     <h1>Mohammed — English Curriculum</h1>
     <p class="lede">Tap <strong>▶</strong> on any word to hear it. <span class="ar">دوس على ▶ عشان تسمع أي كلمة أو صوت.</span></p>
   </header>
@@ -1926,6 +1926,17 @@
   gstatus=load(GST,{}); unitsProg=load(UPROG,{}); backfillUnitWords();
   renderDay(); renderTasks(); renderTaskStats(); renderLog(); checkImport();
   renderPicker(); renderMistakes(); renderVocab(); renderProgress(); renderGrammar(); renderJourney(); renderIdeas(); buildGroups(); applySettings(); updateBadge();
+
+  // deep links from the self-study plan: #tab=vocab · #game=tobe · #unit=3
+  function openHash(){
+    const h=decodeURIComponent((location.hash||'').slice(1)); if(!h) return;
+    const [k,v]=h.split('=');
+    const showTab=key=>{ const t=document.querySelector('.tab[data-panel="p-'+key+'"]'); if(!t) return false; activeGroup=groupOf(key); updateGroupNav(); showGroupTabs(false); t.click(); return true; };
+    if(k==='tab') showTab(v);
+    else if(k==='game' && GAMES[v]){ activeGroup=groupOf('games'); updateGroupNav(); showGroupTabs(false); goToGame(v); }
+    else if(k==='unit'){ const id=+v; if(showTab('journey') && UNITS.some(u=>u.id===id)) openUnit(id); }
+  }
+  openHash(); window.addEventListener('hashchange',openHash);
 
   // ---- theme (shared with the app shell via localStorage 'eb_theme') ----
   function applyTheme(){ let th; try{ th=localStorage.getItem('eb_theme'); }catch(e){} if(th) document.documentElement.setAttribute('data-theme',th); else document.documentElement.removeAttribute('data-theme'); }

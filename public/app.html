@@ -210,6 +210,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="eew-book1.js"></script>
+<script src="plan-data.js"></script>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
   import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut }
@@ -501,7 +502,8 @@
       {k:'grammar',label:'📐 قواعد',render:renderGrammarS},
       {k:'journey',label:'🗺️ الرحلة',render:renderJourneyS},
       {k:'mistakes',label:'🧠 أخطاء',render:renderMistakesS},
-      {k:'settings',label:'⚙️ إعدادات',render:renderSettingsS}
+      {k:'settings',label:'⚙️ إعدادات',render:renderSettingsS},
+      {k:'selfplan',label:'🗓️ الخطة الذاتية',render:renderSelfplanS}
     ];
     let active='profile';
     function renderNav(){
@@ -620,6 +622,72 @@
     }
 
     // ---------- SETTINGS ----------
+    // ---------- SELF-STUDY PLAN (bundle.selfplan) ----------
+    let spTab='daily', spEdit=null;
+    const SP_TYPES=[['app','📱 داخل التطبيق'],['external','🌐 مصدر برّه'],['produce','📤 تسليم'],['hidden','🎭 تحدّي']];
+    function spSeed(){ const p=JSON.parse(JSON.stringify(window.DEFAULT_PLAN||{daily:[],weeks:[]})); p.start=dayKey(new Date()); p.log={}; p.wlog={}; return p; }
+    function spNorm(p){ return Object.assign({start:dayKey(new Date()),daily:[],weeks:[],log:{},wlog:{}},p||{}); }
+    function renderSelfplanS(box){
+      const sp=b.selfplan?spNorm(b.selfplan):null;
+      if(!sp){
+        box.innerHTML=ctl('🗓️ الخطة الذاتية','<button class="btn solid" id="spInit">جهّز الخطة الافتراضية (٣٠ يوم)</button>','الطالب لسه ما فتحش صفحة الخطة. أول ما يفتحها هتتجهّز تلقائي، أو جهّزها من هنا.');
+        $("spInit").onclick=()=>mutate(nb=>{ nb.selfplan=spSeed(); });
+        return;
+      }
+      const tabs=[['daily','🔁 يومي']].concat(sp.weeks.map((w,i)=>['w'+i,'أسبوع '+(w.n||i+1)])).concat([['log','📋 السجل']]);
+      let html=ctl('📆 عام',
+        '<div class="rowf"><span class="sub" style="margin:0">تاريخ البداية</span><input type="date" id="spStart" class="fld" value="'+esc(sp.start)+'"><button class="btn solid" id="spStartSave">حفظ</button><button class="btn red" id="spReset">رجّع الافتراضي</button></div>',
+        'البداية بتحدد «اليوم رقم» والأسبوع الحالي. <a href="plan.html?board='+encodeURIComponent(u.email)+'" target="_blank" rel="noopener">👁 افتح صفحة خطته</a>')+
+        '<div class="rowf" style="margin:4px 0 2px">'+tabs.map(t=>'<button class="btn sm'+(t[0]===spTab?' solid':'')+'" data-sptab="'+t[0]+'">'+t[1]+'</button>').join('')+'</div>';
+
+      if(spTab==='log'){
+        let rows='';
+        for(let i=0;i<14;i++){
+          const d=new Date(); d.setDate(d.getDate()-i); const k=dayKey(d); if(k<sp.start) break;
+          const l=sp.log[k]||{}, n=sp.daily.filter(t=>l[t.id]&&l[t.id].done).length;
+          const notes=sp.daily.filter(t=>l[t.id]&&l[t.id].note).map(t=>'<div class="sub" style="margin:2px 0">• '+esc(t.title)+': '+esc(l[t.id].note)+'</div>').join('');
+          rows+='<div class="listrow" style="flex-wrap:wrap"><b style="direction:ltr;unicode-bidi:isolate">'+k+'</b><span>'+(sp.daily.length&&n>=sp.daily.length?'✅ ':'')+n+'/'+sp.daily.length+'</span>'+(notes?'<div style="flex-basis:100%">'+notes+'</div>':'')+'</div>';
+        }
+        html+=ctl('📋 آخر ١٤ يوم — الروتين اليومي', rows||'<p class="sub">مفيش أيام لسه.</p>');
+        html+=sp.weeks.map(w=>ctl('📅 '+esc(w.title),
+          w.tasks.map(t=>{ const s=sp.wlog[t.id]||{}; return '<div class="listrow" style="flex-wrap:wrap"><span>'+(s.done?'✅':'⬜')+' '+esc(t.title)+'</span>'+(s.note?'<div class="sub" style="flex-basis:100%;margin:0">📝 '+esc(s.note)+'</div>':'')+'</div>'; }).join('')||'<p class="sub">مفيش مهام.</p>')).join('');
+        box.innerHTML=html;
+      } else {
+        const wi=spTab==='daily'?-1:+spTab.slice(1), wk=wi>=0?sp.weeks[wi]:null;
+        const list=wk?wk.tasks:sp.daily, ed=spEdit?list.find(t=>t.id===spEdit):null, v=ed||{};
+        if(wk) html+=ctl('📝 بيانات الأسبوع',
+          '<div class="rowf"><input id="spWTitle" class="fld" value="'+esc(wk.title)+'" placeholder="عنوان الأسبوع"></div>'+
+          '<div class="rowf" style="margin-top:8px"><input id="spWGoal" class="fld" value="'+esc(wk.goal||'')+'" placeholder="هدف الأسبوع"><button class="btn" id="spWSave">حفظ</button></div>');
+        html+=ctl((wk?'✅ مهام الأسبوع':'🔁 الروتين اليومي')+' ('+list.length+')',
+          list.map(t=>'<div class="listrow"><span>'+((SP_TYPES.find(x=>x[0]===t.type)||SP_TYPES[0])[1].split(' ')[0])+' '+esc(t.title)+' <small style="color:var(--faint)">'+(+t.mins||0)+' د</small></span>'+
+            '<button class="btn sm gap" data-spedit="'+esc(t.id)+'">✏️</button><button class="btn sm red" data-spdel="'+esc(t.id)+'">✕</button></div>').join('')||'<p class="sub">مفيش مهام.</p>');
+        html+=ctl(ed?'✏️ تعديل مهمة':'➕ مهمة جديدة',
+          '<div class="field" style="margin:0 0 8px"><input id="spT" class="fld" placeholder="العنوان" value="'+esc(v.title||'')+'"></div>'+
+          '<div class="field" style="margin:0 0 8px"><textarea id="spD" class="fld" rows="2" placeholder="الوصف / التعليمات">'+esc(v.desc||'')+'</textarea></div>'+
+          '<div class="rowf"><select id="spTy" class="fld">'+SP_TYPES.map(x=>'<option value="'+x[0]+'"'+((v.type||'app')===x[0]?' selected':'')+'>'+x[1]+'</option>').join('')+'</select>'+
+          '<input id="spM" class="fld" type="number" min="0" placeholder="دقايق" value="'+esc(v.mins||'')+'"></div>'+
+          '<div class="rowf" style="margin-top:8px"><input id="spL" class="fld" dir="ltr" placeholder="curriculum.html#game=tobe  أو  https://…" value="'+esc(v.link||'')+'"></div>'+
+          '<div class="rowf" style="margin-top:8px"><input id="spH" class="fld" placeholder="🎭 الهدف الحقيقي (للتحدّي بس)" value="'+esc(v.hidden_goal||'')+'"></div>'+
+          '<div class="rowf" style="margin-top:10px"><button class="btn solid" id="spSave">'+(ed?'حفظ التعديل':'ضيف')+'</button>'+(ed?'<button class="btn" id="spCancel">إلغاء</button>':'')+'</div>',
+          'روابط داخل التطبيق: curriculum.html#tab=vocab · #game=simplecont · #unit=3');
+        box.innerHTML=html;
+        const target=nb=>{ nb.selfplan=spNorm(nb.selfplan||spSeed()); return wi<0?nb.selfplan.daily:((nb.selfplan.weeks[wi]||{}).tasks||[]); };
+        box.querySelectorAll('[data-spedit]').forEach(x=>x.onclick=()=>{ spEdit=x.dataset.spedit; renderActive(); });
+        box.querySelectorAll('[data-spdel]').forEach(x=>x.onclick=()=>{ if(!confirm('تمسح المهمة؟'))return; const id=x.dataset.spdel; mutate(nb=>{ const l=target(nb), i=l.findIndex(t=>t.id===id); if(i>=0)l.splice(i,1); }); });
+        if($("spCancel")) $("spCancel").onclick=()=>{ spEdit=null; renderActive(); };
+        $("spSave").onclick=()=>{
+          const title=$("spT").value.trim(); if(!title){ toast('اكتب العنوان'); return; }
+          const data={title,desc:$("spD").value.trim(),type:$("spTy").value,mins:+$("spM").value||0,link:$("spL").value.trim(),hidden_goal:$("spH").value.trim()};
+          const eid=spEdit; spEdit=null;
+          mutate(nb=>{ const l=target(nb), t=eid&&l.find(x=>x.id===eid); if(t) Object.assign(t,data); else l.push(Object.assign({id:'t'+Date.now().toString(36)},data)); });
+        };
+        if($("spWSave")) $("spWSave").onclick=()=>{ const tt=$("spWTitle").value.trim(), gg=$("spWGoal").value.trim(); mutate(nb=>{ nb.selfplan=spNorm(nb.selfplan); const w=nb.selfplan.weeks[wi]; if(w){ w.title=tt||w.title; w.goal=gg; } }); };
+      }
+      box.querySelectorAll('[data-sptab]').forEach(x=>x.onclick=()=>{ spTab=x.dataset.sptab; spEdit=null; renderActive(); });
+      $("spStartSave").onclick=()=>{ const val=$("spStart").value; if(!val)return; mutate(nb=>{ nb.selfplan=spNorm(nb.selfplan); nb.selfplan.start=val; }); };
+      $("spReset").onclick=()=>{ if(!confirm('هترجّع الخطة الافتراضية وتمسح سجل الطالب كله. متأكد؟'))return; spTab='daily'; spEdit=null; mutate(nb=>{ nb.selfplan=spSeed(); }); };
+    }
+
     function renderSettingsS(box){
       const st=b.settings||{}, hidden=st.hiddenTabs||[];
       const habits=(Array.isArray(st.habits)&&st.habits.length)?st.habits:DEFAULT_HABITS;

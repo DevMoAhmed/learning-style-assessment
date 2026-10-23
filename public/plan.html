@@ -94,6 +94,11 @@
   .days i.full{background:var(--teal-btn);color:#fff;}
   .days i.part{background:color-mix(in srgb,var(--gold) 55%,var(--surface-2));color:var(--ink);}
   .days i.today{outline:2px solid var(--ink);}
+  .saved{color:var(--teal);font-weight:800;font-size:.85rem;align-self:center;white-space:nowrap;}
+  .done-chip{background:var(--teal-btn);color:#fff;border-color:var(--teal-btn);}
+  .card.done{box-shadow:inset 4px 0 0 var(--teal-btn);}
+  #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--teal-btn);color:#fff;padding:10px 20px;border-radius:99px;font-weight:800;opacity:0;transition:.2s;pointer-events:none;z-index:99;}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
   #status{font-size:.8rem;color:var(--faint);margin-top:6px;min-height:1em;}
 </style>
 </head>
@@ -105,7 +110,7 @@
     <a href="curriculum.html" target="_top">← المنهج</a>
   </div>
   <div class="hero" id="hero"></div>
-  <div id="status">… بيحمّل</div>
+  <div id="toast"></div><div id="status">… بيحمّل</div>
   <nav class="tabs" id="tabs"></nav>
   <main id="body"></main>
 </div>
@@ -160,9 +165,10 @@
     try{
       const b=await loadBundle(); const sp=b.selfplan?norm(b.selfplan):seed(); fn(sp); b.selfplan=sp;
       await setDoc(doc(db,"boards",board),{bundle:b,at:Date.now()},{merge:true});
-      plan=sp; render(); $("status").textContent=msg||"اتحفظ ✓";
+      plan=sp; render(); flash(msg||"اتحفظ ✓");
     }catch(e){ $("status").textContent="فشل الحفظ: "+(e.code||e.message); }
   }
+  let flashT; function flash(m){ const el=$("toast"); el.textContent=m; el.classList.add("show"); clearTimeout(flashT); flashT=setTimeout(()=>el.classList.remove("show"),1800); }
   // state helpers: daily → plan.log[date][id], weekly → plan.wlog[id]
   const getState=(scope,id)=>scope==="d"?((plan.log[today()]||{})[id]||{}):(plan.wlog[id]||{});
   function setState(scope,id,patch){
@@ -181,12 +187,12 @@
       ? (st.done?'<span class="chip ty-produce">📤 اتبعت ✓</span> <button class="btn ghost" data-undo>تراجع</button>':'<button class="btn" data-sent>بعتّه ✓</button>')
       : '<label class="chk"><input type="checkbox" data-chk'+(st.done?" checked":"")+'> خلّصتها</label>';
     return '<div class="card'+(st.done?" done":"")+'" data-id="'+esc(t.id)+'" data-scope="'+scope+'">'+
-      '<div class="meta"><span class="chip ty-'+esc(t.type||"app")+'">'+ty[0]+' '+ty[1]+'</span>'+(t.mins?'<span class="chip">⏱ '+(+t.mins)+' د</span>':'')+'</div>'+
+      '<div class="meta">'+(st.done?'<span class="chip done-chip">✅ خلصت</span>':'')+'<span class="chip ty-'+esc(t.type||"app")+'">'+ty[0]+' '+ty[1]+'</span>'+(t.mins?'<span class="chip">⏱ '+(+t.mins)+' د</span>':'')+'</div>'+
       '<div class="t">'+esc(t.title)+'</div>'+
       (t.desc?'<div class="d">'+esc(t.desc)+'</div>':'')+
       (t.type==="hidden"&&st.done&&t.hidden_goal?'<div class="reveal">🎯 الهدف الحقيقي: '+esc(t.hidden_goal)+'</div>':'')+
       '<div class="acts">'+doneCtl+go+'</div>'+
-      '<div class="note"><input data-note placeholder="ملاحظة قصيرة…" value="'+esc(st.note||"")+'"><button class="btn ghost" data-savenote>حفظ</button></div>'+
+      '<div class="note"><input data-note data-saved="'+esc(st.note||"")+'" placeholder="ملاحظة قصيرة…" value="'+esc(st.note||"")+'"><button class="btn ghost" data-savenote'+(st.note?' hidden':'')+'>حفظ</button>'+(st.note?'<span class="saved">✓ اتحفظت</span>':'')+'</div>'+
     '</div>';
   }
   function wire(root){
@@ -198,6 +204,7 @@
       const sv=c.querySelector("[data-savenote]"), inp=c.querySelector("[data-note]");
       sv.onclick=()=>setState(sc,id,{note:inp.value.trim()});
       inp.onkeydown=e=>{ if(e.key==="Enter") sv.click(); };
+      inp.oninput=()=>{ const changed=inp.value.trim()!==(inp.dataset.saved||""); sv.hidden=!changed; const tag=c.querySelector(".saved"); if(tag) tag.hidden=changed; };
     });
   }
 

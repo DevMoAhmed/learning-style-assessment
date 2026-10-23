@@ -406,10 +406,11 @@
   <section id="p-vocab" class="panel" role="tabpanel">
     <div class="note ar" dir="rtl">دفتر كلماتك. ضيف أي كلمة جديدة، والدفتر بيراجعها معاك في الوقت الصح (نظام التكرار المتباعد). دوس ▶ تسمعها.</div>
 
-    <div class="stat-row">
+    <div class="stat-row" style="grid-template-columns:repeat(auto-fit,minmax(120px,1fr))">
       <div class="stat"><div class="stat-num" id="vcDue">0</div><div class="stat-lbl ar">مستحقة للمراجعة</div></div>
       <div class="stat"><div class="stat-num" id="vcTotal">0</div><div class="stat-lbl ar">إجمالي الكلمات</div></div>
-      <div class="stat"><div class="stat-num" id="vcKnown">0</div><div class="stat-lbl ar">اتعلمتها ✓</div></div>
+      <div class="stat"><div class="stat-num" id="vcKnown">0</div><div class="stat-lbl ar">حلّيتها صح ✓</div></div>
+      <div class="stat"><div class="stat-num" id="vcMaster">0</div><div class="stat-lbl ar">أتقنتها ⭐</div></div>
     </div>
 
     <div class="tool-row" id="vGames" style="margin:6px 0 2px">
@@ -1486,7 +1487,8 @@
   function renderVocab(){
     document.getElementById('vcDue').textContent=dueWords().length;
     document.getElementById('vcTotal').textContent=vocab.length;
-    document.getElementById('vcKnown').textContent=vocab.filter(w=>w.box>=6).length;
+    document.getElementById('vcKnown').textContent=vocab.filter(w=>(w.r||0)>=1||w.box>=2).length;
+    document.getElementById('vcMaster').textContent=vocab.filter(w=>w.box>=6).length;
     updateBadge();
     // review starter
     const rc=document.getElementById('reviewCard'); const due=dueWords();
@@ -1502,7 +1504,7 @@
     shown.forEach(w=>{
       const d=document.createElement('div'); d.className='vitem';
       const top=document.createElement('div'); top.className='vtop';
-      const st=boxStatus(w.box);
+      const st=boxStatus(w);
       top.innerHTML='<span class="vword">'+w.word+'</span>'+(w.mean?'<span class="vmean">'+w.mean+'</span>':'')+(w.tag?'<span class="vtag">'+w.tag+'</span>':'')+'<span class="status '+st[1]+'">'+st[0]+'</span>';
       const pb=document.createElement('button'); pb.className='miniplay'; pb.textContent='▶'; pb.addEventListener('click',()=>say(w.word,0.8));
       const del=document.createElement('button'); del.className='del'; del.textContent='🗑'; del.style.width='28px'; del.style.height='28px';
@@ -1531,7 +1533,7 @@
     }
     card();
   }
-  function boxStatus(box){ if(box>=6)return['اتعلمت ✅','st-done']; if(box>=5)return['قريّب ⭐','st-next']; if(box>=3)return['بيتعلم 📈','st-next']; return['جديدة 🌱','st-later']; }
+  function boxStatus(w){ const box=w.box||1, r=w.r||0; if(box>=6)return['أتقنتها ⭐','st-done']; if(box>=4)return['قريّب ✨','st-next']; if(r>=1||box>=2)return['حلّيتها صح ✓','st-next']; return['جديدة 🌱','st-later']; }
   function advanceWord(w,ok){ if(ok){ w.box=Math.min(6,w.box+1); w.r++; w.due=w.box>=6?'9999-12-31':shiftDate(todayKey(),BOXD[w.box]||30); } else { w.box=1; w.w++; w.due=shiftDate(todayKey(),1); } saveVocab(); }
   // credit a word solved correctly in ANY exercise toward the dictionary/learned progress
   function creditWord(uw,ok){
@@ -1616,7 +1618,7 @@
     const cur=streak(); const best=Math.max(load('m_best',0),cur); save('m_best',best);
     const set=(id,v)=>{ const e=document.getElementById(id); if(e)e.textContent=v; };
     set('rpDays',days); set('rpHours',fmt(weekHours())); set('rpWords',vocab.length);
-    set('rpStreak',cur); set('rpBest',best); set('rpKnown',vocab.filter(w=>w.box>=6).length);
+    set('rpStreak',cur); set('rpBest',best); set('rpKnown',vocab.filter(w=>(w.r||0)>=1||w.box>=2).length);
   }
 
   // ================= CLOUD SYNC (Firebase) =================

@@ -144,26 +144,29 @@
   const parseKey=k=>{ const [y,m,d]=k.split("-").map(Number); return new Date(y,m-1,d); };
   const today=()=>dayKey(new Date());
   const boardOverride=(new URLSearchParams(location.search).get("board")||"").trim().toLowerCase();
-  let board=null, plan=null, active="today", openWeek=null;
+  let board=null, plan=null, active="today", openWeek=null, act={};   // act = bundle.active (shared 🔥 days with the curriculum)
 
   function norm(p){ p=Object.assign({start:"",daily:[],weeks:[],log:{},wlog:{}},p||{}); if(!p.start)p.start=today(); return p; }
   function seed(){ const p=JSON.parse(JSON.stringify(window.DEFAULT_PLAN||{daily:[],weeks:[]})); p.start=today(); p.log={}; p.wlog={}; return p; }
   function dayNum(){ return Math.max(1, Math.floor((parseKey(today())-parseKey(plan.start))/86400000)+1); }
   function weekIdx(){ if(!plan.weeks.length) return -1; return Math.min(plan.weeks.length, Math.ceil(dayNum()/7))-1; }
   function dailyDone(k){ const l=plan.log[k]||{}; return plan.daily.filter(t=>l[t.id]&&l[t.id].done).length; }
+  // a day counts if he did ANY learning on it (plan task here, or games/words on the site)
+  const isActive=k=>!!act[k]||dailyDone(k)>0;
   function streak(){
-    if(!plan.daily.length) return 0;
-    let n=0, d=new Date(); if(dailyDone(dayKey(d))<plan.daily.length) d.setDate(d.getDate()-1);
-    while(dailyDone(dayKey(d))>=plan.daily.length && dayKey(d)>=plan.start){ n++; d.setDate(d.getDate()-1); }
+    let n=0, d=new Date(); if(!isActive(dayKey(d))) d.setDate(d.getDate()-1);
+    while(isActive(dayKey(d))){ n++; d.setDate(d.getDate()-1); }
     return n;
   }
   const weekPct=w=>w.tasks.length?Math.round(w.tasks.filter(t=>plan.wlog[t.id]&&plan.wlog[t.id].done).length/w.tasks.length*100):0;
 
   async function loadBundle(){ const s=await getDoc(doc(db,"boards",board)); return s.exists()?(s.data().bundle||{}):{}; }
   // read-modify-write: only selfplan changes; every other bundle field is preserved
-  async function mutate(fn,msg){
+  async function mutate(fn,msg,markAct){
     try{
       const b=await loadBundle(); const sp=b.selfplan?norm(b.selfplan):seed(); fn(sp); b.selfplan=sp;
+      if(markAct){ b.active=b.active||{}; b.active[today()]=1; }
+      act=b.active||{};
       await setDoc(doc(db,"boards",board),{bundle:b,at:Date.now()},{merge:true});
       plan=sp; render(); flash(msg||"اتحفظ ✓");
     }catch(e){ $("status").textContent="فشل الحفظ: "+(e.code||e.message); }
@@ -175,7 +178,7 @@
     mutate(sp=>{
       let s; if(scope==="d"){ const k=today(); sp.log[k]=sp.log[k]||{}; s=sp.log[k][id]=sp.log[k][id]||{}; } else { s=sp.wlog[id]=sp.wlog[id]||{}; }
       Object.assign(s,patch); if("done" in patch) s.doneAt=patch.done?Date.now():null;
-    }, patch.done?"برافو ✓":"اتحفظ ✓");
+    }, patch.done?"برافو ✓":"اتحفظ ✓", patch.done===true);
   }
 
   function taskCard(t,scope){
@@ -213,7 +216,7 @@
     $("hero").innerHTML=
       '<div class="stat"><b>'+dayNum()+'</b><span>اليوم رقم (من '+(plan.weeks.length?Math.max(30,plan.weeks.length*7-5):30)+')</span></div>'+
       '<div class="stat"><b>'+dailyDone(today())+'/'+plan.daily.length+'</b><span>روتين النهارده · '+mins+' د</span></div>'+
-      '<div class="stat"><b>🔥 '+streak()+'</b><span>أيام متتالية كاملة</span></div>'+
+      '<div class="stat"><b>🔥 '+streak()+'</b><span>أيام حماسة متتالية</span></div>'+
       (w?'<div class="stat"><b>'+weekPct(w)+'%</b><span>الأسبوع '+w.n+'</span></div>':'');
   }
   function renderTabs(){
@@ -264,7 +267,7 @@
     board=boardOverride||user.email.toLowerCase();
     if(boardOverride&&boardOverride!==user.email.toLowerCase()) $("hTitle").textContent="خطة الطالب: "+boardOverride;
     try{
-      const b=await loadBundle();
+      const b=await loadBundle(); act=b.active||{};
       if(b.selfplan){ plan=norm(b.selfplan); render(); $("status").textContent=""; }
       else { plan=seed(); render(); await mutate(()=>{}, "اتجهّزت خطتك ✓"); }   // first visit: seed default plan
     }catch(e){ $("status").textContent="خطأ تحميل: "+(e.code||e.message); }

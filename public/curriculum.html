@@ -944,12 +944,15 @@
   let logData=load(LS.log,{});
   let habitsDone=load(LS.habitsDone,{});
   let goal=load(LS.goal,7);
+  // any learning activity marks the day active (games, words, quizzes, tasks, plan) → drives the 🔥 streak
+  const ACT='m_active'; let actDays=load(ACT,{});
+  function markActive(){ const k=todayKey(); if(actDays[k]) return; actDays[k]=1; save(ACT,actDays); try{ renderTaskStats(); renderLogStats(); renderProgress(); }catch(e){} }
 
   // streak: consecutive days (ending today or yesterday) with activity
   function activeOn(key){
     const h=(logData[key]&&logData[key].h>0);
     const hb=(habitsDone[key]&&habitsDone[key].length>0);
-    return h||hb;
+    return h||hb||!!actDays[key];
   }
   function streak(){
     let s=0; const d=new Date();
@@ -974,7 +977,7 @@
       cb.addEventListener('change',()=>{
         let arr=habitsDone[viewDate]||[];
         if(cb.checked){ if(!arr.includes(id))arr.push(id); } else { arr=arr.filter(x=>x!==id); }
-        habitsDone[viewDate]=arr; save(LS.habitsDone,habitsDone); renderHabits(); renderTaskStats(); renderLogStats();
+        habitsDone[viewDate]=arr; save(LS.habitsDone,habitsDone); if(arr.length) markActive(); renderHabits(); renderTaskStats(); renderLogStats();
       });
       const sp=document.createElement('span'); sp.className='txt ar'; sp.dir='rtl'; sp.textContent=label;
       li.appendChild(cb); li.appendChild(sp); ul.appendChild(li);
@@ -1003,7 +1006,7 @@
   function taskItem(t,hideDue){
     const li=document.createElement('div'); li.className='titem'+(t.done?' done':'');
     const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=t.done;
-    cb.addEventListener('change',()=>{ t.done=cb.checked; save(LS.tasks,tasks); refreshTasks(); });
+    cb.addEventListener('change',()=>{ t.done=cb.checked; save(LS.tasks,tasks); if(t.done) markActive(); refreshTasks(); });
     const dot=document.createElement('span'); dot.className='cat-dot cd-'+t.cat;
     const sp=document.createElement('span'); sp.className='txt'; sp.textContent=t.text;
     li.appendChild(cb); li.appendChild(dot); li.appendChild(sp);
@@ -1155,7 +1158,7 @@
   // ================= MISTAKES BANK =================
   const MIST='m_mistakes';
   let mistakes=load(MIST,[]);
-  function addMistake(q,ans,why){ mistakes.unshift({q,ans,why:why||'',ts:todayKey()}); if(mistakes.length>120)mistakes.pop(); save(MIST,mistakes); }
+  function addMistake(q,ans,why){ markActive(); mistakes.unshift({q,ans,why:why||'',ts:todayKey()}); if(mistakes.length>120)mistakes.pop(); save(MIST,mistakes); }
   function renderMistakes(){
     const ul=document.getElementById('mistakesList'); ul.innerHTML='';
     if(!mistakes.length){ ul.innerHTML='<li class="ar" dir="rtl" style="color:var(--faint);border:none">مفيش أخطاء لسه — برافو! 🎉</li>'; return; }
@@ -1323,7 +1326,7 @@
         const b=document.createElement('button'); b.className='g-opt'; b.textContent=o;
         b.addEventListener('click',()=>{
           if(fb.classList.contains('show'))return;
-          const ok=(o===q.a); b.classList.add(ok?'correct':'wrong');
+          const ok=(o===q.a); markActive(); b.classList.add(ok?'correct':'wrong');
           if(ok){state.score++;} else { [...ob.children].forEach(c=>{if(c.textContent===q.a)c.classList.add('correct');}); addMistake(q.s,q.a,q.why); }
           say(q.s.replace('___',q.a),0.85);
           fb.className='g-fb show '+(ok?'ok':'no');
@@ -1356,7 +1359,7 @@
       function check(){
         if(chosen.length!==tokens.length)return;
         const built=chosen.map(c=>c.w).join(' '); const ok=(built===g.items[state.i].s);
-        if(ok){state.score++;} else { addMistake(g.items[state.i].s,'(الترتيب الصح)',''); }
+        markActive(); if(ok){state.score++;} else { addMistake(g.items[state.i].s,'(الترتيب الصح)',''); }
         say(g.items[state.i].s,0.85);
         fb.className='g-fb show '+(ok?'ok':'no');
         fb.innerHTML=(ok?'✅ صح! ':'❌ الصح: <b>'+g.items[state.i].s+'</b>');
@@ -1394,6 +1397,7 @@
     function tryPlace(r,row){
       const ff=box.querySelector('#ff');
       if(!sel){ ff.className='g-fb show no'; ff.textContent='اختار كلمة الأول 👇'; return; }
+      markActive();
       if(sel.w===r.w){
         sel._done=true; const slot=row.querySelector('.fl-slot'); slot.textContent=r.w; slot.classList.add('filled');
         tone(pitchFor(r.pct),0.3); say(r.ex,0.85); placed++; sel=null;
@@ -1446,7 +1450,7 @@
         btns.forEach(b=>b.addEventListener('click',()=>{
           if(fb.classList.contains('show'))return;
           const ok=(valOf(b)===q.a); b.classList.add(ok?'correct':'wrong');
-          if(ok)score++; else { btns.forEach(x=>{ if(valOf(x)===q.a)x.classList.add('correct'); }); addMistake(q.s,q.a,q.why); }
+          markActive(); if(ok)score++; else { btns.forEach(x=>{ if(valOf(x)===q.a)x.classList.add('correct'); }); addMistake(q.s,q.a,q.why); }
           if(lv.type==='form') say(q.s.replace('___',q.a),0.85);
           fb.className='g-fb show '+(ok?'ok':'no');
           fb.innerHTML=(ok?'✅ صح! ':'❌ الصح: <b>'+q.a+'</b> ')+'<span class="arp">'+(q.why||'')+'</span>';
@@ -1527,16 +1531,16 @@
       rc.querySelector('#rvShow').addEventListener('click',()=>{
         rc.querySelector('#rvBack').hidden=false;
         rc.querySelector('#rvBtns').innerHTML='<button class="rev-again" id="rvAgain">مش فاكرها</button><button class="rev-good" id="rvGood">فاكرها ✓</button>';
-        rc.querySelector('#rvAgain').addEventListener('click',()=>{ w.box=1; w.due=shiftDate(todayKey(),1); w.w++; saveVocab(); qi++; card(); });
-        rc.querySelector('#rvGood').addEventListener('click',()=>{ w.box=Math.min(6,w.box+1); w.r++; w.due=w.box>=6?'9999-12-31':shiftDate(todayKey(),BOXD[w.box]||30); saveVocab(); qi++; card(); });
+        rc.querySelector('#rvAgain').addEventListener('click',()=>{ markActive(); w.box=1; w.due=shiftDate(todayKey(),1); w.w++; saveVocab(); qi++; card(); });
+        rc.querySelector('#rvGood').addEventListener('click',()=>{ markActive(); w.box=Math.min(6,w.box+1); w.r++; w.due=w.box>=6?'9999-12-31':shiftDate(todayKey(),BOXD[w.box]||30); saveVocab(); qi++; card(); });
       });
     }
     card();
   }
   function boxStatus(w){ const box=w.box||1, r=w.r||0; if(box>=6)return['أتقنتها ⭐','st-done']; if(box>=4)return['قريّب ✨','st-next']; if(r>=1||box>=2)return['حلّيتها صح ✓','st-next']; return['جديدة 🌱','st-later']; }
-  function advanceWord(w,ok){ if(ok){ w.box=Math.min(6,w.box+1); w.r++; w.due=w.box>=6?'9999-12-31':shiftDate(todayKey(),BOXD[w.box]||30); } else { w.box=1; w.w++; w.due=shiftDate(todayKey(),1); } saveVocab(); }
+  function advanceWord(w,ok){ markActive(); if(ok){ w.box=Math.min(6,w.box+1); w.r++; w.due=w.box>=6?'9999-12-31':shiftDate(todayKey(),BOXD[w.box]||30); } else { w.box=1; w.w++; w.due=shiftDate(todayKey(),1); } saveVocab(); }
   // credit a word solved correctly in ANY exercise toward the dictionary/learned progress
-  function creditWord(uw,ok){
+  function creditWord(uw,ok){ markActive();
     if(typeof vocab==='undefined'||!uw||!uw.w) return;
     let v=vocab.find(x=>(x.word||'').toLowerCase()===uw.w.toLowerCase());
     if(!v){ v=mkWord(uw.w,uw.ar||'',uw.ex||'',uw.tag||''); vocab.push(v); }
@@ -1614,7 +1618,7 @@
   // ================= PROGRESS REPORT + best streak =================
   function renderProgress(){
     const tk=todayKey(); let days=0; const d=new Date();
-    for(let i=0;i<7;i++){ const k=dayKey(d); if((logData[k]&&logData[k].h>0)||(habitsDone[k]&&habitsDone[k].length))days++; d.setDate(d.getDate()-1); }
+    for(let i=0;i<7;i++){ const k=dayKey(d); if(activeOn(k))days++; d.setDate(d.getDate()-1); }
     const cur=streak(); const best=Math.max(load('m_best',0),cur); save('m_best',best);
     const set=(id,v)=>{ const e=document.getElementById(id); if(e)e.textContent=v; };
     set('rpDays',days); set('rpHours',fmt(weekHours())); set('rpWords',vocab.length);
@@ -1623,8 +1627,8 @@
 
   // ================= CLOUD SYNC (Firebase) =================
   const SETK='m_settings';
-  function bundleAll(){ return {tasks:load(LS.tasks,[]),log:load(LS.log,{}),habitsDone:load(LS.habitsDone,{}),goal:load(LS.goal,7),vocab:load(LSV,[]),mistakes:load(MIST,[]),best:load('m_best',0),gstatus:load(GST,{}),units:load(UPROG,{}),settings:load(SETK,{})}; }
-  function applyBundle(b){ if(!b)return; if(b.tasks)save(LS.tasks,b.tasks); if(b.log)save(LS.log,b.log); if(b.habitsDone)save(LS.habitsDone,b.habitsDone); if(b.goal!=null)save(LS.goal,b.goal); if(b.vocab)save(LSV,b.vocab); if(b.mistakes)save(MIST,b.mistakes); if(b.best!=null)save('m_best',b.best); if(b.gstatus)save(GST,b.gstatus); if(b.units)save(UPROG,b.units); if(b.settings)save(SETK,b.settings); }
+  function bundleAll(){ return {tasks:load(LS.tasks,[]),log:load(LS.log,{}),habitsDone:load(LS.habitsDone,{}),goal:load(LS.goal,7),vocab:load(LSV,[]),mistakes:load(MIST,[]),best:load('m_best',0),gstatus:load(GST,{}),units:load(UPROG,{}),settings:load(SETK,{}),active:load(ACT,{})}; }
+  function applyBundle(b){ if(!b)return; if(b.tasks)save(LS.tasks,b.tasks); if(b.log)save(LS.log,b.log); if(b.habitsDone)save(LS.habitsDone,b.habitsDone); if(b.goal!=null)save(LS.goal,b.goal); if(b.vocab)save(LSV,b.vocab); if(b.mistakes)save(MIST,b.mistakes); if(b.best!=null)save('m_best',b.best); if(b.gstatus)save(GST,b.gstatus); if(b.units)save(UPROG,b.units); if(b.settings)save(SETK,b.settings); if(b.active)save(ACT,Object.assign({},b.active,load(ACT,{}))); }
   // ----- grouped nav: 3 groups, each shows its own sub-tabs (no long scroll) -----
   const NAVG=[
     ['learn','📚 اتعلّم',['journey','sounds','grammar','vocab']],
@@ -1668,7 +1672,7 @@
   function applyAndRender(b){
     window.__applyingRemote=true;
     applyBundle(b);
-    tasks=load(LS.tasks,[]); logData=load(LS.log,{}); habitsDone=load(LS.habitsDone,{}); goal=load(LS.goal,7); vocab=load(LSV,[]); mistakes=load(MIST,[]); gstatus=load(GST,{}); unitsProg=load(UPROG,{});
+    tasks=load(LS.tasks,[]); logData=load(LS.log,{}); habitsDone=load(LS.habitsDone,{}); goal=load(LS.goal,7); vocab=load(LSV,[]); mistakes=load(MIST,[]); gstatus=load(GST,{}); unitsProg=load(UPROG,{}); actDays=load(ACT,{});
     const gi2=document.getElementById('goalInput'); if(gi2)gi2.value=goal;
     backfillUnitWords();
     renderDay(); renderTasks(); renderTaskStats(); renderLog(); renderPicker(); renderMistakes(); renderVocab(); renderProgress(); renderGrammar(); renderJourney(); applySettings(); updateBadge();
@@ -2015,7 +2019,7 @@
 
   async function pushNow() {
     if (!curRef) { status('اكتب كود اللوح واضغط اتصال الأول'); return; }
-    try { await setDoc(curRef, { bundle: EB.bundle(), at: Date.now() }); status('اتحفظ على السحابة ✓'); }
+    try { const bb=EB.bundle(); await setDoc(curRef, { bundle: bb, at: Date.now() }, { mergeFields: Object.keys(bb).map(k=>'bundle.'+k).concat(['at']) }); status('اتحفظ على السحابة ✓'); }
     catch (e) { status('فشل الحفظ: ' + (e.code || e.message)); }
   }
 

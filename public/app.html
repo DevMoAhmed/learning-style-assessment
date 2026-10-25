@@ -255,10 +255,13 @@
     b = b || {}; const log = b.log || {};
     let totalH=0, days=0;
     for(const k in log){ const h=(log[k]&&log[k].h)||0; if(h>0){ totalH+=h; days++; } }
+    // a day is active if he logged hours, ticked a habit, or did any learning (games/words/plan → b.active)
+    const act=b.active||{}, hab=b.habitsDone||{};
+    const on=k=>(log[k]&&log[k].h>0)||(hab[k]&&hab[k].length>0)||!!act[k];
     let st=0, d=new Date();
-    if(!(log[dayKey(d)] && log[dayKey(d)].h>0)) d.setDate(d.getDate()-1);
-    while(log[dayKey(d)] && log[dayKey(d)].h>0){ st++; d.setDate(d.getDate()-1); }
-    const lastDay = Object.keys(log).sort().pop() || "—";
+    if(!on(dayKey(d))) d.setDate(d.getDate()-1);
+    while(on(dayKey(d))){ st++; d.setDate(d.getDate()-1); }
+    const lastDay = Object.keys(Object.assign({},log,act)).sort().pop() || "—";
     return { streak:st, best:b.best||0, totalH:Math.round(totalH*10)/10, days,
       vocab:(b.vocab||[]).length, mistakes:(b.mistakes||[]).length, tasks:(b.tasks||[]).length, lastDay };
   }
@@ -464,7 +467,7 @@
     ["Questions","later"],
     ["Comparatives","later"]
   ];
-  function normBundle(b){ return Object.assign({ tasks:[], log:{}, habitsDone:{}, goal:7, vocab:[], mistakes:[], best:0, gstatus:{}, units:{}, settings:{} }, b||{}); }
+  function normBundle(b){ return Object.assign({ tasks:[], log:{}, habitsDone:{}, goal:7, vocab:[], mistakes:[], best:0, gstatus:{}, units:{}, settings:{}, active:{} }, b||{}); }
   const CURR_TABS=[["journey","🗺️ Journey"],["sounds","🔊 Pronunciation"],["grammar","📐 Grammar"],["speaking","💬 Speaking"],["vocab","📚 Vocabulary"],["games","🎮 Games"],["listening","🎧 Listening"],["tasks","✅ Tasks"],["log","⏱️ Log"],["progress","📈 Progress"],["ideas","💡 Ideas"]];
   // Keep identical to DEFAULT_HABITS in curriculum.html
   const DEFAULT_HABITS=["🎧 اسمع بودكاست + shadowing (٢٠ د)","📗 وحدة من تطبيق Busuu (١٠ د)","🎧 درس واحد من موقع Elllo","💬 كلام مع Gemini بالصوت (٥–١٠ د)","🎙️ رسالة صوتية للمعلّم (دقيقة)"];
@@ -553,10 +556,12 @@
       box.innerHTML=
         ctl('🎯 هدف الأسبوع (ساعات)','<div class="rowf"><input id="sGoal" class="fld" type="number" min="1" max="40" value="'+(b.goal||7)+'"><button class="btn solid" id="sGoalSave">حفظ</button></div>')+
         ctl('➕ سجّل ساعات مذاكرة','<div class="rowf"><input id="sHrs" class="fld" type="number" min="0" max="12" step="0.5" placeholder="ساعات"><input id="sDate" class="fld" type="date" value="'+dayKey(new Date())+'"><button class="btn" id="sHrsAdd">أضف</button></div>','بيتحسب في الستريك والتقرير.')+
+        ctl('🔥 أيام الحماسة (الستريك)','<div class="rowf"><span style="font-weight:800">الحالي: '+stats(b).streak+' يوم</span><input id="sActN" class="fld" type="number" min="1" max="60" value="3"><button class="btn solid" id="sActSave">سجّل آخر N يوم</button></div>','بيعلّم آخر N يوم (لحد النهارده) كأيام نشاط — الستريك بيظهر عنده في الموقع والخطة.')+
         ctl('🏆 أطول ستريك','<div class="rowf"><input id="sBest" class="fld" type="number" min="0" value="'+(b.best||0)+'"><button class="btn" id="sBestSave">حفظ</button></div>')+
         '<div class="ctl danger-zone"><h3>🔄 تصفير السجل/الستريك</h3><button class="btn red" id="sReset">صفّر</button></div>';
       $("sGoalSave").onclick=()=>mutate(nb=>nb.goal=Math.max(1,Math.min(40,parseInt($("sGoal").value)||7)));
       $("sHrsAdd").onclick=()=>{ const h=parseFloat($("sHrs").value)||0, d=$("sDate").value||dayKey(new Date()); if(h<=0)return; mutate(nb=>{ const p=(nb.log[d]&&nb.log[d].h)||0; nb.log[d]={h:p+h,note:(nb.log[d]&&nb.log[d].note)||"المعلّم"}; }); };
+      $("sActSave").onclick=()=>{ const n=Math.max(1,Math.min(60,parseInt($("sActN").value)||3)); mutate(nb=>{ nb.active=nb.active||{}; const d=new Date(); for(let i=0;i<n;i++){ nb.active[dayKey(d)]=1; d.setDate(d.getDate()-1); } nb.best=Math.max(nb.best||0,n); }); toast("اتسجّل "+n+" أيام 🔥"); };
       $("sBestSave").onclick=()=>mutate(nb=>nb.best=Math.max(0,parseInt($("sBest").value)||0));
       $("sReset").onclick=()=>{ if(confirm("متأكد؟")) mutate(nb=>{ nb.log={}; nb.best=0; }); };
     }

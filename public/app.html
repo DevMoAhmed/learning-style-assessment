@@ -257,7 +257,7 @@
     for(const k in log){ const h=(log[k]&&log[k].h)||0; if(h>0){ totalH+=h; days++; } }
     // a day is active if he logged hours, ticked a habit, or did any learning (games/words/plan → b.active)
     const act=Object.assign({},b.active||{}), hab=b.habitsDone||{};
-    (b.mistakes||[]).forEach(m=>{ if(m&&m.ts) act[m.ts]=1; });
+    (b.mistakes||[]).forEach(m=>{ if(m&&m.ts&&m.ts<'2026-10-25') act[m.ts]=1; });
     const sp=b.selfplan||{}; Object.keys(sp.log||{}).forEach(k=>{ if(Object.values(sp.log[k]||{}).some(x=>x&&x.done)) act[k]=1; });
     Object.values(sp.wlog||{}).forEach(x=>{ if(x&&x.done&&x.doneAt) act[dayKey(new Date(x.doneAt))]=1; });
     for(const k in hab){ if(hab[k]&&hab[k].length) act[k]=1; }

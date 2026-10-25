@@ -166,9 +166,9 @@
     try{
       const b=await loadBundle(); const sp=b.selfplan?norm(b.selfplan):seed(); fn(sp); b.selfplan=sp;
       if(markAct){ b.active=b.active||{}; b.active[today()]=1; }
-      act=Object.assign({},b.active||{}); (b.mistakes||[]).forEach(m=>{ if(m&&m.ts) act[m.ts]=1; });
+      act=Object.assign({},b.active||{}); (b.mistakes||[]).forEach(m=>{ if(m&&m.ts&&m.ts<'2026-10-25') act[m.ts]=1; });
       await setDoc(doc(db,"boards",board),{bundle:b,at:Date.now()},{merge:true});
-      plan=sp; render(); flash(msg||"اتحفظ ✓");
+      plan=sp; render(); if(msg!==false) flash(msg||"اتحفظ ✓");
     }catch(e){ $("status").textContent="فشل الحفظ: "+(e.code||e.message); }
   }
   let flashT; function flash(m){ const el=$("toast"); el.textContent=m; el.classList.add("show"); clearTimeout(flashT); flashT=setTimeout(()=>el.classList.remove("show"),1800); }
@@ -267,7 +267,7 @@
     board=boardOverride||user.email.toLowerCase();
     if(boardOverride&&boardOverride!==user.email.toLowerCase()) $("hTitle").textContent="خطة الطالب: "+boardOverride;
     try{
-      const b=await loadBundle(); act=Object.assign({},b.active||{}); (b.mistakes||[]).forEach(m=>{ if(m&&m.ts) act[m.ts]=1; });
+      const b=await loadBundle(); act=Object.assign({},b.active||{}); (b.mistakes||[]).forEach(m=>{ if(m&&m.ts&&m.ts<'2026-10-25') act[m.ts]=1; });
       if(b.selfplan){ plan=norm(b.selfplan); render(); $("status").textContent=""; }
       else { plan=seed(); render(); await mutate(()=>{}, "اتجهّزت خطتك ✓"); }   // first visit: seed default plan
     }catch(e){ $("status").textContent="خطأ تحميل: "+(e.code||e.message); }

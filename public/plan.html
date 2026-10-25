@@ -166,7 +166,7 @@
     try{
       const b=await loadBundle(); const sp=b.selfplan?norm(b.selfplan):seed(); fn(sp); b.selfplan=sp;
       if(markAct){ b.active=b.active||{}; b.active[today()]=1; }
-      act=b.active||{};
+      act=Object.assign({},b.active||{}); (b.mistakes||[]).forEach(m=>{ if(m&&m.ts) act[m.ts]=1; });
       await setDoc(doc(db,"boards",board),{bundle:b,at:Date.now()},{merge:true});
       plan=sp; render(); flash(msg||"اتحفظ ✓");
     }catch(e){ $("status").textContent="فشل الحفظ: "+(e.code||e.message); }
@@ -267,7 +267,7 @@
     board=boardOverride||user.email.toLowerCase();
     if(boardOverride&&boardOverride!==user.email.toLowerCase()) $("hTitle").textContent="خطة الطالب: "+boardOverride;
     try{
-      const b=await loadBundle(); act=b.active||{};
+      const b=await loadBundle(); act=Object.assign({},b.active||{}); (b.mistakes||[]).forEach(m=>{ if(m&&m.ts) act[m.ts]=1; });
       if(b.selfplan){ plan=norm(b.selfplan); render(); $("status").textContent=""; }
       else { plan=seed(); render(); await mutate(()=>{}, "اتجهّزت خطتك ✓"); }   // first visit: seed default plan
     }catch(e){ $("status").textContent="خطأ تحميل: "+(e.code||e.message); }

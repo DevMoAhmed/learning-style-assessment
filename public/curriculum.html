@@ -952,7 +952,7 @@
   function activeOn(key){
     const h=(logData[key]&&logData[key].h>0);
     const hb=(habitsDone[key]&&habitsDone[key].length>0);
-    return h||hb||!!actDays[key];
+    return h||hb||!!actDays[key]||mistakes.some(m=>m&&m.ts===key);
   }
   function streak(){
     let s=0; const d=new Date();
